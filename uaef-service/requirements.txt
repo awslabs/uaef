@@ -1,0 +1,22 @@
+# UAEF Service — dependencies for the LOCAL CDK deploy environment.
+#
+# This is what you install into the venv used to run `cdk synth` / `cdk deploy`.
+# It deliberately does NOT install `uaef` itself: the Worker Lambda installs the
+# pinned library *inside its own build* (container image or zip bundling) from
+# ./wheels (registry-free) or your configured package index. Installing the
+# full-capability `uaef` into this host venv is unnecessary for CDK and would
+# pull every heavy backend (and fail to resolve when not published to an index).
+#
+# Single Source of Truth (Requirements 2.1, 2.2): the Worker's pinned library
+# spec lives in infra/constants.py (UAEF_PINNED_DEPENDENCY = "uaef[server]==0.2.0"),
+# which the bundling step references. Bump it there on a library release. The
+# service tree contains NO vendored UAEF source.
+
+# --- CDK deploy tooling ---
+aws-cdk-lib>=2.140.0,<3.0.0
+constructs>=10.0.0,<11.0.0
+PyYAML>=6.0,<7.0
+
+# --- Imported by the Lambda handlers at runtime; handy for local checks too ---
+pydantic>=2.0
+boto3>=1.34

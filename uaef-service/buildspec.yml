@@ -1,0 +1,63 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+      nodejs: 18
+    commands:
+      - npm install -g aws-cdk@2
+      - python3 -m pip install --upgrade pip
+      - python3 -m pip install -r requirements.txt
+  pre_build:
+    commands:
+      - pip install ./wheels/uaef-*.whl 2>/dev/null || echo "WARN uaef wheel install failed"
+      - python3 scripts/generate_catalog.py || echo "WARN catalog generation failed"
+      - |
+        if [ -f ui/app/package.json ]; then
+          echo "Building deployed UI (Vite)..."
+          (cd ui/app && npm ci && npm run build)
+        else
+          echo "No ui/app — skipping UI build."
+        fi
+  build:
+    commands:
+      - echo "Deploying UaefServiceStack from CodeBuild in ${AWS_REGION}..."
+      - echo "CDK_CONTEXT=${CDK_CONTEXT}"
+      - |
+        if [ -z "${CDK_CONTEXT}" ]; then
+          echo "ERROR: CDK_CONTEXT env var is not set for this CodeBuild run."
+          echo ""
+          echo "This project must be started via uaef-service/scripts/cloud_deploy.sh,"
+          echo "which reads config.yaml and passes the full CDK context (including the"
+          echo "required api_cors_allowed_origins, security review M-01) as a"
+          echo "--environment-variables-override on start-build. That override is not"
+          echo "saved on the CodeBuild project, so starting/retrying the build directly"
+          echo "from the CodeBuild console skips it."
+          echo ""
+          echo "Run: cd uaef-service && ./scripts/cloud_deploy.sh"
+          exit 1
+        fi
+      - |
+        # Ensure the target environment is CDK-bootstrapped before deploying.
+        # `cdk bootstrap` still shells out to the app entry point declared in
+        # cdk.json ("python3 app.py") to build a cloud assembly even though an
+        # explicit aws://account/region is given, so it needs the same ${CDK_CONTEXT}
+        # as the deploy below. Without it, app.py synthesizes with no context and
+        # StorageStack/ApiStack raise their required api_cors_allowed_origins
+        # ValueError here, before cdk deploy (and its correct context) ever runs.
+        ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+        echo "Ensuring CDK bootstrap for aws://${ACCOUNT_ID}/${AWS_REGION} ..."
+        cdk bootstrap ${CDK_CONTEXT} "aws://${ACCOUNT_ID}/${AWS_REGION}" --require-approval never 2>&1
+      - |
+        # Single deploy: the deployed UI's CloudFront origin is resolved inside
+        # the CDK app (UiStack -> API/payload-bucket CORS as a CloudFormation
+        # reference), so CORS is locked to the real origin in this one pass —
+        # no wildcard bootstrap and no second "redeploy with the real origin"
+        # pass. See infra/cors.py and infra/config_stack.py.
+        echo "Running cdk deploy ${CDK_CONTEXT} --require-approval never --outputs-file outputs.json"
+        cdk deploy ${CDK_CONTEXT} --require-approval never --outputs-file outputs.json --verbose 2>&1
+  post_build:
+    commands:
+      - echo "==== UAEF Service Outputs ===="
+      - cat outputs.json 2>/dev/null || echo "(no outputs.json — deploy likely failed)"

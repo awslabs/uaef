@@ -1,0 +1,139 @@
+# UAEF Service deployment configuration.
+# Edit this file to change resource naming, deploy suffix, and UI settings.
+# This is loaded by infra/constants.py at import time and by cloud_deploy.sh.
+
+# --------------------------------------------------------------------------- #
+# IMPORTANT: Define your own unique deploy suffix 
+# --------------------------------------------------------------------------- #
+# THIS IS REQUIRED — replace this. Use your alias plus a number, e.g. "jdoe-01"
+# (lowercase letters, digits and hyphens only).
+# It is appended to every resource name, and two of those are S3 buckets whose
+# names must be unique across all of AWS — so a shared or default value cannot
+# work for more than one person. cloud_deploy.sh refuses to run until this is
+# changed.
+
+deploy_suffix: "youralias-01"
+# --------------------------------------------------------------------------- #
+# PICK Deployed Region
+# --------------------------------------------------------------------------- #
+# One of us-east-1, us-east-2 or us-west-2. Whichever you pick must have the
+# Amazon Bedrock models the evaluation uses already enabled.
+
+deploy_region: "us-east-1"
+
+# --------------------------------------------------------------------------- #
+# PICK Deployment mode
+# --------------------------------------------------------------------------- #
+# "with_ui"  — Deploy UAEF with its built-in UI (CDK: API Gateway + Lambda +
+#              S3/CloudFront UI). Uses CodeBuild for remote deploy.
+# "with_eks" — Containerize UAEF logic and deploy to EKS. Connect your own UI.
+#              Uses Docker + Helm for deployment.
+
+deploy_mode: "with_ui"
+
+
+# --------------------------------------------------------------------------- #
+# CORS configuration
+# --------------------------------------------------------------------------- #
+# with_ui: LEAVE THIS BLANK. The deployed UI's CloudFront origin is resolved
+# inside the CDK app (UiStack hands it to the API and payload-bucket CORS rules
+# as a CloudFormation reference), so a single deploy locks CORS to the real
+# origin — first deploy and redeploy alike, with no wildcard at any point.
+#
+# Set a value here only to allow EXTRA origins alongside the deployed UI, for
+# example a local dev server:
+#   cors_allowed_origins: "http://localhost:5173"
+# Extras are merged with the derived CloudFront origin, never replace it. A
+# stale wildcard left here is discarded because the real origin is derived.
+#
+# with_eks: REQUIRED. That mode deploys no CloudFront distribution, so there is
+# nothing to derive from, and the payload S3 bucket's CORS rules still need an
+# origin. Set it to whatever client calls the API:
+#   cors_allowed_origins: "https://your-client.example.com"
+#
+# Never put a made-up domain here. Any non-empty, non-wildcard value passes
+# validation, so a placeholder deploys *successfully* and then the UI is
+# silently broken — every API call is blocked by the browser (the Agent
+# Framework dropdown stays empty, the Experiments tab reports "Failed to
+# fetch"). Blank is safe; a fake origin is not.
+cors_allowed_origins: ""
+# Only consulted for an origin you set yourself (with_eks / no-UI). with_ui
+# derives the real origin and never needs a wildcard, so this stays false there.
+acknowledge_insecure_cors: false
+
+
+# --------------------------------------------------------------------------- #
+# Auth configuration
+# --------------------------------------------------------------------------- #
+# auth_mode: "new" — create a fresh Cognito User Pool (default)
+# auth_mode: "existing" — import an external pool (fill in the fields below)
+auth:
+  # mode = "new" or "existing"
+  mode: "new"
+  # List the Cognito User Pool ID below to import.
+  existing_user_pool_id: "" # leave blank if auth mode: "new"
+  # ARN of the existing Cognito user pool.
+  existing_user_pool_arn: "" # leave blank if auth mode: "new"
+  # Existing Cognito app client ID.
+  existing_app_client_id: "" # leave blank if auth mode: "new"
+  # Cognito domain URL e.g.https://my-domain.auth.us-east-1.amazoncognito.com
+  existing_cognito_domain: ""  
+
+
+# UAEF versioning
+uaef:
+  version: "0.2.0"
+  extra: "server"
+
+# --------------------------------------------------------------------------- #
+# UI deployment
+# --------------------------------------------------------------------------- #
+# Set deploy to true to deploy the static React UI (S3 + CloudFront).
+# The UI source is uaef-service/ui/app — built by buildspec.yml during the
+# CodeBuild deploy. It is not configurable here, and it is NOT demo/frontend
+# (that is the separate local-only demo app).
+ui:
+  deploy: true
+
+# --------------------------------------------------------------------------- #
+# Resource naming prefixes (which will be combined with deploy_suffix)
+# --------------------------------------------------------------------------- #
+naming:
+  app_prefix: "uaef-service"
+  jobs_table_prefix: "uaef-service-jobs"
+  payload_bucket_prefix: "uaef-service-payloads"
+  experiment_table_prefix: "uaef-experiments"
+  results_bucket_prefix: "uaef-results"
+  user_pool_prefix: "uaef-service-user-pool"
+  user_pool_client_prefix: "uaef-service-app-client"
+  ui_domain_prefix: "uaef-service-login"
+
+# --------------------------------------------------------------------------- #
+# EKS deployment settings (used only when deploy_mode: "with_eks")
+# --------------------------------------------------------------------------- #
+eks:
+  cluster_name: ""            # EKS cluster name (required)
+  create_cluster: true
+  namespace: "default"        # Kubernetes namespace
+  replica_count: 2            # Number of pod replicas
+  ecr_repo_prefix: "uaef-service-eks"  # Combined with deploy_suffix for ECR repo name
+  helm_release_prefix: "uaef-service"  # Combined with deploy_suffix for Helm release name
+  image_tag: "latest"
+  # Platforms to build for. Options: "linux/amd64", "linux/arm64", or "linux/amd64,linux/arm64"
+  platforms: "linux/amd64,linux/arm64"
+  # Ingress (set enabled: true to create an ALB ingress)
+  ingress:
+    enabled: false
+    class_name: "alb"
+    host: ""
+  # Resource limits
+  resources:
+    cpu_request: "500m"
+    memory_request: "1Gi"
+    cpu_limit: "2000m"
+    memory_limit: "4Gi"
+  # IRSA role ARN (optional; leave blank to use node role)
+  service_account_role_arn: ""
+  # Auto-populated after deployment (do not edit manually)
+  ecr_repository: ""
+  service_endpoint: ""

@@ -1,0 +1,231 @@
+{
+  "test_cases": [
+    {
+      "name": "perfectly_accurate",
+      "description": "Answer matches reference exactly",
+      "scenario_type": "accurate",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What is 25% of 80?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "25% of 80 is 20.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "20"
+      }
+    },
+    {
+      "name": "semantically_correct",
+      "description": "Answer correct in meaning, different wording",
+      "scenario_type": "accurate",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Who wrote Hamlet?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Hamlet was written by William Shakespeare.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "William Shakespeare"
+      }
+    },
+    {
+      "name": "completely_wrong",
+      "description": "Answer is factually incorrect",
+      "scenario_type": "inaccurate",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What is 10 * 5?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "10 * 5 = 15", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "50"
+      }
+    },
+    {
+      "name": "partially_correct",
+      "description": "Answer has some correct and some wrong elements",
+      "scenario_type": "partial",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Name primary colors", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "The primary colors are red, blue, and green.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "red, blue, yellow"
+      }
+    },
+    {
+      "name": "order_different",
+      "description": "Correct items but different order",
+      "scenario_type": "accurate",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "List first three planets", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "The first three planets from the sun are Mercury, Venus, and Earth.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Mercury, Venus, Earth"
+      }
+    },
+    {
+      "name": "missing_units",
+      "description": "Correct number but missing units",
+      "scenario_type": "partial",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "How tall is Mount Everest?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Mount Everest is 8849 tall.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "8849 meters"
+      }
+    },
+    {
+      "name": "no_reference_answer",
+      "description": "Edge case: null reference answer in ground truth - returns None (invalid_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": null
+      }
+    },
+    {
+      "name": "no_question",
+      "description": "Edge case: no user message in trace - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Expected"
+      }
+    },
+    {
+      "name": "vague_but_correct",
+      "description": "Vague answer but technically correct",
+      "scenario_type": "partial",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "How do I install Python?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Download it from python.org and run the installer.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Visit python.org/downloads, download the installer for your operating system, run the installer, follow the setup wizard, verify installation with 'python --version'"
+      }
+    },
+    {
+      "name": "detailed_accurate",
+      "description": "Detailed and accurate answer",
+      "scenario_type": "accurate",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What is REST API?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "REST API is an architectural style for web services that uses HTTP methods (GET, POST, PUT, DELETE) to interact with resources identified by URLs.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "REST API uses HTTP methods to interact with resources via URLs"
+      }
+    },
+    {
+      "name": "no_response",
+      "description": "Edge case: no assistant message in trace - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What is 2+2?", "timestamp": "2024-04-15T10:00:00Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "4"
+      }
+    },
+    {
+      "name": "empty_question",
+      "description": "Edge case: user question is empty string - returns None (invalid_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Here is my answer.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Expected answer"
+      }
+    },
+    {
+      "name": "empty_response",
+      "description": "Edge case: assistant response is empty string - returns 0.0 (invalid_data)",
+      "scenario_type": "edge_case",
+      "expected_score": 0.0,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What is 2+2?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "4"
+      }
+    },
+    {
+      "name": "empty_reference",
+      "description": "Edge case: reference answer is empty string - returns None (invalid_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What is 2+2?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "4", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": ""
+      }
+    },
+    {
+      "name": "no_ground_truth",
+      "description": "Edge case: no ground truth provided - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What is 2+2?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "4", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    }
+  ]
+}

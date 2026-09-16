@@ -1,0 +1,391 @@
+{
+  "test_cases": [
+    {
+      "name": "appropriate_delegation",
+      "description": "Orchestrator correctly delegates research to research agent and summarization to summary agent",
+      "scenario_type": "good_delegation",
+      "multi_agent_trace": {
+        "workflow_id": "del_001",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "orchestrator": {
+            "messages": [
+              {"role": "user", "content": "Find recent papers on transformer architectures and summarize the key findings", "timestamp": "2024-04-15T10:00:00Z"},
+              {"role": "assistant", "content": "I'll coordinate this. Delegating literature search to the research agent and then summarization to the summary agent.", "timestamp": "2024-04-15T10:00:01Z"}
+            ],
+            "tool_calls": [
+              {"name": "plan_workflow", "arguments": {"steps": ["research", "summarize"]}, "timestamp": "2024-04-15T10:00:01Z"}
+            ]
+          },
+          "research_agent": {
+            "messages": [
+              {"role": "user", "content": "Search for recent papers on transformer architectures published in 2024", "timestamp": "2024-04-15T10:00:02Z"},
+              {"role": "assistant", "content": "Found 12 relevant papers. Top results include 'Efficient Attention Mechanisms' and 'Scaling Laws Revisited'.", "timestamp": "2024-04-15T10:00:10Z"}
+            ],
+            "tool_calls": [
+              {"name": "search_arxiv", "arguments": {"query": "transformer architectures 2024"}, "timestamp": "2024-04-15T10:00:03Z"},
+              {"name": "fetch_paper_metadata", "arguments": {"paper_ids": ["2401.001", "2401.002"]}, "timestamp": "2024-04-15T10:00:06Z"},
+              {"name": "extract_abstracts", "arguments": {"paper_ids": ["2401.001", "2401.002"]}, "timestamp": "2024-04-15T10:00:08Z"}
+            ]
+          },
+          "summary_agent": {
+            "messages": [
+              {"role": "user", "content": "Summarize the key findings from these transformer architecture papers", "timestamp": "2024-04-15T10:00:11Z"},
+              {"role": "assistant", "content": "Key findings: 1) Linear attention reduces complexity to O(n). 2) Scaling laws show diminishing returns past 100B params.", "timestamp": "2024-04-15T10:00:15Z"}
+            ],
+            "tool_calls": [
+              {"name": "generate_summary", "arguments": {"style": "bullet_points"}, "timestamp": "2024-04-15T10:00:12Z"},
+              {"name": "format_output", "arguments": {"format": "markdown"}, "timestamp": "2024-04-15T10:00:14Z"}
+            ]
+          }
+        },
+        "coordination_events": [
+          {"from_agent": "orchestrator", "to_agent": "research_agent", "event_type": "DELEGATE", "message": "Search for recent papers on transformer architectures published in 2024 and extract abstracts", "timestamp": "2024-04-15T10:00:02Z"},
+          {"from_agent": "research_agent", "to_agent": "orchestrator", "event_type": "REPORT", "message": "Found 12 papers, extracted abstracts for top 2", "timestamp": "2024-04-15T10:00:10Z"},
+          {"from_agent": "orchestrator", "to_agent": "summary_agent", "event_type": "DELEGATE", "message": "Summarize key findings from the extracted paper abstracts", "timestamp": "2024-04-15T10:00:11Z"}
+        ]
+      }
+    },
+    {
+      "name": "poor_delegation_wrong_agent",
+      "description": "Math computation delegated to a text-generation agent instead of the calculator agent",
+      "scenario_type": "bad_delegation",
+      "multi_agent_trace": {
+        "workflow_id": "del_002",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "orchestrator": {
+            "messages": [
+              {"role": "user", "content": "Calculate the compound interest on $10,000 at 5% over 10 years", "timestamp": "2024-04-15T10:00:00Z"},
+              {"role": "assistant", "content": "I'll have the text generation agent handle this calculation.", "timestamp": "2024-04-15T10:00:01Z"}
+            ],
+            "tool_calls": []
+          },
+          "text_generation_agent": {
+            "messages": [
+              {"role": "user", "content": "Calculate compound interest: principal=$10000, rate=5%, years=10", "timestamp": "2024-04-15T10:00:02Z"},
+              {"role": "assistant", "content": "The compound interest would be approximately $6,289. The total amount is $16,289.", "timestamp": "2024-04-15T10:00:04Z"}
+            ],
+            "tool_calls": [
+              {"name": "generate_text", "arguments": {"prompt": "calculate compound interest"}, "timestamp": "2024-04-15T10:00:03Z"}
+            ]
+          },
+          "calculator_agent": {
+            "messages": [],
+            "tool_calls": []
+          }
+        },
+        "coordination_events": [
+          {"from_agent": "orchestrator", "to_agent": "text_generation_agent", "event_type": "DELEGATE", "message": "Calculate compound interest on $10,000 at 5% for 10 years", "timestamp": "2024-04-15T10:00:02Z"}
+        ]
+      }
+    },
+    {
+      "name": "no_delegation",
+      "description": "Single agent works alone with no coordination events",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "multi_agent_trace": {
+        "workflow_id": "del_003",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "solo_agent": {
+            "messages": [
+              {"role": "user", "content": "What is the capital of France?", "timestamp": "2024-04-15T10:00:00Z"},
+              {"role": "assistant", "content": "The capital of France is Paris.", "timestamp": "2024-04-15T10:00:01Z"}
+            ],
+            "tool_calls": [
+              {"name": "knowledge_lookup", "arguments": {"query": "capital of France"}, "timestamp": "2024-04-15T10:00:01Z"}
+            ]
+          }
+        },
+        "coordination_events": []
+      }
+    },
+    {
+      "name": "clear_delegation_data_pipeline",
+      "description": "Clear delegation with specific instructions for each stage of a data pipeline",
+      "scenario_type": "good_delegation",
+      "multi_agent_trace": {
+        "workflow_id": "del_004",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "pipeline_manager": {
+            "messages": [
+              {"role": "user", "content": "Ingest the sales CSV from S3, clean it, and load into the warehouse", "timestamp": "2024-04-15T10:00:00Z"},
+              {"role": "assistant", "content": "Starting the ETL pipeline. Delegating ingestion to the data agent and transformation to the cleaning agent.", "timestamp": "2024-04-15T10:00:01Z"}
+            ],
+            "tool_calls": [
+              {"name": "create_pipeline_plan", "arguments": {"stages": ["ingest", "clean", "load"]}, "timestamp": "2024-04-15T10:00:01Z"}
+            ]
+          },
+          "data_ingestion_agent": {
+            "messages": [
+              {"role": "user", "content": "Download sales_2024_q1.csv from s3://data-lake/raw/", "timestamp": "2024-04-15T10:00:02Z"},
+              {"role": "assistant", "content": "Downloaded sales_2024_q1.csv (45,230 rows, 12 columns).", "timestamp": "2024-04-15T10:00:05Z"}
+            ],
+            "tool_calls": [
+              {"name": "s3_download", "arguments": {"bucket": "data-lake", "key": "raw/sales_2024_q1.csv"}, "timestamp": "2024-04-15T10:00:03Z"},
+              {"name": "validate_schema", "arguments": {"expected_columns": 12}, "timestamp": "2024-04-15T10:00:04Z"}
+            ]
+          },
+          "data_cleaning_agent": {
+            "messages": [
+              {"role": "user", "content": "Clean the ingested sales data: remove duplicates, fix date formats, handle nulls", "timestamp": "2024-04-15T10:00:06Z"},
+              {"role": "assistant", "content": "Cleaned data: removed 123 duplicates, fixed 45 date formats, imputed 8 null values. 45,107 rows remaining.", "timestamp": "2024-04-15T10:00:10Z"}
+            ],
+            "tool_calls": [
+              {"name": "remove_duplicates", "arguments": {"key_columns": ["order_id"]}, "timestamp": "2024-04-15T10:00:07Z"},
+              {"name": "fix_date_format", "arguments": {"column": "order_date", "target_format": "ISO8601"}, "timestamp": "2024-04-15T10:00:08Z"},
+              {"name": "impute_nulls", "arguments": {"strategy": "median", "columns": ["quantity"]}, "timestamp": "2024-04-15T10:00:09Z"}
+            ]
+          }
+        },
+        "coordination_events": [
+          {"from_agent": "pipeline_manager", "to_agent": "data_ingestion_agent", "event_type": "DELEGATE", "message": "Download sales_2024_q1.csv from s3://data-lake/raw/ and validate the schema has 12 columns", "timestamp": "2024-04-15T10:00:02Z"},
+          {"from_agent": "data_ingestion_agent", "to_agent": "pipeline_manager", "event_type": "REPORT", "message": "Ingestion complete: 45,230 rows, schema validated", "timestamp": "2024-04-15T10:00:05Z"},
+          {"from_agent": "pipeline_manager", "to_agent": "data_cleaning_agent", "event_type": "DELEGATE", "message": "Clean the ingested data: deduplicate on order_id, standardize order_date to ISO8601, impute null quantities with median", "timestamp": "2024-04-15T10:00:06Z"}
+        ]
+      }
+    },
+    {
+      "name": "vague_delegation",
+      "description": "Manager gives unclear instructions with no specifics, worker has to guess",
+      "scenario_type": "bad_delegation",
+      "multi_agent_trace": {
+        "workflow_id": "del_005",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "manager_agent": {
+            "messages": [
+              {"role": "user", "content": "We need to fix the customer issue", "timestamp": "2024-04-15T10:00:00Z"},
+              {"role": "assistant", "content": "I'll pass this to the support agent.", "timestamp": "2024-04-15T10:00:01Z"}
+            ],
+            "tool_calls": []
+          },
+          "support_agent": {
+            "messages": [
+              {"role": "user", "content": "Handle the thing", "timestamp": "2024-04-15T10:00:02Z"},
+              {"role": "assistant", "content": "I'm not sure what specific issue to address. Looking up recent tickets.", "timestamp": "2024-04-15T10:00:04Z"}
+            ],
+            "tool_calls": [
+              {"name": "search_tickets", "arguments": {"query": "recent customer issues"}, "timestamp": "2024-04-15T10:00:03Z"},
+              {"name": "get_ticket_details", "arguments": {"ticket_id": "TICK-9921"}, "timestamp": "2024-04-15T10:00:04Z"}
+            ]
+          }
+        },
+        "coordination_events": [
+          {"from_agent": "manager_agent", "to_agent": "support_agent", "event_type": "DELEGATE", "message": "Handle the thing", "timestamp": "2024-04-15T10:00:02Z"}
+        ]
+      }
+    },
+    {
+      "name": "efficient_code_review_pipeline",
+      "description": "Efficient two-agent handoff: linter runs first, then reviewer gets clean results",
+      "scenario_type": "good_delegation",
+      "multi_agent_trace": {
+        "workflow_id": "del_006",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "linter_agent": {
+            "messages": [
+              {"role": "user", "content": "Run static analysis on the PR diff for repository backend-api, PR #482", "timestamp": "2024-04-15T10:00:00Z"},
+              {"role": "assistant", "content": "Static analysis complete. Found 3 warnings: unused import on line 12, missing type hint on line 45, line too long on line 78.", "timestamp": "2024-04-15T10:00:08Z"}
+            ],
+            "tool_calls": [
+              {"name": "fetch_pr_diff", "arguments": {"repo": "backend-api", "pr": 482}, "timestamp": "2024-04-15T10:00:01Z"},
+              {"name": "run_pylint", "arguments": {"files": ["src/handlers/auth.py"]}, "timestamp": "2024-04-15T10:00:03Z"},
+              {"name": "run_mypy", "arguments": {"files": ["src/handlers/auth.py"]}, "timestamp": "2024-04-15T10:00:05Z"},
+              {"name": "run_black_check", "arguments": {"files": ["src/handlers/auth.py"]}, "timestamp": "2024-04-15T10:00:07Z"}
+            ]
+          },
+          "reviewer_agent": {
+            "messages": [
+              {"role": "user", "content": "Review the PR diff and lint results for backend-api PR #482", "timestamp": "2024-04-15T10:00:09Z"},
+              {"role": "assistant", "content": "Review complete. The auth handler changes look correct. Recommend fixing the 3 lint warnings before merge. No security concerns found.", "timestamp": "2024-04-15T10:00:15Z"}
+            ],
+            "tool_calls": [
+              {"name": "analyze_code_changes", "arguments": {"repo": "backend-api", "pr": 482}, "timestamp": "2024-04-15T10:00:10Z"},
+              {"name": "check_security_patterns", "arguments": {"files": ["src/handlers/auth.py"]}, "timestamp": "2024-04-15T10:00:12Z"},
+              {"name": "post_review_comment", "arguments": {"pr": 482, "status": "approve_with_suggestions"}, "timestamp": "2024-04-15T10:00:14Z"}
+            ]
+          }
+        },
+        "coordination_events": [
+          {"from_agent": "linter_agent", "to_agent": "reviewer_agent", "event_type": "HANDOFF", "message": "Lint results for PR #482: 3 warnings (unused import, missing type hint, line length). No errors.", "timestamp": "2024-04-15T10:00:09Z"}
+        ]
+      }
+    },
+    {
+      "name": "excessive_handoffs_ping_pong",
+      "description": "Agents keep bouncing a simple task back and forth instead of completing it",
+      "scenario_type": "bad_delegation",
+      "multi_agent_trace": {
+        "workflow_id": "del_007",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "agent_alpha": {
+            "messages": [
+              {"role": "user", "content": "Send a welcome email to new user john@example.com", "timestamp": "2024-04-15T10:00:00Z"},
+              {"role": "assistant", "content": "I'll draft the email content.", "timestamp": "2024-04-15T10:00:01Z"},
+              {"role": "user", "content": "The template needs a subject line too", "timestamp": "2024-04-15T10:00:06Z"},
+              {"role": "assistant", "content": "Adding subject line now.", "timestamp": "2024-04-15T10:00:07Z"}
+            ],
+            "tool_calls": [
+              {"name": "draft_email", "arguments": {"template": "welcome"}, "timestamp": "2024-04-15T10:00:01Z"},
+              {"name": "add_subject_line", "arguments": {"subject": "Welcome aboard!"}, "timestamp": "2024-04-15T10:00:07Z"}
+            ]
+          },
+          "agent_beta": {
+            "messages": [
+              {"role": "user", "content": "Format the email for sending", "timestamp": "2024-04-15T10:00:03Z"},
+              {"role": "assistant", "content": "Formatted, but missing subject line. Sending back.", "timestamp": "2024-04-15T10:00:04Z"},
+              {"role": "user", "content": "Now send the final email", "timestamp": "2024-04-15T10:00:09Z"},
+              {"role": "assistant", "content": "Email sent to john@example.com.", "timestamp": "2024-04-15T10:00:10Z"}
+            ],
+            "tool_calls": [
+              {"name": "format_html_email", "arguments": {"recipient": "john@example.com"}, "timestamp": "2024-04-15T10:00:03Z"},
+              {"name": "send_email", "arguments": {"to": "john@example.com"}, "timestamp": "2024-04-15T10:00:10Z"}
+            ]
+          },
+          "agent_gamma": {
+            "messages": [
+              {"role": "user", "content": "Validate the email address", "timestamp": "2024-04-15T10:00:05Z"},
+              {"role": "assistant", "content": "Email is valid.", "timestamp": "2024-04-15T10:00:05Z"}
+            ],
+            "tool_calls": [
+              {"name": "validate_email", "arguments": {"email": "john@example.com"}, "timestamp": "2024-04-15T10:00:05Z"}
+            ]
+          }
+        },
+        "coordination_events": [
+          {"from_agent": "agent_alpha", "to_agent": "agent_beta", "event_type": "HANDOFF", "message": "Draft ready, please format", "timestamp": "2024-04-15T10:00:02Z"},
+          {"from_agent": "agent_beta", "to_agent": "agent_gamma", "event_type": "DELEGATE", "message": "Validate the recipient email", "timestamp": "2024-04-15T10:00:04Z"},
+          {"from_agent": "agent_beta", "to_agent": "agent_alpha", "event_type": "HANDOFF", "message": "Missing subject line, please add one", "timestamp": "2024-04-15T10:00:05Z"},
+          {"from_agent": "agent_gamma", "to_agent": "agent_beta", "event_type": "REPORT", "message": "Email validated", "timestamp": "2024-04-15T10:00:06Z"},
+          {"from_agent": "agent_alpha", "to_agent": "agent_beta", "event_type": "HANDOFF", "message": "Subject added, please send now", "timestamp": "2024-04-15T10:00:08Z"}
+        ]
+      }
+    },
+    {
+      "name": "parallel_independent_tasks",
+      "description": "Three agents work independently on separate subtasks with no coordination needed",
+      "scenario_type": "good_delegation",
+      "expected_score": null,
+      "multi_agent_trace": {
+        "workflow_id": "del_008",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "image_agent": {
+            "messages": [
+              {"role": "user", "content": "Generate a hero banner image for the product launch page", "timestamp": "2024-04-15T10:00:00Z"},
+              {"role": "assistant", "content": "Generated hero banner: 1920x600px, product-focused composition with gradient background.", "timestamp": "2024-04-15T10:00:05Z"}
+            ],
+            "tool_calls": [
+              {"name": "generate_image", "arguments": {"prompt": "product launch hero banner", "size": "1920x600"}, "timestamp": "2024-04-15T10:00:01Z"},
+              {"name": "optimize_image", "arguments": {"format": "webp", "quality": 85}, "timestamp": "2024-04-15T10:00:03Z"},
+              {"name": "upload_to_cdn", "arguments": {"path": "/assets/hero-banner.webp"}, "timestamp": "2024-04-15T10:00:04Z"}
+            ]
+          },
+          "copy_agent": {
+            "messages": [
+              {"role": "user", "content": "Write marketing copy for the product launch page", "timestamp": "2024-04-15T10:00:00Z"},
+              {"role": "assistant", "content": "Copy ready: headline, subheadline, 3 feature bullets, and CTA.", "timestamp": "2024-04-15T10:00:04Z"}
+            ],
+            "tool_calls": [
+              {"name": "generate_headline", "arguments": {"tone": "exciting", "product": "CloudSync Pro"}, "timestamp": "2024-04-15T10:00:01Z"},
+              {"name": "generate_body_copy", "arguments": {"sections": ["features", "benefits", "cta"]}, "timestamp": "2024-04-15T10:00:02Z"},
+              {"name": "check_grammar", "arguments": {}, "timestamp": "2024-04-15T10:00:03Z"}
+            ]
+          },
+          "seo_agent": {
+            "messages": [
+              {"role": "user", "content": "Optimize the product launch page metadata for SEO", "timestamp": "2024-04-15T10:00:00Z"},
+              {"role": "assistant", "content": "SEO metadata ready: title tag, meta description, Open Graph tags, and structured data.", "timestamp": "2024-04-15T10:00:04Z"}
+            ],
+            "tool_calls": [
+              {"name": "keyword_research", "arguments": {"seed": "cloud sync software"}, "timestamp": "2024-04-15T10:00:01Z"},
+              {"name": "generate_meta_tags", "arguments": {"primary_keyword": "cloud sync"}, "timestamp": "2024-04-15T10:00:02Z"},
+              {"name": "generate_structured_data", "arguments": {"type": "Product"}, "timestamp": "2024-04-15T10:00:03Z"}
+            ]
+          }
+        },
+        "coordination_events": []
+      }
+    },
+    {
+      "name": "hierarchical_delegation_chain",
+      "description": "Lead agent delegates to specialist who further delegates a subtask appropriately",
+      "scenario_type": "good_delegation",
+      "multi_agent_trace": {
+        "workflow_id": "del_009",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "project_lead": {
+            "messages": [
+              {"role": "user", "content": "Deploy the new authentication service to staging and run integration tests", "timestamp": "2024-04-15T10:00:00Z"},
+              {"role": "assistant", "content": "Delegating deployment to the DevOps agent.", "timestamp": "2024-04-15T10:00:01Z"}
+            ],
+            "tool_calls": [
+              {"name": "check_deployment_readiness", "arguments": {"service": "auth-service", "env": "staging"}, "timestamp": "2024-04-15T10:00:01Z"}
+            ]
+          },
+          "devops_agent": {
+            "messages": [
+              {"role": "user", "content": "Deploy auth-service v2.3.1 to staging environment", "timestamp": "2024-04-15T10:00:02Z"},
+              {"role": "assistant", "content": "Deployed auth-service v2.3.1 to staging. Health checks passing. Handing off to QA for integration tests.", "timestamp": "2024-04-15T10:00:08Z"}
+            ],
+            "tool_calls": [
+              {"name": "pull_docker_image", "arguments": {"image": "auth-service:v2.3.1"}, "timestamp": "2024-04-15T10:00:03Z"},
+              {"name": "deploy_to_ecs", "arguments": {"cluster": "staging", "service": "auth-service"}, "timestamp": "2024-04-15T10:00:05Z"},
+              {"name": "wait_for_healthy", "arguments": {"service": "auth-service", "timeout": 120}, "timestamp": "2024-04-15T10:00:07Z"}
+            ]
+          },
+          "qa_agent": {
+            "messages": [
+              {"role": "user", "content": "Run integration test suite against auth-service on staging", "timestamp": "2024-04-15T10:00:09Z"},
+              {"role": "assistant", "content": "Integration tests complete: 47/48 passed, 1 skipped (flaky network test). No failures.", "timestamp": "2024-04-15T10:00:15Z"}
+            ],
+            "tool_calls": [
+              {"name": "run_test_suite", "arguments": {"suite": "auth-integration", "env": "staging"}, "timestamp": "2024-04-15T10:00:10Z"},
+              {"name": "collect_test_results", "arguments": {"run_id": "run-8834"}, "timestamp": "2024-04-15T10:00:13Z"},
+              {"name": "generate_test_report", "arguments": {"run_id": "run-8834"}, "timestamp": "2024-04-15T10:00:14Z"}
+            ]
+          }
+        },
+        "coordination_events": [
+          {"from_agent": "project_lead", "to_agent": "devops_agent", "event_type": "DELEGATE", "message": "Deploy auth-service v2.3.1 to staging ECS cluster and confirm health checks pass", "timestamp": "2024-04-15T10:00:02Z"},
+          {"from_agent": "devops_agent", "to_agent": "qa_agent", "event_type": "DELEGATE", "message": "Deployment healthy on staging. Run the auth-integration test suite against the staging endpoint", "timestamp": "2024-04-15T10:00:09Z"},
+          {"from_agent": "qa_agent", "to_agent": "project_lead", "event_type": "REPORT", "message": "Integration tests passed: 47/48 pass, 1 skipped. No failures. Safe to promote.", "timestamp": "2024-04-15T10:00:15Z"}
+        ]
+      }
+    },
+    {
+      "name": "no_agents_edge",
+      "description": "Edge case: empty multi-agent trace with no agents or events",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "multi_agent_trace": {
+        "workflow_id": "del_010",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {},
+        "coordination_events": []
+      }
+    },
+    {
+      "name": "not_multi_agent_trace",
+      "description": "Edge case: regular single-agent trace instead of MultiAgentTrace",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What is the weather in Seattle?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "It is currently 58°F and cloudy in Seattle.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [
+          {"name": "get_weather", "arguments": {"city": "Seattle"}, "timestamp": "2024-04-15T10:00:01Z"}
+        ]
+      }
+    }
+  ]
+}

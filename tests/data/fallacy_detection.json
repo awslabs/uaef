@@ -1,0 +1,137 @@
+{
+  "test_cases": [
+    {
+      "name": "no_fallacies",
+      "description": "Sound logical reasoning without fallacies",
+      "scenario_type": "no_fallacy",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Why use version control?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Version control tracks code changes, enables collaboration, and allows reverting mistakes. These benefits improve team productivity and code quality.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "ad_hominem",
+      "description": "Attacks person instead of argument",
+      "scenario_type": "fallacy",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What about this approach?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "That approach is wrong because the person who suggested it is an idiot who doesn't know anything.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "strawman",
+      "description": "Misrepresents argument to attack it",
+      "scenario_type": "fallacy",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "We should add more tests", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "You want to waste all our time writing tests and never ship any features. That's a terrible idea.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "false_dichotomy",
+      "description": "Presents only two options when more exist",
+      "scenario_type": "fallacy",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What language should I learn?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "You either learn Python or you'll never succeed in programming. There are no other options.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "slippery_slope",
+      "description": "Assumes extreme consequences",
+      "scenario_type": "fallacy",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Should we allow remote work?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "If we allow remote work, people will never come to office, then they'll stop working entirely, the company will collapse, and everyone will lose their jobs.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "appeal_to_authority",
+      "description": "Claims something true because authority said so",
+      "scenario_type": "fallacy",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Is this approach good?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "This approach must be correct because a famous developer uses it. Their reputation proves it's the best way.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "hasty_generalization",
+      "description": "Draws conclusion from insufficient evidence",
+      "scenario_type": "fallacy",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Are electric cars reliable?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "My friend's electric car broke down, so all electric cars are unreliable.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "post_hoc",
+      "description": "Assumes causation from correlation",
+      "scenario_type": "fallacy",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Why did sales increase?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "We launched a new marketing campaign last week and sales went up this week, so the campaign definitely caused the sales increase.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "circular_reasoning",
+      "description": "Uses conclusion as premise",
+      "scenario_type": "fallacy",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Why is this the best?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "This is the best solution because it's superior to all alternatives. It's superior because it's the best option available.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "no_reasoning_edge",
+      "description": "Edge case: no assistant messages - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What's 2+2?", "timestamp": "2024-04-15T10:00:00Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "empty_response",
+      "description": "Edge case: empty assistant response - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Is this approach good?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    }
+  ]
+}

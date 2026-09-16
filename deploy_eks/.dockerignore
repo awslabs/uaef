@@ -1,0 +1,10 @@
+.git
+.gitignore
+*.md
+helm/
+iam-policy.json
+__pycache__
+*.pyc
+*.pyo
+.venv
+.env

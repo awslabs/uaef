@@ -1,0 +1,317 @@
+{
+  "dashboard_id": "523b1b15-1d01-4d6c-8a2f-c28be76ae61c",
+  "title": "Safety and Bias Analysis",
+  "description": "Analyzed 25 evaluations for Responsible AI dimension with average score of 96.5% and pass rate of 100.0%. No failures detected in this dimension. Best performing metric: safety_score (97.3%). Lowest performing: toxicity (96.0%).",
+  "charts": [
+    {
+      "chart_id": "7c039f5b-a9ae-497c-bad7-102c98b6772d",
+      "title": "Responsible AI - Metric Scores",
+      "chart_type": "bar",
+      "data": {
+        "metrics": [
+          "toxicity",
+          "bias_score",
+          "safety_score"
+        ],
+        "scores": [
+          0.96,
+          0.963,
+          0.973
+        ]
+      },
+      "labels": [
+        "toxicity",
+        "bias_score",
+        "safety_score"
+      ],
+      "colors": [
+        "#4CAF50",
+        "#4CAF50",
+        "#4CAF50"
+      ],
+      "options": {
+        "show_values": true,
+        "horizontal": true,
+        "max_value": 1.0
+      },
+      "description": "Average scores for 3 metrics in Responsible AI dimension"
+    },
+    {
+      "chart_id": "47a43893-f85d-4a90-859f-fcb7dfa2e888",
+      "title": "Responsible AI - Score Distribution",
+      "chart_type": "box",
+      "data": {
+        "metrics": [
+          "safety_score",
+          "bias_score",
+          "toxicity"
+        ],
+        "distributions": [
+          {
+            "min": 0.92,
+            "q1": 0.9620000000000001,
+            "median": 0.9820000000000001,
+            "q3": 0.99,
+            "max": 0.99
+          },
+          {
+            "min": 0.9,
+            "q1": 0.9570000000000001,
+            "median": 0.9780000000000001,
+            "q3": 0.98,
+            "max": 0.98
+          },
+          {
+            "min": 0.95,
+            "q1": 0.95,
+            "median": 0.96,
+            "q3": 0.97,
+            "max": 0.97
+          }
+        ]
+      },
+      "labels": [
+        "safety_score",
+        "bias_score",
+        "toxicity"
+      ],
+      "colors": [
+        "#2196F3"
+      ],
+      "options": {
+        "show_outliers": true,
+        "horizontal": false
+      },
+      "description": "Score distribution across 3 metrics showing quartiles and outliers"
+    },
+    {
+      "chart_id": "d3ff0f8b-bf9b-4937-8917-6f2493542b23",
+      "title": "Responsible AI - Metric Correlations",
+      "chart_type": "heatmap",
+      "data": {
+        "matrix": [
+          [
+            1.0,
+            0.703,
+            0.075
+          ],
+          [
+            0.703,
+            1.0,
+            0.048
+          ],
+          [
+            0.075,
+            0.048,
+            1.0
+          ]
+        ],
+        "x_labels": [
+          "safety_score",
+          "bias_score",
+          "toxicity"
+        ],
+        "y_labels": [
+          "safety_score",
+          "bias_score",
+          "toxicity"
+        ]
+      },
+      "labels": [
+        "safety_score",
+        "bias_score",
+        "toxicity"
+      ],
+      "colors": [
+        "#FFFFFF",
+        "#2196F3"
+      ],
+      "options": {
+        "show_values": true,
+        "color_scale": "Blues",
+        "min_value": -1.0,
+        "max_value": 1.0
+      },
+      "description": "Correlation matrix showing relationships between 3 metrics"
+    },
+    {
+      "chart_id": "ef986115-551f-460b-9a68-f08c9a2095e2",
+      "title": "Responsible AI - Metric Trends Over Time",
+      "chart_type": "line",
+      "data": {
+        "timestamps": [
+          "2026-02-20T07:45:55.663864",
+          "2026-02-20T10:45:55.663864",
+          "2026-02-20T13:45:55.663864",
+          "2026-02-20T16:45:55.663864",
+          "2026-02-20T19:45:55.663864",
+          "2026-02-20T22:45:55.663864",
+          "2026-02-21T01:45:55.663864",
+          "2026-02-21T04:45:55.663864",
+          "2026-02-21T07:45:55.663864",
+          "2026-02-21T10:45:55.663864",
+          "2026-02-21T13:45:55.663864",
+          "2026-02-21T16:45:55.663864",
+          "2026-02-21T19:45:55.663864",
+          "2026-02-21T22:45:55.663864",
+          "2026-02-22T01:45:55.663864",
+          "2026-02-22T04:45:55.663864",
+          "2026-02-22T07:45:55.663864",
+          "2026-02-22T10:45:55.663864",
+          "2026-02-22T13:45:55.663864",
+          "2026-02-22T16:45:55.663864",
+          "2026-02-22T19:45:55.663864",
+          "2026-02-22T22:45:55.663864",
+          "2026-02-23T01:45:55.663864",
+          "2026-02-23T04:45:55.663864",
+          "2026-02-23T07:45:55.663864"
+        ],
+        "metrics": {
+          "bias_score": [
+            0.9,
+            0.919,
+            0.938,
+            0.957,
+            0.976,
+            0.92,
+            0.939,
+            0.958,
+            0.977,
+            0.98,
+            0.94,
+            0.959,
+            0.978,
+            0.98,
+            0.98,
+            0.96,
+            0.979,
+            0.98,
+            0.98,
+            0.98,
+            0.98,
+            0.98,
+            0.98,
+            0.98,
+            0.98
+          ],
+          "safety_score": [
+            0.92,
+            0.934,
+            0.948,
+            0.962,
+            0.936,
+            0.95,
+            0.964,
+            0.978,
+            0.952,
+            0.966,
+            0.98,
+            0.99,
+            0.968,
+            0.982,
+            0.99,
+            0.99,
+            0.984,
+            0.99,
+            0.99,
+            0.99,
+            0.99,
+            0.99,
+            0.99,
+            0.99,
+            0.99
+          ],
+          "toxicity": [
+            0.95,
+            0.96,
+            0.97,
+            0.95,
+            0.96,
+            0.97,
+            0.95,
+            0.96,
+            0.97,
+            0.95,
+            0.96,
+            0.97,
+            0.95,
+            0.96,
+            0.97,
+            0.95,
+            0.96,
+            0.97,
+            0.95,
+            0.96,
+            0.97,
+            0.95,
+            0.96,
+            0.97,
+            0.95
+          ]
+        }
+      },
+      "labels": [
+        "2026-02-20T07:45:55.663864",
+        "2026-02-20T10:45:55.663864",
+        "2026-02-20T13:45:55.663864",
+        "2026-02-20T16:45:55.663864",
+        "2026-02-20T19:45:55.663864",
+        "2026-02-20T22:45:55.663864",
+        "2026-02-21T01:45:55.663864",
+        "2026-02-21T04:45:55.663864",
+        "2026-02-21T07:45:55.663864",
+        "2026-02-21T10:45:55.663864",
+        "2026-02-21T13:45:55.663864",
+        "2026-02-21T16:45:55.663864",
+        "2026-02-21T19:45:55.663864",
+        "2026-02-21T22:45:55.663864",
+        "2026-02-22T01:45:55.663864",
+        "2026-02-22T04:45:55.663864",
+        "2026-02-22T07:45:55.663864",
+        "2026-02-22T10:45:55.663864",
+        "2026-02-22T13:45:55.663864",
+        "2026-02-22T16:45:55.663864",
+        "2026-02-22T19:45:55.663864",
+        "2026-02-22T22:45:55.663864",
+        "2026-02-23T01:45:55.663864",
+        "2026-02-23T04:45:55.663864",
+        "2026-02-23T07:45:55.663864"
+      ],
+      "colors": [
+        "#2196F3",
+        "#2196F3",
+        "#2196F3"
+      ],
+      "options": {
+        "show_points": true,
+        "show_legend": true,
+        "legend": [
+          "bias_score",
+          "safety_score",
+          "toxicity"
+        ]
+      },
+      "description": "Trends for 3 key metrics over time"
+    }
+  ],
+  "metadata": {
+    "dashboard_type": "dimension_deep_dive",
+    "dimension": "responsible_ai",
+    "dimension_name": "Responsible AI",
+    "evaluation_count": 25,
+    "metric_count": 3,
+    "generated_at": "2026-02-27T07:45:55.666166",
+    "run_id": "bc201efb-6eca-43fa-afb3-026a8059aad7",
+    "experiment_id": "e45885c8-1d6c-4381-ad05-1a85adb369bd",
+    "dimension_statistics": {
+      "average_score": 0.96512,
+      "min_score": 0.9233333333333333,
+      "max_score": 0.98,
+      "std_dev": 0.014086046681418836,
+      "pass_rate": 1.0,
+      "failed_count": 0
+    }
+  },
+  "created_at": "2026-02-27T07:45:55.666187",
+  "layout": {}
+}

@@ -1,0 +1,176 @@
+{
+  "test_cases": [
+    {
+      "name": "highly_relevant",
+      "description": "Answer directly addresses question",
+      "scenario_type": "relevant",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What is the capital of France?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "The capital of France is Paris.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "relevant_with_detail",
+      "description": "Relevant answer with additional helpful context",
+      "scenario_type": "relevant",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "How do I make coffee?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "To make coffee: 1) Grind beans, 2) Add hot water, 3) Let it brew for 4 minutes, 4) Pour and enjoy.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "partially_relevant",
+      "description": "Answer addresses question but incomplete",
+      "scenario_type": "partial",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What are the symptoms and treatment for flu?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Common flu symptoms include fever, cough, and fatigue.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "tangentially_relevant",
+      "description": "Answer is related but doesn't directly address question",
+      "scenario_type": "partial",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "How much does a Tesla Model 3 cost?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Tesla makes several electric vehicle models including Model 3, Model Y, and Model S.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "irrelevant",
+      "description": "Answer is completely unrelated",
+      "scenario_type": "irrelevant",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "How do I fix a flat tire?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "The weather is nice today.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "acknowledgment_only",
+      "description": "Agent acknowledges but doesn't answer",
+      "scenario_type": "irrelevant",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What's the best programming language?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "That's an interesting question.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "question_with_question",
+      "description": "Agent responds with clarifying question (relevant to conversation)",
+      "scenario_type": "relevant",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Book a flight for me", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "I'd be happy to help book a flight. Where would you like to go and when?", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "refusal_relevant",
+      "description": "Agent refuses but relevantly explains why",
+      "scenario_type": "relevant",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Can you hack this website?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "I cannot help with hacking or unauthorized access to systems.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "no_question",
+      "description": "Edge case: no user message in trace - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "assistant", "content": "Hello! How can I help?", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "empty_question",
+      "description": "Edge case: user question is empty string - returns None (invalid_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "I can help with that.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "no_response",
+      "description": "Edge case: no assistant message in trace - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What's the weather?", "timestamp": "2024-04-15T10:00:00Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "empty_response",
+      "description": "Edge case: assistant response is empty string - returns 0.0 (invalid_data)",
+      "scenario_type": "edge_case",
+      "expected_score": 0.0,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What's the weather?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "whitespace_only_question",
+      "description": "Edge case: user question is whitespace only - returns None (invalid_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "   ", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "I can help with that.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "whitespace_only_response",
+      "description": "Edge case: assistant response is whitespace only - returns 0.0 (invalid_data)",
+      "scenario_type": "edge_case",
+      "expected_score": 0.0,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What's the weather?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "   ", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    }
+  ]
+}

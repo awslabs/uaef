@@ -1,0 +1,291 @@
+{
+  "test_cases": [
+    {
+      "name": "efficient_minimal_coordination",
+      "description": "Minimal coordination, agents work independently",
+      "scenario_type": "efficient",
+      "expected_score": 1.0,
+      "multi_agent_trace": {
+        "workflow_id": "coord_001",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "agent_a": {
+            "messages": [{"role": "user", "content": "Task", "timestamp": "2024-04-15T10:00:00Z"}],
+            "tool_calls": [
+              {"name": "work1", "arguments": {}, "timestamp": "2024-04-15T10:00:01Z"},
+              {"name": "work2", "arguments": {}, "timestamp": "2024-04-15T10:00:02Z"},
+              {"name": "work3", "arguments": {}, "timestamp": "2024-04-15T10:00:03Z"},
+              {"name": "work4", "arguments": {}, "timestamp": "2024-04-15T10:00:04Z"},
+              {"name": "work5", "arguments": {}, "timestamp": "2024-04-15T10:00:05Z"}
+            ]
+          },
+          "agent_b": {
+            "messages": [{"role": "user", "content": "Task", "timestamp": "2024-04-15T10:00:06Z"}],
+            "tool_calls": [
+              {"name": "work6", "arguments": {}, "timestamp": "2024-04-15T10:00:07Z"},
+              {"name": "work7", "arguments": {}, "timestamp": "2024-04-15T10:00:08Z"},
+              {"name": "work8", "arguments": {}, "timestamp": "2024-04-15T10:00:09Z"},
+              {"name": "work9", "arguments": {}, "timestamp": "2024-04-15T10:00:10Z"},
+              {"name": "work10", "arguments": {}, "timestamp": "2024-04-15T10:00:11Z"}
+            ]
+          }
+        },
+        "coordination_events": [
+          {"from_agent": "agent_a", "to_agent": "agent_b", "event_type": "HANDOFF", "message": "Data", "timestamp": "2024-04-15T10:00:05Z"}
+        ]
+      }
+    },
+    {
+      "name": "at_ideal_ratio",
+      "description": "Ratio slightly above ideal (1 coord event for 6 work units = 0.167)",
+      "scenario_type": "moderate",
+      "expected_score": 0.72,
+      "multi_agent_trace": {
+        "workflow_id": "coord_002",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "agent_a": {
+            "messages": [{"role": "user", "content": "Work", "timestamp": "2024-04-15T10:00:00Z"}],
+            "tool_calls": [
+              {"name": "t1", "arguments": {}, "timestamp": "2024-04-15T10:00:01Z"},
+              {"name": "t2", "arguments": {}, "timestamp": "2024-04-15T10:00:02Z"},
+              {"name": "t3", "arguments": {}, "timestamp": "2024-04-15T10:00:03Z"},
+              {"name": "t4", "arguments": {}, "timestamp": "2024-04-15T10:00:04Z"},
+              {"name": "t5", "arguments": {}, "timestamp": "2024-04-15T10:00:05Z"}
+            ]
+          }
+        },
+        "coordination_events": [
+          {"from_agent": "agent_a", "to_agent": "orchestrator", "event_type": "REPORT", "message": "Done", "timestamp": "2024-04-15T10:00:05Z"}
+        ]
+      }
+    },
+    {
+      "name": "high_overhead",
+      "description": "High coordination overhead (ratio 1.0)",
+      "scenario_type": "inefficient",
+      "expected_score": 0.01,
+      "multi_agent_trace": {
+        "workflow_id": "coord_003",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "agent_a": {
+            "messages": [{"role": "user", "content": "T", "timestamp": "2024-04-15T10:00:00Z"}],
+            "tool_calls": [{"name": "work", "arguments": {}, "timestamp": "2024-04-15T10:00:01Z"}]
+          },
+          "agent_b": {
+            "messages": [{"role": "user", "content": "T", "timestamp": "2024-04-15T10:00:02Z"}],
+            "tool_calls": [{"name": "work", "arguments": {}, "timestamp": "2024-04-15T10:00:03Z"}]
+          }
+        },
+        "coordination_events": [
+          {"from_agent": "agent_a", "to_agent": "agent_b", "event_type": "SYNC", "message": "Check 1", "timestamp": "2024-04-15T10:00:01Z"},
+          {"from_agent": "agent_b", "to_agent": "agent_a", "event_type": "SYNC", "message": "ACK 1", "timestamp": "2024-04-15T10:00:02Z"},
+          {"from_agent": "agent_a", "to_agent": "agent_b", "event_type": "SYNC", "message": "Check 2", "timestamp": "2024-04-15T10:00:03Z"},
+          {"from_agent": "agent_b", "to_agent": "agent_a", "event_type": "SYNC", "message": "ACK 2", "timestamp": "2024-04-15T10:00:04Z"}
+        ]
+      }
+    },
+    {
+      "name": "moderate_overhead",
+      "description": "Moderate coordination (1 coord for 6 work units)",
+      "scenario_type": "moderate",
+      "expected_score": 0.72,
+      "multi_agent_trace": {
+        "workflow_id": "coord_004",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "agent_a": {
+            "messages": [{"role": "user", "content": "T", "timestamp": "2024-04-15T10:00:00Z"}],
+            "tool_calls": [
+              {"name": "t1", "arguments": {}, "timestamp": "2024-04-15T10:00:01Z"},
+              {"name": "t2", "arguments": {}, "timestamp": "2024-04-15T10:00:02Z"}
+            ]
+          },
+          "agent_b": {
+            "messages": [{"role": "user", "content": "T", "timestamp": "2024-04-15T10:00:03Z"}],
+            "tool_calls": [
+              {"name": "t3", "arguments": {}, "timestamp": "2024-04-15T10:00:04Z"},
+              {"name": "t4", "arguments": {}, "timestamp": "2024-04-15T10:00:05Z"}
+            ]
+          }
+        },
+        "coordination_events": [
+          {"from_agent": "agent_a", "to_agent": "agent_b", "event_type": "DELEGATE", "message": "Task", "timestamp": "2024-04-15T10:00:02Z"}
+        ]
+      }
+    },
+    {
+      "name": "no_coordination_events",
+      "description": "Work but no coordination events",
+      "scenario_type": "efficient",
+      "expected_score": 1.0,
+      "multi_agent_trace": {
+        "workflow_id": "coord_005",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "agent_a": {
+            "messages": [{"role": "user", "content": "T", "timestamp": "2024-04-15T10:00:00Z"}],
+            "tool_calls": [
+              {"name": "work", "arguments": {}, "timestamp": "2024-04-15T10:00:01Z"},
+              {"name": "work", "arguments": {}, "timestamp": "2024-04-15T10:00:02Z"}
+            ]
+          }
+        },
+        "coordination_events": []
+      }
+    },
+    {
+      "name": "no_work_performed",
+      "description": "Edge case: no work to measure coordination against - returns None",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "multi_agent_trace": {
+        "workflow_id": "coord_006",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "agent_a": {
+            "messages": [],
+            "tool_calls": []
+          }
+        },
+        "coordination_events": []
+      }
+    },
+    {
+      "name": "collaborative_peer_to_peer",
+      "description": "Peer-to-peer collaboration with multiple events",
+      "scenario_type": "collaborative",
+      "expected_score": 0.31,
+      "multi_agent_trace": {
+        "workflow_id": "coord_007",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "peer_a": {
+            "messages": [{"role": "user", "content": "Work", "timestamp": "2024-04-15T10:00:00Z"}],
+            "tool_calls": [
+              {"name": "task1", "arguments": {}, "timestamp": "2024-04-15T10:00:01Z"},
+              {"name": "task2", "arguments": {}, "timestamp": "2024-04-15T10:00:02Z"}
+            ]
+          },
+          "peer_b": {
+            "messages": [{"role": "user", "content": "Work", "timestamp": "2024-04-15T10:00:03Z"}],
+            "tool_calls": [
+              {"name": "task3", "arguments": {}, "timestamp": "2024-04-15T10:00:04Z"},
+              {"name": "task4", "arguments": {}, "timestamp": "2024-04-15T10:00:05Z"}
+            ]
+          },
+          "peer_c": {
+            "messages": [{"role": "user", "content": "Work", "timestamp": "2024-04-15T10:00:06Z"}],
+            "tool_calls": [
+              {"name": "task5", "arguments": {}, "timestamp": "2024-04-15T10:00:07Z"},
+              {"name": "task6", "arguments": {}, "timestamp": "2024-04-15T10:00:08Z"}
+            ]
+          }
+        },
+        "coordination_events": [
+          {"from_agent": "peer_a", "to_agent": "peer_b", "event_type": "COLLABORATE", "message": "Share info", "timestamp": "2024-04-15T10:00:02Z"},
+          {"from_agent": "peer_b", "to_agent": "peer_c", "event_type": "COLLABORATE", "message": "Share info", "timestamp": "2024-04-15T10:00:05Z"},
+          {"from_agent": "peer_c", "to_agent": "peer_a", "event_type": "COLLABORATE", "message": "Share results", "timestamp": "2024-04-15T10:00:08Z"}
+        ]
+      }
+    },
+    {
+      "name": "single_agent_trace",
+      "description": "Edge case: only one agent in multi-agent trace",
+      "scenario_type": "edge_case",
+      "expected_score": 1.0,
+      "multi_agent_trace": {
+        "workflow_id": "coord_008",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "solo_agent": {
+            "messages": [{"role": "user", "content": "Work", "timestamp": "2024-04-15T10:00:00Z"}],
+            "tool_calls": [
+              {"name": "do_all", "arguments": {}, "timestamp": "2024-04-15T10:00:01Z"}
+            ]
+          }
+        },
+        "coordination_events": []
+      }
+    },
+    {
+      "name": "excessive_coordination",
+      "description": "More coordination events than work (pathological)",
+      "scenario_type": "inefficient",
+      "expected_score": 0.0,
+      "multi_agent_trace": {
+        "workflow_id": "coord_009",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "agent_a": {
+            "messages": [{"role": "user", "content": "T", "timestamp": "2024-04-15T10:00:00Z"}],
+            "tool_calls": [{"name": "work", "arguments": {}, "timestamp": "2024-04-15T10:00:01Z"}]
+          },
+          "agent_b": {
+            "messages": [{"role": "user", "content": "T", "timestamp": "2024-04-15T10:00:02Z"}],
+            "tool_calls": [{"name": "work", "arguments": {}, "timestamp": "2024-04-15T10:00:03Z"}]
+          }
+        },
+        "coordination_events": [
+          {"from_agent": "agent_a", "to_agent": "agent_b", "event_type": "SYNC", "message": "msg1", "timestamp": "2024-04-15T10:00:01Z"},
+          {"from_agent": "agent_b", "to_agent": "agent_a", "event_type": "SYNC", "message": "msg2", "timestamp": "2024-04-15T10:00:02Z"},
+          {"from_agent": "agent_a", "to_agent": "agent_b", "event_type": "SYNC", "message": "msg3", "timestamp": "2024-04-15T10:00:03Z"},
+          {"from_agent": "agent_b", "to_agent": "agent_a", "event_type": "SYNC", "message": "msg4", "timestamp": "2024-04-15T10:00:04Z"},
+          {"from_agent": "agent_a", "to_agent": "agent_b", "event_type": "SYNC", "message": "msg5", "timestamp": "2024-04-15T10:00:05Z"},
+          {"from_agent": "agent_b", "to_agent": "agent_a", "event_type": "SYNC", "message": "msg6", "timestamp": "2024-04-15T10:00:06Z"},
+          {"from_agent": "agent_a", "to_agent": "agent_b", "event_type": "SYNC", "message": "msg7", "timestamp": "2024-04-15T10:00:07Z"},
+          {"from_agent": "agent_b", "to_agent": "agent_a", "event_type": "SYNC", "message": "msg8", "timestamp": "2024-04-15T10:00:08Z"}
+        ]
+      }
+    },
+    {
+      "name": "hierarchical_efficient",
+      "description": "Hierarchical with appropriate coordination",
+      "scenario_type": "efficient",
+      "expected_score": 1.0,
+      "multi_agent_trace": {
+        "workflow_id": "coord_010",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "orchestrator": {
+            "messages": [{"role": "user", "content": "Orchestrate", "timestamp": "2024-04-15T10:00:00Z"}],
+            "tool_calls": [{"name": "plan", "arguments": {}, "timestamp": "2024-04-15T10:00:01Z"}]
+          },
+          "worker_1": {
+            "messages": [{"role": "user", "content": "Work", "timestamp": "2024-04-15T10:00:02Z"}],
+            "tool_calls": [
+              {"name": "task_a", "arguments": {}, "timestamp": "2024-04-15T10:00:03Z"},
+              {"name": "task_b", "arguments": {}, "timestamp": "2024-04-15T10:00:04Z"},
+              {"name": "task_c", "arguments": {}, "timestamp": "2024-04-15T10:00:05Z"}
+            ]
+          },
+          "worker_2": {
+            "messages": [{"role": "user", "content": "Work", "timestamp": "2024-04-15T10:00:06Z"}],
+            "tool_calls": [
+              {"name": "task_d", "arguments": {}, "timestamp": "2024-04-15T10:00:07Z"},
+              {"name": "task_e", "arguments": {}, "timestamp": "2024-04-15T10:00:08Z"},
+              {"name": "task_f", "arguments": {}, "timestamp": "2024-04-15T10:00:09Z"}
+            ]
+          }
+        },
+        "coordination_events": [
+          {"from_agent": "orchestrator", "to_agent": "worker_1", "event_type": "DELEGATE", "message": "Do ABC", "timestamp": "2024-04-15T10:00:01Z"}
+        ]
+      }
+    },
+    {
+      "name": "not_multi_agent_trace",
+      "description": "Edge case: regular AgentTrace instead of MultiAgentTrace - returns None",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Hello", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Hi there", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [{"name": "search", "arguments": {}, "timestamp": "2024-04-15T10:00:01Z"}]
+      }
+    }
+  ]
+}

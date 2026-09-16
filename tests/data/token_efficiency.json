@@ -1,0 +1,247 @@
+{
+  "test_cases": [
+    {
+      "name": "efficient_low_tokens",
+      "description": "High quality with low tokens (within expected threshold)",
+      "scenario_type": "efficient",
+      "expected_score": 0.9,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What's 2+2?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "4", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "input_tokens": 50,
+        "output_tokens": 50,
+        "metadata": {"quality_score": 0.9}
+      }
+    },
+    {
+      "name": "at_threshold",
+      "description": "Exactly at 1000 token threshold - no penalty applied",
+      "scenario_type": "threshold",
+      "expected_score": 0.8,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "input_tokens": 500,
+        "output_tokens": 500,
+        "metadata": {"quality_score": 0.8}
+      }
+    },
+    {
+      "name": "above_threshold",
+      "description": "2x tokens above threshold - sqrt penalty: 0.8/sqrt(2) = 0.57",
+      "scenario_type": "above_threshold",
+      "expected_score": 0.57,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Detailed answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "input_tokens": 1000,
+        "output_tokens": 1000,
+        "metadata": {"quality_score": 0.8}
+      }
+    },
+    {
+      "name": "high_tokens",
+      "description": "5x tokens above threshold - sqrt penalty: 0.8/sqrt(5) = 0.36",
+      "scenario_type": "high_usage",
+      "expected_score": 0.36,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Complex question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Comprehensive answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "input_tokens": 2500,
+        "output_tokens": 2500,
+        "metadata": {"quality_score": 0.8}
+      }
+    },
+    {
+      "name": "below_threshold",
+      "description": "500 tokens below threshold - no penalty, score equals quality",
+      "scenario_type": "below_threshold",
+      "expected_score": 0.8,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "input_tokens": 250,
+        "output_tokens": 250,
+        "metadata": {"quality_score": 0.8}
+      }
+    },
+    {
+      "name": "no_quality_score",
+      "description": "No quality_score in metadata - returns None (required field missing)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "input_tokens": 500,
+        "output_tokens": 500,
+        "metadata": {}
+      }
+    },
+    {
+      "name": "no_token_info",
+      "description": "Null token counts - returns None (no token data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "input_tokens": null,
+        "output_tokens": null,
+        "metadata": {"quality_score": 0.8}
+      }
+    },
+    {
+      "name": "zero_tokens",
+      "description": "Zero input and output tokens - returns None (total_tokens=0)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Test", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Result", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "metadata": {"quality_score": 0.8}
+      }
+    },
+    {
+      "name": "high_quality_high_tokens",
+      "description": "High quality but 8x tokens - sqrt penalty: 0.95/sqrt(8) = 0.34",
+      "scenario_type": "quality_vs_tokens",
+      "expected_score": 0.34,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Complex analysis", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Detailed response", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "input_tokens": 4000,
+        "output_tokens": 4000,
+        "metadata": {"quality_score": 0.95}
+      }
+    },
+    {
+      "name": "low_quality_low_tokens",
+      "description": "Low quality with few tokens - within threshold, score equals quality",
+      "scenario_type": "quality_vs_tokens",
+      "expected_score": 0.3,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Bad answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "input_tokens": 250,
+        "output_tokens": 250,
+        "metadata": {"quality_score": 0.3}
+      }
+    },
+    {
+      "name": "quality_score_string_type",
+      "description": "quality_score is a string instead of number - returns None (invalid type)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "input_tokens": 500,
+        "output_tokens": 500,
+        "metadata": {"quality_score": "high"}
+      }
+    },
+    {
+      "name": "quality_score_zero",
+      "description": "quality_score is 0.0 - valid, within threshold so score=0.0",
+      "scenario_type": "edge_case",
+      "expected_score": 0.0,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "input_tokens": 250,
+        "output_tokens": 250,
+        "metadata": {"quality_score": 0.0}
+      }
+    },
+    {
+      "name": "heavy_penalty_within_threshold",
+      "description": "Heavy mode: within threshold, score equals quality (no penalty)",
+      "scenario_type": "penalty_mode",
+      "metric_params": {"expected_tokens": 1000, "penalty_mode": "heavy"},
+      "expected_score": 0.8,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "input_tokens": 200,
+        "output_tokens": 200,
+        "metadata": {"quality_score": 0.8}
+      }
+    },
+    {
+      "name": "heavy_penalty_2x_above",
+      "description": "Heavy mode: 2x tokens, linear penalty: 0.8/2.0 = 0.40",
+      "scenario_type": "penalty_mode",
+      "metric_params": {"expected_tokens": 1000, "penalty_mode": "heavy"},
+      "expected_score": 0.40,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "input_tokens": 1000,
+        "output_tokens": 1000,
+        "metadata": {"quality_score": 0.8}
+      }
+    },
+    {
+      "name": "heavy_penalty_5x_above",
+      "description": "Heavy mode: 5x tokens, linear penalty: 0.8/5.0 = 0.16",
+      "scenario_type": "penalty_mode",
+      "metric_params": {"expected_tokens": 1000, "penalty_mode": "heavy"},
+      "expected_score": 0.16,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "input_tokens": 2500,
+        "output_tokens": 2500,
+        "metadata": {"quality_score": 0.8}
+      }
+    }
+  ]
+}

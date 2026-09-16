@@ -1,0 +1,7 @@
+{
+  "app": "python3 app.py",
+  "context": {
+    "deploy_ui": false,
+    "@aws-cdk/core:newStyleStackSynthesis": true
+  }
+}

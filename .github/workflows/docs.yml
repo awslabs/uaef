@@ -1,0 +1,73 @@
+---
+name: Documentation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'docs/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'docs/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/docs.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  # Build on every PR so broken links and unresolved API references fail before
+  # merge. docs/check_build.sh is the same check `make build` runs locally.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --group docs --frozen
+
+      - name: Build site
+        run: |
+          cd docs
+          ./check_build.sh
+
+  # Publish to the gh-pages branch. `mkdocs gh-deploy` commits the built site
+  # there, so this job needs write access to repository contents.
+  #
+  # The published site is public even though the repository is private — that is
+  # the default for GitHub Pages and it is deliberate here. See docs/README.md.
+  deploy:
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --group docs --frozen
+
+      - name: Deploy to GitHub Pages
+        run: |
+          cd docs
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          uv run mkdocs gh-deploy --force

@@ -1,0 +1,139 @@
+{
+  "test_cases": [
+    {
+      "name": "all_steps_correct",
+      "description": "Every reasoning step is logically sound",
+      "scenario_type": "correct",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "If all cats are animals and all animals need food, do cats need food?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Yes. Premise 1: All cats are animals. Premise 2: All animals need food. Therefore, cats need food. This is valid logical deduction.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "mathematical_correct",
+      "description": "Mathematical reasoning is correct",
+      "scenario_type": "correct",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Is 17 prime?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "To check if 17 is prime, I'll test divisibility by primes up to √17 ≈ 4.1. Testing 2: 17/2 = 8.5 (not divisible). Testing 3: 17/3 = 5.67 (not divisible). No divisors found, so 17 is prime.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "logical_error",
+      "description": "Contains logical error in reasoning",
+      "scenario_type": "incorrect",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Reasoning test", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "All birds can fly. Penguins are birds. Therefore, penguins can fly.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "invalid_inference",
+      "description": "Invalid inference from premises",
+      "scenario_type": "incorrect",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Logic question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Some developers use Python. Bob is a developer. Therefore, Bob definitely uses Python.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "mathematical_error",
+      "description": "Mathematical reasoning contains error",
+      "scenario_type": "incorrect",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Calculate area", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "To find the area of a circle with radius 5: A = πr². So A = π × 5 = 15.7.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "correct_with_context",
+      "description": "Reasoning correct given context",
+      "scenario_type": "correct",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Should we launch now?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Given: 1) Testing is complete, 2) No critical bugs remain, 3) Stakeholders approved, 4) Infrastructure is ready. All launch criteria are met, so we should proceed with launch.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "context": ["Testing completed successfully", "No P0 bugs in backlog", "CEO approved launch", "Servers scaled up"]
+    },
+    {
+      "name": "misapplies_principle",
+      "description": "Misapplies a logical principle",
+      "scenario_type": "incorrect",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Test logic", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "If A implies B, and B is true, then A must be true. Since the grass is wet (B), it must have rained (A).", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "no_assistant_message",
+      "description": "Edge case: no assistant messages - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "empty_response",
+      "description": "Edge case: empty assistant response - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "evidence_based_correct",
+      "description": "Reasoning based on provided evidence",
+      "scenario_type": "correct",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What can we conclude?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "From the data: Sales increased 20% after campaign launch. Customer engagement doubled. These metrics indicate the campaign was effective.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "context": ["Sales Q1: $100k, Q2: $120k", "Campaign launched start of Q2", "Engagement: Q1=1000 users, Q2=2000 users"]
+    },
+    {
+      "name": "assumes_without_evidence",
+      "description": "Makes assumptions without supporting evidence",
+      "scenario_type": "incorrect",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Why did this happen?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "This happened because of cosmic rays affecting the system. The alignment of planets also played a role.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    }
+  ]
+}

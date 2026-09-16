@@ -1,0 +1,44 @@
+question_id,question,agent,expected_trend_direction,expected_sma_20,expected_volatility_pct,expected_high_vol_days,expected_response_summary
+1,What is the 20-day SMA and trend direction for the period ending 2025-03-21?,trend,downtrend,201.76,,,
+2,What is the 20-day SMA and trend direction for the period ending 2025-01-17?,trend,sideways,222.78,,,
+3,What is the 20-day SMA and trend direction for the period ending 2025-04-22?,trend,downtrend,184.05,,,
+4,What is the 20-day SMA and trend direction for the period ending 2024-08-05?,trend,downtrend,185.31,,,
+5,What is the 20-day SMA and trend direction for the period ending 2026-01-06?,trend,uptrend,229.25,,,
+6,What is the 20-day SMA and trend direction for the period ending 2022-10-14?,trend,downtrend,116.14,,,
+7,What is the 20-day SMA and trend direction for the period ending 2023-02-02?,trend,uptrend,96.58,,,
+8,What is the 20-day SMA and trend direction for the period ending 2024-01-31?,trend,uptrend,153.80,,,
+9,What is the 20-day SMA and trend direction for the period ending 2025-08-01?,trend,sideways,226.47,,,
+10,What is the 20-day SMA and trend direction for the period ending 2026-04-30?,trend,uptrend,244.44,,,
+11,What is the 20-day SMA and trend direction for the period ending 2023-07-21?,trend,uptrend,130.46,,,
+12,What is the 20-day SMA and trend direction for the period ending 2024-06-28?,trend,uptrend,185.60,,,
+13,What is the 20-day SMA and trend direction for the period ending 2025-11-03?,trend,uptrend,224.00,,,
+14,What is the 20-day SMA and trend direction for the period ending 2026-03-05?,trend,uptrend,208.37,,,
+15,What is the 20-day SMA and trend direction for the period ending 2022-06-16?,trend,downtrend,113.07,,,
+16,Identify high volatility days (>5% intraday range) between 2025-04-01 and 2025-04-15,volatility,,,,"2025-04-02,2025-04-04,2025-04-07,2025-04-08,2025-04-09,2025-04-10",
+17,Identify high volatility days (>5% intraday range) between 2024-08-01 and 2024-08-10,volatility,,,,"2024-08-02,2024-08-05",
+18,Identify high volatility days (>5% intraday range) between 2026-04-28 and 2026-05-04,volatility,,,,2026-04-30,
+19,Identify high volatility days (>5% intraday range) between 2022-10-10 and 2022-10-28,volatility,,,,"2022-10-13,2022-10-14,2022-10-28",
+20,Identify high volatility days (>5% intraday range) between 2023-01-25 and 2023-02-10,volatility,,,,"2023-01-25,2023-02-03",
+21,Identify high volatility days (>5% intraday range) between 2024-07-10 and 2024-08-05,volatility,,,,"2024-08-02,2024-08-05",
+22,Identify high volatility days (>5% intraday range) between 2025-10-28 and 2025-11-05,volatility,,,,NONE,
+23,Identify high volatility days (>5% intraday range) between 2026-01-30 and 2026-02-10,volatility,,,,2026-02-06,
+24,Identify high volatility days (>5% intraday range) between 2022-06-10 and 2022-06-17,volatility,,,,"2022-06-10,2022-06-15",
+25,Identify high volatility days (>5% intraday range) between 2025-09-19 and 2025-09-30,volatility,,,,NONE,
+26,What is the daily volatility percentage for 2025-04-07?,volatility,,,,13.65,
+27,What is the daily volatility percentage for 2024-08-05?,volatility,,,,7.49,
+28,What is the daily volatility percentage for 2025-04-09?,volatility,,,,13.37,
+29,What is the daily volatility percentage for 2025-04-08?,volatility,,,,10.28,
+30,What is the daily volatility percentage for 2025-04-04?,volatility,,,,7.32,
+31,What is the daily volatility percentage for 2025-04-02?,volatility,,,,5.69,
+32,What is the daily volatility percentage for 2025-04-10?,volatility,,,,6.27,
+33,What is the daily volatility percentage for 2022-10-28?,volatility,,,,6.45,
+34,What is the daily volatility percentage for 2026-04-30?,volatility,,,,6.92,
+35,What is the daily volatility percentage for 2022-06-13?,volatility,,,,4.59,
+36,Analyze the stock for the period ending 2025-03-21: what is the trend and were there any high volatility days in the prior 5 trading days?,response,downtrend,201.76,,,The stock is in a downtrend with a 20-day SMA of 201.76. No high volatility days (>5%) were detected in the prior 5 trading days (2025-03-14 to 2025-03-21) indicating a steady decline without panic selling.
+37,Analyze the stock for the period ending 2025-04-11: what is the trend and were there any high volatility days in the prior 5 trading days?,response,downtrend,190.52,,,The stock is in a downtrend with a 20-day SMA of ~190.52. Five consecutive high volatility days were detected including 2025-04-04 (7.32%) 2025-04-07 (13.65%) 2025-04-08 (10.28%) 2025-04-09 (13.37%) and 2025-04-10 (6.27%) indicating extreme price swings during a volatile selloff and partial recovery.
+38,Analyze the stock for the period ending 2024-08-05: what is the trend and were there any high volatility days in the prior 5 trading days?,response,downtrend,185.31,,,The stock is in a downtrend with a 20-day SMA of 185.31. Two high volatility days were detected: 2024-08-02 (5.12%) and 2024-08-05 (7.49%) suggesting an accelerating selloff with elevated fear and forced selling.
+39,Analyze the stock for the period ending 2025-11-03: what is the trend and were there any high volatility days in the prior 5 trading days?,response,uptrend,224.00,,,The stock is in an uptrend with a 20-day SMA of 224.00. No high volatility days (>5%) were detected in the prior 5 trading days (2025-10-27 to 2025-11-03) suggesting a calm and orderly advance with steady buying pressure.
+40,Analyze the stock for the period ending 2026-04-30: what is the trend and were there any high volatility days in the prior 5 trading days?,response,uptrend,244.44,,,The stock is in an uptrend with a 20-day SMA of 244.44. One high volatility day was detected on 2026-04-30 (6.92%) suggesting a sharp but isolated price swing within an otherwise bullish trend.
+41,Analyze the stock for the period ending 2023-02-02: what is the trend and were there any high volatility days in the prior 5 trading days?,response,uptrend,96.58,,,The stock is in an uptrend with a 20-day SMA of 96.58. One high volatility day was detected on 2023-01-25 (6.25%) likely driven by earnings-related news triggering a large intraday swing at the start of the recovery rally.
+42,Analyze the stock for the period ending 2022-10-28: what is the trend and were there any high volatility days in the prior 5 trading days?,response,sideways,115.06,,,The stock is moving sideways with a 20-day SMA of 115.06. One high volatility day was detected on 2022-10-28 (6.45%) indicating a sharp single-day reversal within a consolidation phase near the bear market bottom.
+43,Analyze the stock for the period ending 2026-01-06: what is the trend and were there any high volatility days in the prior 5 trading days?,response,uptrend,229.25,,,The stock is in an uptrend with a 20-day SMA of 229.25. No high volatility days (>5%) were detected in the prior 5 trading days (2025-12-29 to 2026-01-06) indicating a smooth and controlled upward move into the new year.

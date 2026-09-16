@@ -1,0 +1,165 @@
+{
+  "test_cases": [
+    {
+      "name": "highly_coherent",
+      "description": "Logical flow planning a birthday party across multiple turns",
+      "scenario_type": "coherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "I need to plan a birthday party for my daughter. She's turning 8.", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "How fun! An 8th birthday party. How many kids are you expecting?", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "About 15 kids from her class.", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "For 15 kids, you'll want a venue with enough space. Do you have a location in mind, or would you like suggestions?", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "We have a big backyard, so I was thinking of doing it at home.", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "A backyard party for 15 kids is perfect! For 8-year-olds, I'd suggest activities like a treasure hunt or relay races. What's your budget?", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "Around $300.", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "With $300 for a backyard party, here's a rough breakdown: $100 for food and cake, $80 for decorations, $60 for party favors for 15 kids, and $60 for activities and supplies. Want me to detail any of these?", "timestamp": "2024-04-15T10:00:07Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "coherent_weather_discussion",
+      "description": "Natural conversation flow about weather leading to activity planning",
+      "scenario_type": "coherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What's the weather like today?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "It's currently raining with temperatures around 15°C. The rain should stop by early afternoon.", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "What about tomorrow?", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "Tomorrow looks much better — sunny with temperatures reaching 22°C and light winds.", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Should I plan outdoor activities for tomorrow then?", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "Absolutely! With sunny skies and 22°C, tomorrow is ideal for outdoor activities. A hike, picnic, or bike ride would all work well.", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "What should I wear?", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "For 22°C and sunny weather, light layers are best — a t-shirt with a light jacket in case it cools down in the evening. Sunscreen and sunglasses too.", "timestamp": "2024-04-15T10:00:07Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "topic_switch_coherent",
+      "description": "User changes topic mid-conversation and agent follows smoothly",
+      "scenario_type": "coherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Tell me about the Eiffel Tower.", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "The Eiffel Tower is a wrought-iron lattice tower in Paris, built in 1889. It stands 330 meters tall and is the most-visited paid monument in the world.", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Interesting. Actually, I want to know about Tokyo Tower instead.", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "No problem! Tokyo Tower is a communications and observation tower in Tokyo, built in 1958. It's 333 meters tall — actually 3 meters taller than the Eiffel Tower it was inspired by.", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Can you visit both?", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "Yes! Both towers have observation decks open to visitors. The Eiffel Tower offers views of Paris from up to 276 meters, while Tokyo Tower has a main deck at 150 meters and a top deck at 250 meters.", "timestamp": "2024-04-15T10:00:05Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "incoherent_topic_jump",
+      "description": "Agent responds with completely unrelated content across multiple turns",
+      "scenario_type": "incoherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "My laptop won't turn on. Can you help me troubleshoot?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "The Eiffel Tower was built by Gustave Eiffel for the 1889 World's Fair in Paris.", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "That has nothing to do with my laptop. I pressed the power button and nothing happens.", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "Bananas are an excellent source of potassium and vitamin B6. They originated in Southeast Asia.", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Are you even listening? I need help with my computer!", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "The Pacific Ocean is the largest and deepest ocean on Earth, covering more than 63 million square miles.", "timestamp": "2024-04-15T10:00:05Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "self_contradictory",
+      "description": "Agent directly contradicts itself about the same fact within the conversation",
+      "scenario_type": "incoherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Is the store open today?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Yes, the store is open today from 9 AM to 9 PM.", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Great. What time does it close?", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "The store is closed today, sorry!", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Wait, you just said it was open until 9 PM.", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "I apologize for the confusion. The store hours vary by location.", "timestamp": "2024-04-15T10:00:05Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "irrelevant_responses",
+      "description": "Agent consistently ignores the user's questions and gives unrelated answers",
+      "scenario_type": "incoherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "How much does the Pro plan cost?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "The weather in London is typically rainy in November.", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "I asked about pricing, not weather.", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "Mount Everest is 8,849 meters tall and located in the Himalayas.", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Can you please tell me the price of the Pro plan?", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "Photosynthesis is the process by which plants convert sunlight into energy.", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "This is useless.", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "The speed of light is approximately 299,792 kilometers per second.", "timestamp": "2024-04-15T10:00:07Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "logical_progression",
+      "description": "Conversation progresses logically through learning Python step by step",
+      "scenario_type": "coherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "I want to learn Python. I've never programmed before.", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Great choice for a first language! Let's start with the basics. Do you have Python installed on your computer?", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Not yet.", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "No worries. Go to python.org and download the latest version. Once installed, open a terminal and type 'python' to start the interactive shell.", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Done! I see the >>> prompt.", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "Perfect! Try typing: print(\"Hello, World!\") and press Enter. This is traditionally the first program everyone writes.", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "It printed Hello, World! What's next?", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "Excellent! Now let's learn about variables. Try typing: name = \"your_name\" and then print(name). Variables store data that you can use later in your program.", "timestamp": "2024-04-15T10:00:07Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "too_few_turns_edge_case",
+      "description": "Edge case: only 1 turn (< 2 turns minimum) - returns None",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Hello", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Hi!", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "maintains_context_across_topic",
+      "description": "Conversation evolves from presentation topic to slide design coherently",
+      "scenario_type": "coherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "I need help with a presentation on renewable energy for my university class.", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "I'd be happy to help! What aspects of renewable energy do you want to cover?", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Solar, wind, and hydroelectric. About 15 slides.", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "For 15 slides across 3 energy types, I'd suggest: 1 title slide, 1 intro, 4 slides each for solar/wind/hydro, and 1 conclusion with comparison. That's 15 total.", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "What should the solar section cover?", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "For the 4 solar slides: 1) How solar panels work (photovoltaic effect), 2) Current global capacity and growth trends, 3) Advantages and limitations, 4) Cost trends and future outlook.", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "Should I use charts or images?", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "For a university presentation on renewable energy, I'd use both. Charts work well for the capacity/growth and cost trend slides. Images of solar farms, wind turbines, and dams make the technology slides more engaging. Keep text minimal — your slides should support your speaking, not replace it.", "timestamp": "2024-04-15T10:00:07Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "empty_messages",
+      "description": "Edge case: no messages at all - returns None",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [],
+        "tool_calls": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+fastapi>=0.100.0
+uvicorn>=0.20.0
+pandas>=1.5.0
+python-multipart>=0.0.32
+httpx>=0.24.0
+openpyxl>=3.0.0
