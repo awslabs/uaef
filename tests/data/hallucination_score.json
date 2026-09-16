@@ -1,0 +1,172 @@
+{
+  "test_cases": [
+    {
+      "name": "no_hallucination",
+      "description": "All claims supported by context",
+      "scenario_type": "faithful",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Tell me about Python", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Python is a high-level programming language created by Guido van Rossum in 1991.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "context": [
+        "Python is a high-level, interpreted programming language.",
+        "Python was created by Guido van Rossum and first released in 1991.",
+        "Python supports multiple programming paradigms including procedural, object-oriented, and functional programming."
+      ]
+    },
+    {
+      "name": "minor_hallucination",
+      "description": "Mostly accurate with one unsupported claim",
+      "scenario_type": "minor_hallucination",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Tell me about Python", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Python is a high-level programming language created by Guido van Rossum. It was specifically designed for web development.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "context": [
+        "Python is a high-level, interpreted programming language.",
+        "Python was created by Guido van Rossum and first released in 1991."
+      ]
+    },
+    {
+      "name": "major_hallucination",
+      "description": "Multiple unsupported claims",
+      "scenario_type": "hallucination",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Tell me about Python", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Python was created by Steve Jobs in 2005 for iOS app development and is only used by Apple.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "context": [
+        "Python is a high-level, interpreted programming language.",
+        "Python was created by Guido van Rossum and first released in 1991."
+      ]
+    },
+    {
+      "name": "contradicts_context",
+      "description": "Answer contradicts provided context",
+      "scenario_type": "hallucination",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "When was Python released?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Python was first released in 2000.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "context": [
+        "Python was created by Guido van Rossum and first released in 1991."
+      ]
+    },
+    {
+      "name": "fabricated_details",
+      "description": "Adds specific details not in context",
+      "scenario_type": "hallucination",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Tell me about the company", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "The company was founded in 1995 with 50 employees and has offices in 12 countries.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "context": [
+        "The company is a technology startup."
+      ]
+    },
+    {
+      "name": "reasonable_inference",
+      "description": "Makes reasonable inference from context",
+      "scenario_type": "faithful",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Is Python good for beginners?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Yes, Python is considered good for beginners due to its simple syntax and readability.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "context": [
+        "Python emphasizes code readability with its use of significant indentation.",
+        "Python's syntax allows programmers to express concepts in fewer lines of code than would be possible in languages like C++ or Java."
+      ]
+    },
+    {
+      "name": "no_context_provided",
+      "description": "Edge case: no context to validate against - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What is AI?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "AI stands for Artificial Intelligence.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "context": []
+    },
+    {
+      "name": "empty_response",
+      "description": "Edge case: empty assistant response - returns 0.0 (invalid_data)",
+      "scenario_type": "edge_case",
+      "expected_score": 0.0,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Tell me something", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "context": ["Context document about various topics."]
+    },
+    {
+      "name": "context_misinterpretation",
+      "description": "Misinterprets or misrepresents context",
+      "scenario_type": "hallucination",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What did the study find?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "The study conclusively proved that coffee prevents cancer.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "context": [
+        "A recent study found a correlation between moderate coffee consumption and reduced cancer risk, though more research is needed to establish causation."
+      ]
+    },
+    {
+      "name": "selective_citation",
+      "description": "Cherry-picks context, ignores contradicting info",
+      "scenario_type": "hallucination",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Is remote work productive?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Studies show remote work significantly decreases productivity.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "context": [
+        "Some studies found remote work decreased productivity in certain industries.",
+        "Other research showed remote work increased productivity by 13% on average.",
+        "The impact of remote work varies by role, industry, and individual preferences."
+      ]
+    },
+    {
+      "name": "no_response",
+      "description": "Edge case: no assistant message in trace - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Tell me about Python", "timestamp": "2024-04-15T10:00:00Z"}
+        ],
+        "tool_calls": []
+      },
+      "context": ["Python is a high-level programming language."]
+    }
+  ]
+}

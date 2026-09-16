@@ -1,0 +1,185 @@
+{
+  "test_cases": [
+    {
+      "name": "complete_answer",
+      "description": "Answer covers all expected information",
+      "scenario_type": "complete",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What are the requirements?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Requirements are: 1) Python 3.9+, 2) AWS credentials, 3) 4GB RAM minimum.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Python 3.9 or higher, AWS credentials configured, minimum 4GB RAM"
+      }
+    },
+    {
+      "name": "partially_complete",
+      "description": "Answer covers some but not all information",
+      "scenario_type": "partial",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What are the system requirements?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "You need Python 3.9 or higher.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Python 3.9 or higher, AWS credentials configured, minimum 4GB RAM, Docker installed"
+      }
+    },
+    {
+      "name": "incomplete_answer",
+      "description": "Answer missing most expected information",
+      "scenario_type": "incomplete",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Explain photosynthesis process", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Plants make food.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Photosynthesis converts light energy to chemical energy. Plants use chlorophyll to capture sunlight, combine CO2 and water to produce glucose and oxygen. Occurs in chloroplasts."
+      }
+    },
+    {
+      "name": "extra_information",
+      "description": "Answer includes expected info plus extra details",
+      "scenario_type": "complete",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What's the capital of France?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "The capital of France is Paris. It's also the largest city in France with a population of over 2 million in the city proper.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Paris"
+      }
+    },
+    {
+      "name": "wrong_information",
+      "description": "Answer provides wrong information",
+      "scenario_type": "incomplete",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "When was Python created?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Python was created in 2005.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Python was created in 1991 by Guido van Rossum"
+      }
+    },
+    {
+      "name": "no_expected_output",
+      "description": "Edge case: null expected output in ground truth - returns None (invalid_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": null
+      }
+    },
+    {
+      "name": "detailed_complete",
+      "description": "Detailed answer covering all points",
+      "scenario_type": "complete",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "List HTTP methods", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Common HTTP methods are: GET (retrieve data), POST (submit data), PUT (update data), DELETE (remove data), PATCH (partial update).", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "GET, POST, PUT, DELETE, PATCH"
+      }
+    },
+    {
+      "name": "missing_key_point",
+      "description": "Answer mostly complete but missing critical point",
+      "scenario_type": "partial",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "How to stay safe online?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Use strong passwords and enable two-factor authentication.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Use strong passwords, enable two-factor authentication, avoid phishing emails, keep software updated, use VPN on public WiFi"
+      }
+    },
+    {
+      "name": "no_response",
+      "description": "Edge case: no assistant message - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Expected answer"
+      }
+    },
+    {
+      "name": "empty_expected_output",
+      "description": "Edge case: empty expected output string - returns None (invalid_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Test", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Response", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": ""
+      }
+    },
+    {
+      "name": "empty_response",
+      "description": "Edge case: assistant response is empty string - returns 0.0 (invalid_data)",
+      "scenario_type": "edge_case",
+      "expected_score": 0.0,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Expected answer"
+      }
+    },
+    {
+      "name": "no_ground_truth",
+      "description": "Edge case: no ground truth provided - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    }
+  ]
+}

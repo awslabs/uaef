@@ -1,0 +1,6 @@
+apiVersion: v2
+name: uaef-service
+description: Universal Agent Evaluation Framework — containerized backend for EKS
+type: application
+version: 0.1.0
+appVersion: "0.2.0"

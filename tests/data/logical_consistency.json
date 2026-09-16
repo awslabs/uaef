@@ -1,0 +1,141 @@
+{
+  "test_cases": [
+    {
+      "name": "fully_consistent",
+      "description": "No contradictions, all statements align",
+      "scenario_type": "consistent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Explain gravity", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Gravity is an attractive force between masses. Larger masses exert stronger gravitational force. This is why planets orbit stars and moons orbit planets. All objects with mass experience gravity.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "self_contradictory",
+      "description": "Statement contradicts itself",
+      "scenario_type": "inconsistent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Tell me about the product", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "This product is completely waterproof and cannot get wet. However, you should avoid using it in water as it's not water-resistant.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "conflicting_facts",
+      "description": "Provides conflicting facts",
+      "scenario_type": "inconsistent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "When does the store open?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "The store opens at 9 AM. We're closed on Mondays. Actually, we open at 10 AM on weekdays. But Mondays we open at 9 AM.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "contradictory_conclusion",
+      "description": "Conclusion contradicts premises",
+      "scenario_type": "inconsistent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Should I buy this?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "This product is expensive, has poor reviews, and doesn't meet your needs. Therefore, I highly recommend buying it immediately.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "temporally_consistent",
+      "description": "Timeline is logically consistent",
+      "scenario_type": "consistent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Explain the project timeline", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "We start with requirements gathering in Week 1. Design happens in Week 2. Development occurs in Weeks 3-5. Testing follows in Week 6. Finally, deployment in Week 7.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "numerical_inconsistency",
+      "description": "Numbers don't add up",
+      "scenario_type": "inconsistent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What's the total?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Item A costs $10, item B costs $15, and item C costs $20. The total is $30.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "consistent_multi_turn",
+      "description": "Maintains consistency across multiple exchanges",
+      "scenario_type": "consistent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Is it raining?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Yes, it's raining.", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "What's the weather?", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "It's rainy today.", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Should I bring an umbrella?", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "Yes, since it's raining, an umbrella would be helpful.", "timestamp": "2024-04-15T10:00:05Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "opposite_statements",
+      "description": "Makes opposite statements about same thing",
+      "scenario_type": "inconsistent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Is this expensive?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Yes, it's very expensive at $1000. No, it's actually quite cheap. The price is high. But it's affordable for everyone.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "logically_sound",
+      "description": "All logical relationships are sound",
+      "scenario_type": "consistent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Why learn Python?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Python has simple syntax, making it beginner-friendly. It has extensive libraries for various tasks. Many companies use Python, creating job opportunities. These factors make Python a practical choice for new programmers.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "no_reasoning_edge",
+      "description": "Edge case: no assistant messages - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Hi", "timestamp": "2024-04-15T10:00:00Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "empty_response",
+      "description": "Edge case: empty assistant response - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Explain gravity", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    }
+  ]
+}

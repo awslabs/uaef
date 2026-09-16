@@ -1,0 +1,77 @@
+# UAEF Service Helm chart values
+# Copy this to values.yaml and fill in your environment-specific values.
+
+replicaCount: 2
+
+# Cognito configuration (use your existing pool or the one CDK created)
+cognito:
+  userPoolId: ""
+  appClientId: ""
+  region: "us-east-1"
+  domain: ""              # e.g., https://my-domain.auth.us-east-1.amazoncognito.com
+  authMode: "existing"    # "existing" or "new"
+
+# AWS resource configuration (from CDK deploy outputs or manually provisioned)
+aws:
+  region: "us-east-1"
+  jobsTableName: ""       # DynamoDB table for job state
+  payloadBucketName: ""   # S3 bucket for request/result payloads
+  experimentTableName: "" # DynamoDB table for UAEF experiment persistence
+  resultsBucketName: ""   # S3 bucket for UAEF full results
+
+# Service account for IRSA (IAM Roles for Service Accounts)
+serviceAccount:
+  create: true
+  name: uaef-service
+  annotations: {}
+  # eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/uaef-service-eks-role
+
+# UAEF library version (for the version-mismatch guard)
+uaef:
+  expectedVersion: "0.2.0"
+
+# AUTO-POPULATED BY deploy.sh
+image:
+  repository: ""
+  tag: "latest"
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+  className: "alb"
+  annotations: {}
+  hosts:
+    - host: ""
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "2000m"
+    memory: "4Gi"
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  initialDelaySeconds: 15
+  periodSeconds: 30
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

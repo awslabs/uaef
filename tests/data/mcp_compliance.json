@@ -1,0 +1,188 @@
+{
+  "_comment": "NOTE: Test cases for empty_tool_name, whitespace_only_name, and missing_timestamp are not included because Pydantic validation in ToolCall model prevents these from being created. These violations are caught at data ingestion, not metric evaluation.",
+  "test_cases": [
+    {
+      "name": "all_compliant",
+      "description": "All tool calls follow MCP standards",
+      "scenario_type": "happy_path",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Search",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "test"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          },
+          {
+            "name": "calculator",
+            "arguments": {
+              "expr": "2+2"
+            },
+            "timestamp": "2024-04-15T10:00:02Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid_naming_convention",
+      "description": "Tool name has uppercase",
+      "scenario_type": "violation",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Search",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "SearchAPI",
+            "arguments": {
+              "query": "test"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "no_tool_calls",
+      "description": "No tool calls in trace",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "What's 2+2?",
+            "timestamp": "2024-04-15T10:00:00Z"
+          },
+          {
+            "role": "assistant",
+            "content": "4",
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "mixed_compliance",
+      "description": "Mix of compliant and non-compliant tools (2 compliant, 1 non-compliant)",
+      "scenario_type": "partial",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Test",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "test"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          },
+          {
+            "name": "Calculate",
+            "arguments": {
+              "expr": "2+2"
+            },
+            "timestamp": "2024-04-15T10:00:02Z"
+          },
+          {
+            "name": "database",
+            "arguments": {
+              "table": "users"
+            },
+            "timestamp": "2024-04-15T10:00:03Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "single_compliant_tool",
+      "description": "Single tool that is compliant",
+      "scenario_type": "happy_path",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Search",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "search_api",
+            "arguments": {
+              "query": "test"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "mostly_compliant",
+      "description": "Most tools compliant, one violation (3 compliant, 1 non-compliant)",
+      "scenario_type": "partial",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Multiple operations",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "test"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          },
+          {
+            "name": "filter",
+            "arguments": {
+              "criteria": "active"
+            },
+            "timestamp": "2024-04-15T10:00:02Z"
+          },
+          {
+            "name": "sort",
+            "arguments": {
+              "by": "date"
+            },
+            "timestamp": "2024-04-15T10:00:03Z"
+          },
+          {
+            "name": "EXPORT",
+            "arguments": {
+              "format": "csv"
+            },
+            "timestamp": "2024-04-15T10:00:04Z"
+          }
+        ]
+      }
+    }
+  ]
+}

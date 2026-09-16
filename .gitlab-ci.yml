@@ -1,0 +1,308 @@
+# This is used for ASH security scanning, during internal AWS development of applications
+include:
+  - component: code.aws.dev/proserve/automated-security-helper/automated-security-helper/ash@~latest
+
+stages:
+  - security
+  - test        # required by the included ASH component's `ash-sast` job
+  - publish
+
+# ---------------------------------------------------------------------------
+# Publish stage (Requirements 1.1, 1.2, 1.3, 1.4)
+#
+# Triggered only on semantic version tags (e.g. v0.2.0). Builds the wheel +
+# source distribution from the single source of truth, validates the package
+# metadata, and uploads the distributions to the configured registry
+# (PyPI for public distribution, AWS CodeArtifact for internal).
+#
+# The publish target is selected per environment via CI variables:
+#   PUBLISH_TARGET            "pypi" (default) or "codeartifact"
+#
+# Credentials are supplied through CI secret variables and are NEVER hardcoded:
+#   PyPI:
+#     TWINE_USERNAME          typically "__token__" (CI variable)
+#     TWINE_PASSWORD          PyPI API token        (masked CI secret)
+#   CodeArtifact:
+#     AWS_ACCESS_KEY_ID       AWS credentials       (masked CI secret)
+#     AWS_SECRET_ACCESS_KEY   AWS credentials       (masked CI secret)
+#     AWS_DEFAULT_REGION      AWS region            (CI variable)
+#     CODEARTIFACT_DOMAIN     CodeArtifact domain   (CI variable)
+#     CODEARTIFACT_DOMAIN_OWNER  AWS account id     (CI variable)
+#     CODEARTIFACT_REPOSITORY CodeArtifact repo     (CI variable)
+# ---------------------------------------------------------------------------
+publish:
+  stage: publish
+  image: python:3.10-slim
+  rules:
+    # Only run on version tags of the form vMAJOR.MINOR.PATCH.
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
+  script:
+    - python -m pip install --upgrade pip
+    - pip install build twine
+    # -----------------------------------------------------------------------
+    # Build (Requirement 1.6 — build-failure handling)
+    #
+    # Build the wheel + sdist from the single source of truth. `python -m build`
+    # exits non-zero on any build failure; the explicit guard halts the release
+    # before any upload is attempted and reports a clear build-failure error so
+    # the job fails fast and nothing is published.
+    # -----------------------------------------------------------------------
+    - |
+      set -e
+      echo "Building distributions from the single source of truth..."
+      if ! python -m build; then
+        echo "ERROR [build-failure]: 'python -m build' failed to produce distributions. Halting release; nothing was published." >&2
+        exit 1
+      fi
+    # Validate package metadata / long-description rendering before upload.
+    # A failing check also halts the release before any upload.
+    - |
+      set -e
+      if ! twine check dist/*; then
+        echo "ERROR [build-failure]: package metadata validation (twine check) failed. Halting release; nothing was published." >&2
+        exit 1
+      fi
+    # -----------------------------------------------------------------------
+    # Version-conflict detection (Requirement 1.5)
+    #
+    # The release version is the version tag without its leading "v" (the single
+    # source of truth in pyproject.toml). Before uploading, query the target
+    # registry for that exact version. If it already exists, reject the publish
+    # without overwriting the existing version and report a version-conflict
+    # error identifying the conflicting version. We deliberately do NOT use
+    # twine's --skip-existing (which would silently no-op): a re-publish of an
+    # existing version is an error, not a skip.
+    # -----------------------------------------------------------------------
+    - |
+      set -e
+      PKG_NAME="uaef"
+      PKG_VERSION="${CI_COMMIT_TAG#v}"
+      PUBLISH_TARGET="${PUBLISH_TARGET:-pypi}"
+      echo "Preparing to publish ${PKG_NAME}==${PKG_VERSION} to target: ${PUBLISH_TARGET}"
+
+      if [ "${PUBLISH_TARGET}" = "codeartifact" ]; then
+        # Internal: AWS CodeArtifact. Credentials come from CI secrets.
+        pip install awscli
+
+        # Conflict check: does this exact version already exist in the repo?
+        if aws codeartifact list-package-versions \
+              --domain "${CODEARTIFACT_DOMAIN}" \
+              --domain-owner "${CODEARTIFACT_DOMAIN_OWNER}" \
+              --repository "${CODEARTIFACT_REPOSITORY}" \
+              --format pypi \
+              --package "${PKG_NAME}" \
+              --query "versions[?version=='${PKG_VERSION}'] | [0].version" \
+              --output text 2>/dev/null | grep -qx "${PKG_VERSION}"; then
+          echo "ERROR [version-conflict]: ${PKG_NAME}==${PKG_VERSION} already exists in CodeArtifact repository '${CODEARTIFACT_REPOSITORY}'. Refusing to overwrite the existing published version. Bump the version and tag a new release." >&2
+          exit 1
+        fi
+
+        aws codeartifact login \
+          --tool twine \
+          --domain "${CODEARTIFACT_DOMAIN}" \
+          --domain-owner "${CODEARTIFACT_DOMAIN_OWNER}" \
+          --repository "${CODEARTIFACT_REPOSITORY}"
+        twine upload --repository codeartifact dist/*
+      else
+        # Public: PyPI. TWINE_USERNAME / TWINE_PASSWORD come from CI secrets.
+        # Conflict check: refuse to overwrite an already-published version.
+        # The helper exits 3 when the exact version already exists on the index.
+        PYPI_INDEX_HOST="${PYPI_INDEX_HOST:-pypi.org}"
+        python ci/check_pypi_version.py "${PKG_NAME}" "${PKG_VERSION}" "${PYPI_INDEX_HOST}"
+        twine upload dist/*
+      fi
+  artifacts:
+    paths:
+      - dist/*
+    expire_in: 1 week
+
+# ===========================================================================
+# Security scanning stage
+#
+# One job per scanner (mirrors the ASH tool suite) so each tool's result is
+# isolated and independently visible in the pipeline. These run on every
+# pipeline; because the `security` stage precedes `publish`, a failing scanner
+# on a version-tag pipeline blocks the release.
+# ===========================================================================
+
+# --- Secrets -------------------------------------------------------------- #
+detect-secrets:
+  stage: security
+  image: python:3.10-slim
+  script:
+    - pip install --upgrade pip detect-secrets
+    # --all-files also walks the .git/ directory; .git/FETCH_HEAD (and other git
+    # internals) contain commit SHAs / refs that read as high-entropy "secrets".
+    # Exclude .git/ so only working-tree files are scanned (it is not part of the
+    # codebase and is never shipped).
+    - detect-secrets scan --all-files --exclude-files '\.git/.*' > detect-secrets-report.json
+    - |
+      python - <<'PY'
+      import json, sys
+      report = json.load(open("detect-secrets-report.json"))
+      results = report.get("results", {})
+      if results:
+          print(f"ERROR [detect-secrets]: potential secrets found in {len(results)} file(s):")
+          for path in results:
+              print(f"  - {path}")
+          sys.exit(1)
+      print("detect-secrets: no secrets detected")
+      PY
+  artifacts:
+    paths:
+      - detect-secrets-report.json
+    when: always
+    expire_in: 1 week
+
+# --- Python SAST ---------------------------------------------------------- #
+bandit:
+  stage: security
+  image: python:3.10-slim
+  script:
+    - pip install --upgrade pip bandit
+    # Fail only on MEDIUM+ severity (Low findings stay below threshold).
+    - bandit -r src/ --severity-level medium -f json -o bandit-report.json
+  artifacts:
+    paths:
+      - bandit-report.json
+    when: always
+    expire_in: 1 week
+
+# --- Advanced static analysis --------------------------------------------- #
+semgrep:
+  stage: security
+  image: semgrep/semgrep:latest
+  script:
+    # --error makes semgrep exit non-zero when findings are present.
+    - semgrep scan --config auto --error --json --output semgrep-report.json .
+  artifacts:
+    paths:
+      - semgrep-report.json
+    when: always
+    expire_in: 1 week
+
+# --- Advanced static analysis (semgrep fork) ------------------------------ #
+opengrep:
+  stage: security
+  image: python:3.10-slim
+  script:
+    - apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+    - curl -fsSL https://raw.githubusercontent.com/opengrep/opengrep/main/install.sh | bash
+    - export PATH="$HOME/.opengrep/cli/latest:$PATH"
+    - opengrep scan --config auto --error .
+
+# --- IaC security scanning ------------------------------------------------ #
+checkov:
+  stage: security
+  image: python:3.10-slim
+  script:
+    - pip install --upgrade pip checkov
+    - checkov -d . --compact --output cli --output junitxml --output-file-path console,checkov-report.xml
+  artifacts:
+    paths:
+      - checkov-report.xml
+    when: always
+    expire_in: 1 week
+
+# --- CloudFormation security checks --------------------------------------- #
+cfn-nag:
+  stage: security
+  image: ruby:3.2-slim
+  script:
+    # ruby:3.2-slim ships neither a C toolchain nor the libyaml headers, but
+    # cfn-nag's `psych` dependency builds a native extension that needs both.
+    # The previous run failed with "checking for yaml.h... failed" (missing
+    # libyaml-dev) and "The compiler failed... install development tools first"
+    # (missing build tools). Install them before `gem install`.
+    - apt-get update && apt-get install -y --no-install-recommends build-essential libyaml-dev && rm -rf /var/lib/apt/lists/*
+    - gem install cfn-nag
+    # Scans synthesized CloudFormation templates (cdk.out/*.template.json) and
+    # any standalone CFN templates in the repo.
+    - cfn_nag_scan --input-path . --template-pattern '..*\.template\.json$'
+
+# --- CDK security checks -------------------------------------------------- #
+# NOTE: cdk-nag is applied as CDK Aspects during `cdk synth`; findings only
+# surface if the nag packs are wired into the CDK app. This job synthesizes the
+# uaef-service CDK app so those Aspects (once added) run in CI.
+cdk-nag:
+  stage: security
+  image: python:3.10-slim
+  # The previous run was OOMKilled (exit 137) during `python3 app.py`. A CDK
+  # synth loads aws-cdk-lib + the jsii Node.js runtime; the default build-pod
+  # memory limit was too small (locally the Python process alone peaks ~550 MB,
+  # and the jsii Node child process adds more on top of that). Give the pod
+  # enough headroom so synth completes.
+  # NOTE: these overrides only take effect if the GitLab Kubernetes runner is
+  # configured to allow resource overwrites (runner setting
+  # `memory_request_overwrite_max_allowed` / `memory_limit_overwrite_max_allowed`).
+  # If the managed runner caps/ignores them, the limit must be raised runner-side.
+  variables:
+    KUBERNETES_MEMORY_REQUEST: "1Gi"
+    KUBERNETES_MEMORY_LIMIT: "2Gi"
+    # Silence the jsii Node-version end-of-life banner (cosmetic log noise only).
+    JSII_SILENCE_WARNING_DEPRECATED_NODE_VERSION: "1"
+  script:
+    # aws-cdk-lib uses jsii, which needs a Node.js runtime. The aws-cdk CLI is
+    # intentionally NOT installed: we synthesize by running the app directly so
+    # we can skip Docker-based asset bundling (see below). Installing only
+    # `nodejs` (not `npm`/`aws-cdk`) keeps this job lean.
+    - apt-get update && apt-get install -y --no-install-recommends nodejs && rm -rf /var/lib/apt/lists/*
+    - pip install --upgrade pip cdk-nag -r uaef-service/requirements.txt
+    - cd uaef-service
+    # CI has no deploy-specific config.yaml (it is gitignored). infra/constants.py
+    # loads it at import time, so synth needs it. The committed example has valid
+    # placeholder values — enough for a synth-time IaC/nag scan.
+    - cp config.yaml.example config.yaml
+    # Synthesize by running the app directly (app.synth()). This executes all CDK
+    # construct code and cdk-nag Aspects (once wired) and writes templates to
+    # cdk.out. `aws:cdk:bundling-stacks=[]` skips Lambda asset bundling so NO
+    # Docker is required in CI — the bundled Lambda code is irrelevant to the
+    # CFN/nag resource-property checks. (The `cdk` CLI overrides this context and
+    # would force Docker bundling, so we run app.py directly instead of `cdk synth`.)
+    #
+    # `api_cors_allowed_origins` is a REQUIRED context key with no default
+    # (security review M-01) — ApiStack and StorageStack both fail synthesis
+    # when it is unset, so CI must supply one. Note this must go in
+    # CDK_CONTEXT_JSON, not cdk.json: running app.py directly bypasses the CDK
+    # CLI, which is what normally reads cdk.json and forwards it as context.
+    #
+    # A placeholder HTTPS origin is used deliberately, NOT the
+    # `-c api_cors_allowed_origins=* -c i_acknowledge_insecure_cors=true`
+    # bootstrap escape hatch: a wildcard would bake `AllowOrigin: '*'` into the
+    # very templates the sibling `cfn-nag` job then scans, masking exactly the
+    # permissive-CORS posture M-01 exists to prevent. Real origins come from
+    # `cors_allowed_origins` in config.yaml via scripts/cloud_deploy.sh; this
+    # value only ever exists inside this synth-only, credential-less job.
+    - CDK_OUTDIR=cdk.out CDK_CONTEXT_JSON='{"aws:cdk:bundling-stacks":[],"api_cors_allowed_origins":"https://cdk-nag.ci.invalid"}' python3 app.py
+
+# --- Node.js dependency audit --------------------------------------------- #
+npm-audit:
+  stage: security
+  image: node:20-slim
+  script:
+    - cd demo/frontend
+    - npm ci
+    - npm audit --audit-level=high
+
+# --- SBOM generation ------------------------------------------------------ #
+syft:
+  stage: security
+  image: debian:stable-slim
+  script:
+    - apt-get update && apt-get install -y --no-install-recommends curl ca-certificates && rm -rf /var/lib/apt/lists/*
+    - curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+    - syft dir:. -o cyclonedx-json=sbom.cyclonedx.json -o table
+  artifacts:
+    paths:
+      - sbom.cyclonedx.json
+    when: always
+    expire_in: 1 week
+
+# --- Vulnerability scanning ----------------------------------------------- #
+grype:
+  stage: security
+  image: debian:stable-slim
+  script:
+    - apt-get update && apt-get install -y --no-install-recommends curl ca-certificates && rm -rf /var/lib/apt/lists/*
+    - curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+    - grype dir:. --fail-on high -o table

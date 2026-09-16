@@ -1,0 +1,158 @@
+{
+  "test_cases": [
+    {
+      "name": "meets_target",
+      "description": "Throughput exceeds 10 RPS target",
+      "scenario_type": "happy_path",
+      "expected_score": 1.0,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {"throughput_rps": 12.5}
+      }
+    },
+    {
+      "name": "at_target",
+      "description": "Exactly at 10 RPS target",
+      "scenario_type": "threshold",
+      "expected_score": 1.0,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {"throughput_rps": 10.0}
+      }
+    },
+    {
+      "name": "below_target",
+      "description": "Throughput below target (5 RPS), score = 5/10 = 0.5",
+      "scenario_type": "below_threshold",
+      "expected_score": 0.5,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {"throughput_rps": 5.0}
+      }
+    },
+    {
+      "name": "very_low_throughput",
+      "description": "Very low throughput (2 RPS), score = 2/10 = 0.2",
+      "scenario_type": "low_performance",
+      "expected_score": 0.2,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {"throughput_rps": 2.0}
+      }
+    },
+    {
+      "name": "no_throughput_info",
+      "description": "No throughput information - returns None",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {}
+      }
+    },
+    {
+      "name": "exceeds_target",
+      "description": "Throughput well above target (15 RPS)",
+      "scenario_type": "high_performance",
+      "expected_score": 1.0,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {"throughput_rps": 15.0}
+      }
+    },
+    {
+      "name": "moderate_throughput",
+      "description": "Moderate throughput (7 RPS), score = 7/10 = 0.7",
+      "scenario_type": "below_threshold",
+      "expected_score": 0.7,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {"throughput_rps": 7.0}
+      }
+    },
+    {
+      "name": "one_rps",
+      "description": "Very low throughput (1 RPS), score = 1/10 = 0.1",
+      "scenario_type": "low_performance",
+      "expected_score": 0.1,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {"throughput_rps": 1.0}
+      }
+    },
+    {
+      "name": "negative_throughput",
+      "description": "Invalid negative throughput returns score 0.0",
+      "scenario_type": "invalid_data",
+      "expected_score": 0.0,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {"throughput_rps": -5.0}
+      }
+    },
+    {
+      "name": "zero_throughput",
+      "description": "Zero throughput, score = 0/10 = 0.0",
+      "scenario_type": "edge_case",
+      "expected_score": 0.0,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {"throughput_rps": 0.0}
+      }
+    },
+    {
+      "name": "throughput_rps_null_explicit",
+      "description": "throughput_rps explicitly null - returns None",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {"throughput_rps": null}
+      }
+    }
+  ]
+}

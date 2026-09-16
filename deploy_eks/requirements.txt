@@ -1,0 +1,22 @@
+# UAEF Service — EKS container dependencies
+# FastAPI + ASGI server
+# python-multipart >= 0.0.32 fixes arbitrary file write (GHSA-wp53-j4wj-2cfg) + several DoS
+# advisories (GHSA-pp6c/5rvq/mj87/v9pg/vffw/6jv3). Matches the core pyproject floor.
+fastapi==0.115.6
+starlette==0.41.3
+uvicorn[standard]==0.34.0
+python-multipart==0.0.32
+
+# JWT validation
+# Replaced python-jose with PyJWT — python-jose is unmaintained and vulnerable to JWT bomb (CVE-2024-33663).
+# PyJWT >= 2.13.0 fixes HS256 forgery via JWK-as-HMAC (GHSA-xgmm-8j9v-c9wx), alg allow-list bypass,
+# unbounded base64 DoS, and PyJWKClient SSRF (GHSA-jq35/w7vc/993g/fhv5). Matches the core pyproject floor.
+PyJWT[crypto]==2.13.0
+httpx==0.28.1
+
+# AWS SDK (DynamoDB, S3, Bedrock, etc.)
+boto3==1.35.86
+
+# Request validation (used by handler code)
+# pydantic >= 2.4.0 required to fix ReDoS in email validation (CVE-2024-3772)
+pydantic==2.10.4

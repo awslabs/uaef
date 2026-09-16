@@ -1,0 +1,658 @@
+{
+  "test_cases": [
+    {
+      "name": "perfect_match",
+      "description": "All tools correct (names match)",
+      "scenario_type": "happy_path",
+      "expected_score": 1.0,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Search for Paris weather",
+            "timestamp": "2024-04-15T10:00:00Z"
+          },
+          {
+            "role": "assistant",
+            "content": "Searching...",
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "Paris weather"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "Paris weather"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "parameters_ignored",
+      "description": "Tool name matches but parameters differ (should still be 1.0)",
+      "scenario_type": "happy_path",
+      "expected_score": 1.0,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Calculate 100 - 25",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "subtract",
+            "arguments": {
+              "minuend": 25,
+              "subtrahend": 100
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "subtract",
+            "arguments": {
+              "minuend": 100,
+              "subtrahend": 25
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing_tool",
+      "description": "Expected 2, called 1 - Jaccard = 1/2 = 0.5",
+      "scenario_type": "missing_tool",
+      "expected_score": 0.5,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Search and summarize",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "test"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "test"
+            }
+          },
+          {
+            "name": "summarize",
+            "arguments": {
+              "text": "results"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "incorrect_tool",
+      "description": "Wrong tool called - Jaccard = 0/2 = 0.0",
+      "scenario_type": "incorrect_tool",
+      "expected_score": 0.0,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Search for info",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "calculator",
+            "arguments": {
+              "expr": "2+2"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "info"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "extra_tool",
+      "description": "Expected 1, called 2 - Jaccard = 1/2 = 0.5",
+      "scenario_type": "extra_tool",
+      "expected_score": 0.5,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Search",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "test"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          },
+          {
+            "name": "cache",
+            "arguments": {
+              "key": "result"
+            },
+            "timestamp": "2024-04-15T10:00:02Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "test"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "duplicate_tool_names_match",
+      "description": "Both expect and call send_email twice (names match) - Jaccard = 2/2 = 1.0",
+      "scenario_type": "multiple_calls",
+      "expected_score": 1.0,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Email Alice and Bob",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "send_email",
+            "arguments": {
+              "to": "alice@test.com"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          },
+          {
+            "name": "send_email",
+            "arguments": {
+              "to": "alice@test.com"
+            },
+            "timestamp": "2024-04-15T10:00:02Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "send_email",
+            "arguments": {
+              "to": "alice@test.com"
+            }
+          },
+          {
+            "name": "send_email",
+            "arguments": {
+              "to": "bob@test.com"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "no_tools_expected_none_called",
+      "description": "Edge case: no tools expected, no tools called",
+      "scenario_type": "edge_case_empty",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "What's 2+2?",
+            "timestamp": "2024-04-15T10:00:00Z"
+          },
+          {
+            "role": "assistant",
+            "content": "4",
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_tool_calls": []
+      }
+    },
+    {
+      "name": "missing_ground_truth",
+      "description": "Edge case: no ground truth provided - should return None",
+      "scenario_type": "not_applicable",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Search",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "test"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      },
+      "ground_truth": null
+    },
+    {
+      "name": "no_tools_expected_but_called",
+      "description": "Edge case: expected 0, called 1 - Jaccard = 0/1 = 0.0",
+      "scenario_type": "edge_case_unexpected",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "What's 2+2?",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "calculator",
+            "arguments": {
+              "expr": "2+2"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": []
+      }
+    },
+    {
+      "name": "expected_tools_none_called",
+      "description": "Expected 2, called 0 - Jaccard = 0/2 = 0.0",
+      "scenario_type": "edge_case_missing",
+      "expected_score": 0.0,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Search and summarize",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "search",
+            "arguments": {}
+          },
+          {
+            "name": "summarize",
+            "arguments": {}
+          }
+        ]
+      }
+    },
+    {
+      "name": "multiple_tools_all_correct",
+      "description": "Three tools all match - Jaccard = 3/3 = 1.0",
+      "scenario_type": "happy_path",
+      "expected_score": 1.0,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Complex workflow",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "fetch",
+            "arguments": {
+              "url": "http://api.test"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          },
+          {
+            "name": "validate",
+            "arguments": {
+              "strict": false
+            },
+            "timestamp": "2024-04-15T10:00:02Z"
+          },
+          {
+            "name": "transform",
+            "arguments": {
+              "format": "csv"
+            },
+            "timestamp": "2024-04-15T10:00:03Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "fetch",
+            "arguments": {
+              "url": "http://api.test"
+            }
+          },
+          {
+            "name": "validate",
+            "arguments": {
+              "strict": true
+            }
+          },
+          {
+            "name": "transform",
+            "arguments": {
+              "format": "json"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "duplicate_correct_calls",
+      "description": "Same tool 3 times - Jaccard = 3/3 = 1.0",
+      "scenario_type": "duplicates",
+      "expected_score": 1.0,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Ping server 3 times",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "ping",
+            "arguments": {
+              "host": "server.test"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          },
+          {
+            "name": "ping",
+            "arguments": {
+              "host": "server.test"
+            },
+            "timestamp": "2024-04-15T10:00:02Z"
+          },
+          {
+            "name": "ping",
+            "arguments": {
+              "host": "server.test"
+            },
+            "timestamp": "2024-04-15T10:00:03Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "ping",
+            "arguments": {
+              "host": "server.test"
+            }
+          },
+          {
+            "name": "ping",
+            "arguments": {
+              "host": "server.test"
+            }
+          },
+          {
+            "name": "ping",
+            "arguments": {
+              "host": "server.test"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "extra_duplicate_calls",
+      "description": "Expected 2 retries, called 4 - Jaccard = 2/4 = 0.5",
+      "scenario_type": "extra_calls",
+      "expected_score": 0.5,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Retry",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "retry",
+            "arguments": {
+              "attempt": 1
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          },
+          {
+            "name": "retry",
+            "arguments": {
+              "attempt": 2
+            },
+            "timestamp": "2024-04-15T10:00:02Z"
+          },
+          {
+            "name": "retry",
+            "arguments": {
+              "attempt": 3
+            },
+            "timestamp": "2024-04-15T10:00:03Z"
+          },
+          {
+            "name": "retry",
+            "arguments": {
+              "attempt": 4
+            },
+            "timestamp": "2024-04-15T10:00:04Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "retry",
+            "arguments": {
+              "attempt": 1
+            }
+          },
+          {
+            "name": "retry",
+            "arguments": {
+              "attempt": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "partial_match_mixed_tools",
+      "description": "Expected [A, B, C], got [A, B, D] - Jaccard = 2/4 = 0.5",
+      "scenario_type": "partial",
+      "expected_score": 0.5,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Workflow",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "fetch",
+            "arguments": {},
+            "timestamp": "2024-04-15T10:00:01Z"
+          },
+          {
+            "name": "validate",
+            "arguments": {},
+            "timestamp": "2024-04-15T10:00:02Z"
+          },
+          {
+            "name": "export",
+            "arguments": {},
+            "timestamp": "2024-04-15T10:00:03Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "fetch",
+            "arguments": {}
+          },
+          {
+            "name": "validate",
+            "arguments": {}
+          },
+          {
+            "name": "transform",
+            "arguments": {}
+          }
+        ]
+      }
+    },
+    {
+      "name": "completely_wrong_tools",
+      "description": "Expected [A, B], got [C, D] - Jaccard = 0/4 = 0.0",
+      "scenario_type": "incorrect_tools",
+      "expected_score": 0.0,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Process",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "log",
+            "arguments": {},
+            "timestamp": "2024-04-15T10:00:01Z"
+          },
+          {
+            "name": "cache",
+            "arguments": {},
+            "timestamp": "2024-04-15T10:00:02Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "fetch",
+            "arguments": {}
+          },
+          {
+            "name": "parse",
+            "arguments": {}
+          }
+        ]
+      }
+    },
+    {
+      "name": "one_match_many_wrong",
+      "description": "Expected [A], got [A, B, C, D] - Jaccard = 1/4 = 0.25",
+      "scenario_type": "many_extra",
+      "expected_score": 0.25,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Simple search",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "search",
+            "arguments": {},
+            "timestamp": "2024-04-15T10:00:01Z"
+          },
+          {
+            "name": "log",
+            "arguments": {},
+            "timestamp": "2024-04-15T10:00:02Z"
+          },
+          {
+            "name": "cache",
+            "arguments": {},
+            "timestamp": "2024-04-15T10:00:03Z"
+          },
+          {
+            "name": "notify",
+            "arguments": {},
+            "timestamp": "2024-04-15T10:00:04Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "search",
+            "arguments": {}
+          }
+        ]
+      }
+    }
+  ]
+}

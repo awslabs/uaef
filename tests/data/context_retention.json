@@ -1,0 +1,189 @@
+{
+  "test_cases": [
+    {
+      "name": "excellent_retention",
+      "description": "Agent remembers name, location, allergy, and budget across 5 turns",
+      "scenario_type": "retention",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "My name is Alice, I live in Paris, and I'm allergic to peanuts.", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Nice to meet you, Alice! I've noted that you live in Paris and have a peanut allergy. How can I help you today?", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "I'm looking for a restaurant for dinner tonight. My budget is around 50 euros.", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "I'll look for restaurants in Paris within your 50 euro budget. I'll make sure to exclude places that primarily serve peanut-based dishes. Any cuisine preference?", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Italian would be great.", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "Here are 3 Italian restaurants in Paris under 50 euros: 1) Ober Mamma — pasta-focused, peanut-free menu. 2) Pink Mamma — great reviews, allergen-friendly. 3) East Mamma — casual, fits your budget.", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "Book the first one for 2 people.", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "Done! I've booked Ober Mamma for 2 people tonight, Alice. I've also noted your peanut allergy in the reservation. Enjoy your dinner in Paris!", "timestamp": "2024-04-15T10:00:07Z"},
+          {"role": "user", "content": "Can you remind me what I told you about my dietary restrictions?", "timestamp": "2024-04-15T10:00:08Z"},
+          {"role": "assistant", "content": "Of course, Alice. You mentioned that you're allergic to peanuts. That's why I filtered the restaurant options and added the allergy note to your reservation at Ober Mamma.", "timestamp": "2024-04-15T10:00:09Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "good_retention",
+      "description": "Agent remembers destination, dates, and preferences across a booking flow",
+      "scenario_type": "retention",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "I need to book a flight to Tokyo for a business trip.", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "I'll help you book a flight to Tokyo. When would you like to travel?", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Next Monday, returning Friday. I prefer morning departures.", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "Got it — round trip to Tokyo, departing Monday morning and returning Friday. Let me search for options.", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "I also need a window seat if possible.", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "Noted! I found 3 morning flights to Tokyo for Monday with window seats available. The best option is JAL 8:15 AM, returning Friday at 10:00 AM. Shall I book it?", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "Yes, book it. What's the total?", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "Booked! JAL round trip to Tokyo: Monday 8:15 AM departure, Friday 10:00 AM return, window seat. Total: $1,240. Confirmation sent to your email.", "timestamp": "2024-04-15T10:00:07Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "partial_retention",
+      "description": "Agent remembers the order but forgets specific topping details",
+      "scenario_type": "partial",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "My name is Bob. I want to order a large pizza with extra cheese, mushrooms, and no olives.", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Sure thing, Bob! I'll place a large pizza order for you.", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Also add a side of garlic bread and a Coke.", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "Added garlic bread and a Coke to your order.", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Can you read back my full order?", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "Sure, Bob! You ordered a large pizza, garlic bread, and a Coke.", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "What toppings did I ask for on the pizza?", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "You wanted extra cheese on your pizza.", "timestamp": "2024-04-15T10:00:07Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "poor_retention_forgets",
+      "description": "Agent completely forgets the user's name and prior details after several turns",
+      "scenario_type": "no_retention",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Hi, my name is Carol and I'm a software engineer working on a Python project.", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Nice to meet you, Carol! I'd be happy to help with your Python project.", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "I'm getting a TypeError in my code. Here's the traceback.", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "That TypeError usually means you're passing the wrong type to a function. Can you share the relevant code?", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "I fixed it, thanks! Now I have a different question.", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "Sure, what's your question?", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "What's my name and what language am I working with?", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "I'm sorry, I don't have that information. Could you tell me your name and what programming language you're using?", "timestamp": "2024-04-15T10:00:07Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "poor_retention_asks_again",
+      "description": "Agent asks for location that was already stated, ignoring prior context entirely",
+      "scenario_type": "no_retention",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "I live in Berlin and I'm looking for things to do this weekend.", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Great! Berlin has lots of options. Are you interested in outdoor activities or indoor events?", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Outdoor activities, preferably parks or markets.", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "There are some wonderful parks and weekend markets. Let me find some options.", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "What restaurants are nearby for lunch after?", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "I'd be happy to recommend restaurants! What city are you in?", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "I already told you I'm in Berlin.", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "Oh right, sorry about that! Here are some restaurants in Berlin near popular parks.", "timestamp": "2024-04-15T10:00:07Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "independent_questions",
+      "description": "Unrelated factual questions with no shared context to retain",
+      "scenario_type": "not_applicable",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What's 2+2?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "4.", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "What's the capital of Brazil?", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "Brasilia.", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "How many legs does a spider have?", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "8.", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "What year did World War II end?", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "1945.", "timestamp": "2024-04-15T10:00:07Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "factual_questions_no_retention",
+      "description": "Sequential factual questions about different programming languages",
+      "scenario_type": "not_applicable",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What is Python?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Python is a high-level, interpreted programming language known for its readability.", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "What is Rust?", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "Rust is a systems programming language focused on safety, speed, and concurrency.", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "What is Go?", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "Go is a statically typed, compiled language designed at Google for simplicity and efficiency.", "timestamp": "2024-04-15T10:00:05Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "too_few_turns",
+      "description": "Edge case: less than 2 turns - returns None",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Hello", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Hi! How can I help?", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "contradicts_earlier_statement",
+      "description": "Agent gives contradictory information about the same fact across turns",
+      "scenario_type": "no_retention",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What time is the team meeting tomorrow?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "The team meeting is scheduled for 2 PM in Conference Room B.", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Great. And what's the agenda?", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "The agenda covers Q2 planning, budget review, and hiring updates.", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Let me confirm — what time and where is the meeting?", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "The meeting is at 3:30 PM in the Main Hall.", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "Wait, you said 2 PM in Conference Room B earlier.", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "I apologize for the confusion. Let me check again.", "timestamp": "2024-04-15T10:00:07Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "builds_on_context",
+      "description": "Agent progressively builds a travel itinerary using all prior preferences",
+      "scenario_type": "retention",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "I'm planning a 7-day trip to Japan in October.", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "October is a wonderful time to visit Japan — the autumn foliage is beautiful. What cities are you considering?", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Tokyo and Kyoto. I love temples and street food.", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "Great choices! For your 7-day Japan trip, I'd suggest 4 days in Tokyo and 3 in Kyoto. Both cities have amazing temples and street food scenes.", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "I'm on a mid-range budget, around $150/day.", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "With $150/day over 7 days, that's about $1,050 total. For Tokyo, I'd recommend staying in Asakusa — it's near Senso-ji temple and Nakamise street food alley, and hotels there fit your budget. For Kyoto, the Gion area puts you close to temples and Nishiki Market.", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "Can you summarize the full plan so far?", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "Here's your Japan trip plan: 7 days in October, $150/day budget. Days 1-4 in Tokyo (Asakusa area, Senso-ji temple, street food at Nakamise). Days 5-7 in Kyoto (Gion area, temples, Nishiki Market). Total budget: ~$1,050. Shall I look into specific hotels and temple tours?", "timestamp": "2024-04-15T10:00:07Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "empty_messages",
+      "description": "Edge case: no messages at all - returns None",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [],
+        "tool_calls": []
+      }
+    }
+  ]
+}

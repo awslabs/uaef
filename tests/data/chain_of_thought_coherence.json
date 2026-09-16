@@ -1,0 +1,139 @@
+{
+  "test_cases": [
+    {
+      "name": "coherent_reasoning",
+      "description": "Clear logical progression in reasoning",
+      "scenario_type": "coherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "How many days until Christmas?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Let me think through this. Today is April 15. Christmas is December 25. From April 15 to December 25 is about 8 months and 10 days, which equals approximately 254 days.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "step_by_step_clear",
+      "description": "Well-structured step-by-step reasoning",
+      "scenario_type": "coherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Should I invest in stocks now?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Let me analyze this: 1) Current market conditions show volatility. 2) Your risk tolerance matters - if you're risk-averse, this may not be ideal. 3) Consider your time horizon - longer timeframes reduce risk. 4) Based on these factors, I'd suggest consulting a financial advisor.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "logical_jumps",
+      "description": "Reasoning has gaps and logical jumps",
+      "scenario_type": "incoherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Why is the sky blue?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "The sky appears blue. Water is wet. Therefore, light scatters. Birds fly high.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "disconnected_steps",
+      "description": "Steps don't build on each other",
+      "scenario_type": "incoherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "How does photosynthesis work?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Plants are green. The sun is hot. Oxygen exists. These are facts about nature.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "builds_on_previous",
+      "description": "Each step clearly builds on the previous",
+      "scenario_type": "coherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Explain quicksort", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Quicksort works as follows: First, pick a pivot element. Then, partition the array so elements smaller than pivot go left, larger go right. Next, recursively sort both partitions. Finally, combine the results. This divide-and-conquer approach achieves O(n log n) average performance.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "circular_reasoning",
+      "description": "Reasoning goes in circles",
+      "scenario_type": "incoherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Why is this good?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "This is good because it's effective. It's effective because it works well. It works well because it's good quality. It's good quality because it's good.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "cause_and_effect",
+      "description": "Clear cause-effect relationships",
+      "scenario_type": "coherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Why did the plant die?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "The plant likely died due to lack of water. Without water, the plant couldn't perform photosynthesis. This led to cell dehydration. Eventually, the plant tissues died from starvation and desiccation.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "no_reasoning",
+      "description": "Edge case: no assistant messages - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What's 2+2?", "timestamp": "2024-04-15T10:00:00Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "empty_response",
+      "description": "Edge case: empty assistant response - returns None (missing_data)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Explain this", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "multiple_reasoning_steps",
+      "description": "Multiple messages with reasoning",
+      "scenario_type": "coherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Solve this problem", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "First, let me identify the constraints.", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "assistant", "content": "Given those constraints, I need to consider three approaches.", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "Approach A is best because it satisfies all requirements.", "timestamp": "2024-04-15T10:00:03Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "contradictory_reasoning",
+      "description": "Reasoning contradicts itself",
+      "scenario_type": "incoherent",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Should I exercise?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Exercise is essential for health, so you should definitely exercise. However, exercise is bad for you and you should avoid it. But regular exercise is recommended.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,308 @@
+{
+  "test_cases": [
+    {
+      "name": "efficient_two_turns",
+      "description": "Goal achieved in 2 turns (within expected 5)",
+      "scenario_type": "efficient",
+      "expected_score": 1.0,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What's the weather?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "It's sunny, 22°C", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Thanks!", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "You're welcome!", "timestamp": "2024-04-15T10:00:03Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "at_expected_turns",
+      "description": "Exactly at expected 5 turns",
+      "scenario_type": "threshold",
+      "expected_score": 1.0,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Help me", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Sure", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Step 1", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "Done", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Step 2", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "Done", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "Step 3", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "Done", "timestamp": "2024-04-15T10:00:07Z"},
+          {"role": "user", "content": "Thanks", "timestamp": "2024-04-15T10:00:08Z"},
+          {"role": "assistant", "content": "Welcome", "timestamp": "2024-04-15T10:00:09Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "slightly_above_expected",
+      "description": "7 turns (above expected 5)",
+      "scenario_type": "above_threshold",
+      "expected_score": 0.71,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Q1", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "A1", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Q2", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "A2", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Q3", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "A3", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "Q4", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "A4", "timestamp": "2024-04-15T10:00:07Z"},
+          {"role": "user", "content": "Q5", "timestamp": "2024-04-15T10:00:08Z"},
+          {"role": "assistant", "content": "A5", "timestamp": "2024-04-15T10:00:09Z"},
+          {"role": "user", "content": "Q6", "timestamp": "2024-04-15T10:00:10Z"},
+          {"role": "assistant", "content": "A6", "timestamp": "2024-04-15T10:00:11Z"},
+          {"role": "user", "content": "Q7", "timestamp": "2024-04-15T10:00:12Z"},
+          {"role": "assistant", "content": "A7", "timestamp": "2024-04-15T10:00:13Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "many_turns",
+      "description": "15 turns (3x expected)",
+      "scenario_type": "high_turns",
+      "expected_score": 0.33,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Turn 1", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Response 1", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Turn 2", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "Response 2", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Turn 3", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "Response 3", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "Turn 4", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "Response 4", "timestamp": "2024-04-15T10:00:07Z"},
+          {"role": "user", "content": "Turn 5", "timestamp": "2024-04-15T10:00:08Z"},
+          {"role": "assistant", "content": "Response 5", "timestamp": "2024-04-15T10:00:09Z"},
+          {"role": "user", "content": "Turn 6", "timestamp": "2024-04-15T10:00:10Z"},
+          {"role": "assistant", "content": "Response 6", "timestamp": "2024-04-15T10:00:11Z"},
+          {"role": "user", "content": "Turn 7", "timestamp": "2024-04-15T10:00:12Z"},
+          {"role": "assistant", "content": "Response 7", "timestamp": "2024-04-15T10:00:13Z"},
+          {"role": "user", "content": "Turn 8", "timestamp": "2024-04-15T10:00:14Z"},
+          {"role": "assistant", "content": "Response 8", "timestamp": "2024-04-15T10:00:15Z"},
+          {"role": "user", "content": "Turn 9", "timestamp": "2024-04-15T10:00:16Z"},
+          {"role": "assistant", "content": "Response 9", "timestamp": "2024-04-15T10:00:17Z"},
+          {"role": "user", "content": "Turn 10", "timestamp": "2024-04-15T10:00:18Z"},
+          {"role": "assistant", "content": "Response 10", "timestamp": "2024-04-15T10:00:19Z"},
+          {"role": "user", "content": "Turn 11", "timestamp": "2024-04-15T10:00:20Z"},
+          {"role": "assistant", "content": "Response 11", "timestamp": "2024-04-15T10:00:21Z"},
+          {"role": "user", "content": "Turn 12", "timestamp": "2024-04-15T10:00:22Z"},
+          {"role": "assistant", "content": "Response 12", "timestamp": "2024-04-15T10:00:23Z"},
+          {"role": "user", "content": "Turn 13", "timestamp": "2024-04-15T10:00:24Z"},
+          {"role": "assistant", "content": "Response 13", "timestamp": "2024-04-15T10:00:25Z"},
+          {"role": "user", "content": "Turn 14", "timestamp": "2024-04-15T10:00:26Z"},
+          {"role": "assistant", "content": "Response 14", "timestamp": "2024-04-15T10:00:27Z"},
+          {"role": "user", "content": "Turn 15", "timestamp": "2024-04-15T10:00:28Z"},
+          {"role": "assistant", "content": "Response 15", "timestamp": "2024-04-15T10:00:29Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "single_turn",
+      "description": "Just 1 turn",
+      "scenario_type": "efficient",
+      "expected_score": 1.0,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "What's 2+2?", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "4", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "ten_turns",
+      "description": "10 turns (2x expected)",
+      "scenario_type": "above_threshold",
+      "expected_score": 0.5,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "T1", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "R1", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "T2", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "R2", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "T3", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "R3", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "T4", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "R4", "timestamp": "2024-04-15T10:00:07Z"},
+          {"role": "user", "content": "T5", "timestamp": "2024-04-15T10:00:08Z"},
+          {"role": "assistant", "content": "R5", "timestamp": "2024-04-15T10:00:09Z"},
+          {"role": "user", "content": "T6", "timestamp": "2024-04-15T10:00:10Z"},
+          {"role": "assistant", "content": "R6", "timestamp": "2024-04-15T10:00:11Z"},
+          {"role": "user", "content": "T7", "timestamp": "2024-04-15T10:00:12Z"},
+          {"role": "assistant", "content": "R7", "timestamp": "2024-04-15T10:00:13Z"},
+          {"role": "user", "content": "T8", "timestamp": "2024-04-15T10:00:14Z"},
+          {"role": "assistant", "content": "R8", "timestamp": "2024-04-15T10:00:15Z"},
+          {"role": "user", "content": "T9", "timestamp": "2024-04-15T10:00:16Z"},
+          {"role": "assistant", "content": "R9", "timestamp": "2024-04-15T10:00:17Z"},
+          {"role": "user", "content": "T10", "timestamp": "2024-04-15T10:00:18Z"},
+          {"role": "assistant", "content": "R10", "timestamp": "2024-04-15T10:00:19Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "three_turns",
+      "description": "3 turns (efficient)",
+      "scenario_type": "efficient",
+      "expected_score": 1.0,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question 1", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer 1", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Question 2", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "Answer 2", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Done", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "Great!", "timestamp": "2024-04-15T10:00:05Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "zero_turns",
+      "description": "Edge case: no complete turns - returns None",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "one_message_only",
+      "description": "Edge case: incomplete turn (0 complete turns) - returns None",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "twenty_turns",
+      "description": "20 turns (4x expected) - complex task",
+      "scenario_type": "high_turns",
+      "expected_score": 0.25,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Turn 1", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Response 1", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Turn 2", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "Response 2", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Turn 3", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "Response 3", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "Turn 4", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "Response 4", "timestamp": "2024-04-15T10:00:07Z"},
+          {"role": "user", "content": "Turn 5", "timestamp": "2024-04-15T10:00:08Z"},
+          {"role": "assistant", "content": "Response 5", "timestamp": "2024-04-15T10:00:09Z"},
+          {"role": "user", "content": "Turn 6", "timestamp": "2024-04-15T10:00:10Z"},
+          {"role": "assistant", "content": "Response 6", "timestamp": "2024-04-15T10:00:11Z"},
+          {"role": "user", "content": "Turn 7", "timestamp": "2024-04-15T10:00:12Z"},
+          {"role": "assistant", "content": "Response 7", "timestamp": "2024-04-15T10:00:13Z"},
+          {"role": "user", "content": "Turn 8", "timestamp": "2024-04-15T10:00:14Z"},
+          {"role": "assistant", "content": "Response 8", "timestamp": "2024-04-15T10:00:15Z"},
+          {"role": "user", "content": "Turn 9", "timestamp": "2024-04-15T10:00:16Z"},
+          {"role": "assistant", "content": "Response 9", "timestamp": "2024-04-15T10:00:17Z"},
+          {"role": "user", "content": "Turn 10", "timestamp": "2024-04-15T10:00:18Z"},
+          {"role": "assistant", "content": "Response 10", "timestamp": "2024-04-15T10:00:19Z"},
+          {"role": "user", "content": "Turn 11", "timestamp": "2024-04-15T10:00:20Z"},
+          {"role": "assistant", "content": "Response 11", "timestamp": "2024-04-15T10:00:21Z"},
+          {"role": "user", "content": "Turn 12", "timestamp": "2024-04-15T10:00:22Z"},
+          {"role": "assistant", "content": "Response 12", "timestamp": "2024-04-15T10:00:23Z"},
+          {"role": "user", "content": "Turn 13", "timestamp": "2024-04-15T10:00:24Z"},
+          {"role": "assistant", "content": "Response 13", "timestamp": "2024-04-15T10:00:25Z"},
+          {"role": "user", "content": "Turn 14", "timestamp": "2024-04-15T10:00:26Z"},
+          {"role": "assistant", "content": "Response 14", "timestamp": "2024-04-15T10:00:27Z"},
+          {"role": "user", "content": "Turn 15", "timestamp": "2024-04-15T10:00:28Z"},
+          {"role": "assistant", "content": "Response 15", "timestamp": "2024-04-15T10:00:29Z"},
+          {"role": "user", "content": "Turn 16", "timestamp": "2024-04-15T10:00:30Z"},
+          {"role": "assistant", "content": "Response 16", "timestamp": "2024-04-15T10:00:31Z"},
+          {"role": "user", "content": "Turn 17", "timestamp": "2024-04-15T10:00:32Z"},
+          {"role": "assistant", "content": "Response 17", "timestamp": "2024-04-15T10:00:33Z"},
+          {"role": "user", "content": "Turn 18", "timestamp": "2024-04-15T10:00:34Z"},
+          {"role": "assistant", "content": "Response 18", "timestamp": "2024-04-15T10:00:35Z"},
+          {"role": "user", "content": "Turn 19", "timestamp": "2024-04-15T10:00:36Z"},
+          {"role": "assistant", "content": "Response 19", "timestamp": "2024-04-15T10:00:37Z"},
+          {"role": "user", "content": "Turn 20", "timestamp": "2024-04-15T10:00:38Z"},
+          {"role": "assistant", "content": "Response 20", "timestamp": "2024-04-15T10:00:39Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "partial_completeness",
+      "description": "7 turns with 50% completeness - score = 0.5 * (5/7)",
+      "scenario_type": "partial_completion",
+      "expected_score": 0.36,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Q1", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "A1", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Q2", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "A2", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Q3", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "A3", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "Q4", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "A4", "timestamp": "2024-04-15T10:00:07Z"},
+          {"role": "user", "content": "Q5", "timestamp": "2024-04-15T10:00:08Z"},
+          {"role": "assistant", "content": "A5", "timestamp": "2024-04-15T10:00:09Z"},
+          {"role": "user", "content": "Q6", "timestamp": "2024-04-15T10:00:10Z"},
+          {"role": "assistant", "content": "A6", "timestamp": "2024-04-15T10:00:11Z"},
+          {"role": "user", "content": "Q7", "timestamp": "2024-04-15T10:00:12Z"},
+          {"role": "assistant", "content": "A7", "timestamp": "2024-04-15T10:00:13Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {"completeness_score": 0.5}
+      }
+    },
+    {
+      "name": "custom_expected_turns",
+      "description": "3 turns with expected_turns=3 (at threshold)",
+      "scenario_type": "threshold",
+      "expected_score": 1.0,
+      "metric_params": {"expected_turns": 3},
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Q1", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "A1", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Q2", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "A2", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Q3", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "A3", "timestamp": "2024-04-15T10:00:05Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "custom_expected_above",
+      "description": "6 turns with expected_turns=3 (2x above)",
+      "scenario_type": "above_threshold",
+      "expected_score": 0.5,
+      "metric_params": {"expected_turns": 3},
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Q1", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "A1", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Q2", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "A2", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Q3", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "A3", "timestamp": "2024-04-15T10:00:05Z"},
+          {"role": "user", "content": "Q4", "timestamp": "2024-04-15T10:00:06Z"},
+          {"role": "assistant", "content": "A4", "timestamp": "2024-04-15T10:00:07Z"},
+          {"role": "user", "content": "Q5", "timestamp": "2024-04-15T10:00:08Z"},
+          {"role": "assistant", "content": "A5", "timestamp": "2024-04-15T10:00:09Z"},
+          {"role": "user", "content": "Q6", "timestamp": "2024-04-15T10:00:10Z"},
+          {"role": "assistant", "content": "A6", "timestamp": "2024-04-15T10:00:11Z"}
+        ],
+        "tool_calls": []
+      }
+    }
+  ]
+}

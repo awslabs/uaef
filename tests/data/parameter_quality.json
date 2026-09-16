@@ -1,0 +1,375 @@
+{
+  "test_cases": [
+    {
+      "name": "perfect_parameters",
+      "description": "All parameters match perfectly",
+      "scenario_type": "happy_path",
+      "expected_score": 1.0,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Search",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "Paris",
+              "limit": 10
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "Paris",
+              "limit": 10
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "swapped_parameters",
+      "description": "Parameters swapped (same values, wrong keys)",
+      "scenario_type": "argument_swap",
+      "expected_score": 0.0,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Divide",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "divide",
+            "arguments": {
+              "dividend": 25,
+              "divisor": 100
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "divide",
+            "arguments": {
+              "dividend": 100,
+              "divisor": 25
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing_parameter",
+      "description": "Missing one required parameter",
+      "scenario_type": "missing_params",
+      "expected_score": 0.5,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Search",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "test"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "test",
+              "limit": 10
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "extra_parameters",
+      "description": "Extra parameters added",
+      "scenario_type": "extra_params",
+      "expected_score_range": [
+        0.33,
+        0.34
+      ],
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "API call",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "api",
+            "arguments": {
+              "url": "/test",
+              "timeout": 30,
+              "retry": 3
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "api",
+            "arguments": {
+              "url": "/test"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "wrong_parameter_values",
+      "description": "Correct keys but wrong values",
+      "scenario_type": "incorrect_params",
+      "expected_score": 0.0,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Search",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "London",
+              "limit": 20
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "Paris",
+              "limit": 10
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "no_tools",
+      "description": "No tool calls to evaluate",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Hello",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_tool_calls": []
+      }
+    },
+    {
+      "name": "partial_match",
+      "description": "Some parameters correct, some wrong",
+      "scenario_type": "partial",
+      "expected_score": 0.5,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Search",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "Paris",
+              "limit": 20
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "search",
+            "arguments": {
+              "query": "Paris",
+              "limit": 10
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "type_mismatch",
+      "description": "Parameter types don't match (string '8080' vs int 8080)",
+      "scenario_type": "incorrect_params",
+      "expected_score": 0.0,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Call API",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "api",
+            "arguments": {
+              "port": "8080"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "api",
+            "arguments": {
+              "port": 8080
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "nested_parameters",
+      "description": "Nested parameter structures",
+      "scenario_type": "happy_path",
+      "expected_score": 1.0,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Configure",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "configure",
+            "arguments": {
+              "settings": {
+                "timeout": 30,
+                "retry": 3
+              }
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "configure",
+            "arguments": {
+              "settings": {
+                "timeout": 30,
+                "retry": 3
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "null_parameter_value",
+      "description": "Parameter with null value",
+      "scenario_type": "edge_case",
+      "expected_score": 1.0,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Update",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "update",
+            "arguments": {
+              "value": null
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      },
+      "ground_truth": {
+        "expected_tool_calls": [
+          {
+            "name": "update",
+            "arguments": {
+              "value": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing_ground_truth",
+      "description": "No ground truth provided - should return None",
+      "scenario_type": "not_applicable",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "Call API",
+            "timestamp": "2024-04-15T10:00:00Z"
+          }
+        ],
+        "tool_calls": [
+          {
+            "name": "api_call",
+            "arguments": {
+              "endpoint": "/users",
+              "method": "GET"
+            },
+            "timestamp": "2024-04-15T10:00:01Z"
+          }
+        ]
+      },
+      "ground_truth": null
+    }
+  ]
+}

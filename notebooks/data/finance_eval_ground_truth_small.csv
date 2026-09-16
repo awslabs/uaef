@@ -1,0 +1,6 @@
+question_id,question,agent,expected_trend_direction,expected_sma_20,expected_volatility_pct,expected_high_vol_days,expected_response_summary
+1,What is the 20-day SMA and trend direction for the period ending 2023-02-02?,trend,uptrend,96.58,,,
+2,Identify high volatility days (>5% intraday range) between 2025-04-01 and 2025-04-15,volatility,,,,"2025-04-02,2025-04-04,2025-04-07,2025-04-08,2025-04-09,2025-04-10",
+3,What is the daily volatility percentage for 2025-04-07?,volatility,,,,13.65,
+4,Identify high volatility days (>5% intraday range) between 2025-09-19 and 2025-09-30,volatility,,,,NONE,
+5,Analyze the stock for the period ending 2024-08-05: what is the trend and were there any high volatility days in the prior 5 trading days?,response,downtrend,185.31,,,The stock is in a downtrend with a 20-day SMA of 185.31. Two high volatility days were detected in the prior 5 trading days: 2024-08-02 (5.12%) and 2024-08-05 (7.49%) suggesting an accelerating selloff with elevated fear and forced selling near a short-term bottom.

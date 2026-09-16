@@ -1,0 +1,692 @@
+{
+  "test_cases": [
+    {
+      "name": "perfect_balance",
+      "description": "Work evenly distributed across all agents",
+      "scenario_type": "balanced",
+      "expected_score": 1.0,
+      "multi_agent_trace": {
+        "workflow_id": "workflow_001",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "agent_a": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Task 1",
+                "timestamp": "2024-04-15T10:00:00Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Done 1",
+                "timestamp": "2024-04-15T10:00:01Z"
+              },
+              {
+                "role": "user",
+                "content": "Task 2",
+                "timestamp": "2024-04-15T10:00:02Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Done 2",
+                "timestamp": "2024-04-15T10:00:03Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "process",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:01Z"
+              },
+              {
+                "name": "validate",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:03Z"
+              }
+            ]
+          },
+          "agent_b": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Task 3",
+                "timestamp": "2024-04-15T10:00:04Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Done 3",
+                "timestamp": "2024-04-15T10:00:05Z"
+              },
+              {
+                "role": "user",
+                "content": "Task 4",
+                "timestamp": "2024-04-15T10:00:06Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Done 4",
+                "timestamp": "2024-04-15T10:00:07Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "analyze",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:05Z"
+              },
+              {
+                "name": "report",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:07Z"
+              }
+            ]
+          },
+          "agent_c": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Task 5",
+                "timestamp": "2024-04-15T10:00:08Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Done 5",
+                "timestamp": "2024-04-15T10:00:09Z"
+              },
+              {
+                "role": "user",
+                "content": "Task 6",
+                "timestamp": "2024-04-15T10:00:10Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Done 6",
+                "timestamp": "2024-04-15T10:00:11Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "format",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:09Z"
+              },
+              {
+                "name": "send",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:11Z"
+              }
+            ]
+          }
+        },
+        "coordination_events": []
+      }
+    },
+    {
+      "name": "one_agent_overloaded",
+      "description": "One agent does most of the work",
+      "scenario_type": "unbalanced",
+      "expected_score": 0.34,
+      "multi_agent_trace": {
+        "workflow_id": "workflow_002",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "agent_a": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Task",
+                "timestamp": "2024-04-15T10:00:00Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Done",
+                "timestamp": "2024-04-15T10:00:01Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "tool1",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:01Z"
+              },
+              {
+                "name": "tool2",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:02Z"
+              },
+              {
+                "name": "tool3",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:03Z"
+              },
+              {
+                "name": "tool4",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:04Z"
+              },
+              {
+                "name": "tool5",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:05Z"
+              },
+              {
+                "name": "tool6",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:06Z"
+              },
+              {
+                "name": "tool7",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:07Z"
+              },
+              {
+                "name": "tool8",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:08Z"
+              }
+            ]
+          },
+          "agent_b": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Task",
+                "timestamp": "2024-04-15T10:00:09Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Done",
+                "timestamp": "2024-04-15T10:00:10Z"
+              }
+            ],
+            "tool_calls": []
+          },
+          "agent_c": {
+            "messages": [],
+            "tool_calls": []
+          }
+        },
+        "coordination_events": []
+      }
+    },
+    {
+      "name": "one_agent_idle",
+      "description": "One agent completely unused",
+      "scenario_type": "underutilized",
+      "expected_score": 0.49,
+      "multi_agent_trace": {
+        "workflow_id": "workflow_003",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "agent_a": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "T1",
+                "timestamp": "2024-04-15T10:00:00Z"
+              },
+              {
+                "role": "assistant",
+                "content": "D1",
+                "timestamp": "2024-04-15T10:00:01Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "search",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:01Z"
+              }
+            ]
+          },
+          "agent_b": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "T2",
+                "timestamp": "2024-04-15T10:00:02Z"
+              },
+              {
+                "role": "assistant",
+                "content": "D2",
+                "timestamp": "2024-04-15T10:00:03Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "analyze",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:03Z"
+              }
+            ]
+          },
+          "agent_c": {
+            "messages": [],
+            "tool_calls": []
+          }
+        },
+        "coordination_events": []
+      }
+    },
+    {
+      "name": "two_agents_balanced",
+      "description": "Two agents with balanced workload",
+      "scenario_type": "balanced",
+      "expected_score": 1.0,
+      "multi_agent_trace": {
+        "workflow_id": "workflow_004",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "research_agent": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Research",
+                "timestamp": "2024-04-15T10:00:00Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Results",
+                "timestamp": "2024-04-15T10:00:01Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "search",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:01Z"
+              },
+              {
+                "name": "fetch",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:02Z"
+              },
+              {
+                "name": "parse",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:03Z"
+              }
+            ]
+          },
+          "summary_agent": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Summarize",
+                "timestamp": "2024-04-15T10:00:04Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Summary",
+                "timestamp": "2024-04-15T10:00:05Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "extract",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:05Z"
+              },
+              {
+                "name": "condense",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:06Z"
+              },
+              {
+                "name": "format",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:07Z"
+              }
+            ]
+          }
+        },
+        "coordination_events": []
+      }
+    },
+    {
+      "name": "slight_imbalance",
+      "description": "Slightly uneven distribution",
+      "scenario_type": "partial",
+      "expected_score": 0.78,
+      "multi_agent_trace": {
+        "workflow_id": "workflow_005",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "agent_a": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "T",
+                "timestamp": "2024-04-15T10:00:00Z"
+              },
+              {
+                "role": "assistant",
+                "content": "D",
+                "timestamp": "2024-04-15T10:00:01Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "t1",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:01Z"
+              },
+              {
+                "name": "t2",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:02Z"
+              },
+              {
+                "name": "t3",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:03Z"
+              }
+            ]
+          },
+          "agent_b": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "T",
+                "timestamp": "2024-04-15T10:00:04Z"
+              },
+              {
+                "role": "assistant",
+                "content": "D",
+                "timestamp": "2024-04-15T10:00:05Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "t4",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:05Z"
+              }
+            ]
+          }
+        },
+        "coordination_events": []
+      }
+    },
+    {
+      "name": "single_agent_all_work",
+      "description": "Only one agent does any work",
+      "scenario_type": "unbalanced",
+      "expected_score": 0.24,
+      "multi_agent_trace": {
+        "workflow_id": "workflow_006",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "worker": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Do everything",
+                "timestamp": "2024-04-15T10:00:00Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Done all",
+                "timestamp": "2024-04-15T10:00:01Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "t1",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:01Z"
+              },
+              {
+                "name": "t2",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:02Z"
+              }
+            ]
+          },
+          "idle_agent_1": {
+            "messages": [],
+            "tool_calls": []
+          },
+          "idle_agent_2": {
+            "messages": [],
+            "tool_calls": []
+          }
+        },
+        "coordination_events": []
+      }
+    },
+    {
+      "name": "no_agents",
+      "description": "Edge case: no agent traces - returns None because no agents to evaluate",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "multi_agent_trace": {
+        "workflow_id": "workflow_007",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {},
+        "coordination_events": []
+      }
+    },
+    {
+      "name": "no_work_performed",
+      "description": "Edge case: agents exist but no work",
+      "scenario_type": "edge_case",
+      "expected_score": 1.0,
+      "multi_agent_trace": {
+        "workflow_id": "workflow_008",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "agent_a": {
+            "messages": [],
+            "tool_calls": []
+          },
+          "agent_b": {
+            "messages": [],
+            "tool_calls": []
+          }
+        },
+        "coordination_events": []
+      }
+    },
+    {
+      "name": "four_agents_balanced",
+      "description": "Four agents with balanced workload",
+      "scenario_type": "balanced",
+      "expected_score": 1.0,
+      "multi_agent_trace": {
+        "workflow_id": "workflow_009",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "orchestrator": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Task",
+                "timestamp": "2024-04-15T10:00:00Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Done",
+                "timestamp": "2024-04-15T10:00:01Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "coordinate",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:01Z"
+              }
+            ]
+          },
+          "researcher": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Research",
+                "timestamp": "2024-04-15T10:00:02Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Results",
+                "timestamp": "2024-04-15T10:00:03Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "search",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:03Z"
+              }
+            ]
+          },
+          "analyzer": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Analyze",
+                "timestamp": "2024-04-15T10:00:04Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Analysis",
+                "timestamp": "2024-04-15T10:00:05Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "compute",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:05Z"
+              }
+            ]
+          },
+          "reporter": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Report",
+                "timestamp": "2024-04-15T10:00:06Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Report",
+                "timestamp": "2024-04-15T10:00:07Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "format",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:07Z"
+              }
+            ]
+          }
+        },
+        "coordination_events": []
+      }
+    },
+    {
+      "name": "not_multi_agent_trace",
+      "description": "Edge case: regular AgentTrace instead of MultiAgentTrace - returns None",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Hello", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Hi there", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "specialized_appropriate",
+      "description": "Uneven distribution but appropriate for specialized agents",
+      "scenario_type": "specialized",
+      "expected_score": 0.58,
+      "multi_agent_trace": {
+        "workflow_id": "workflow_010",
+        "workflow_status": "COMPLETED",
+        "agent_traces": {
+          "data_collector": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Collect",
+                "timestamp": "2024-04-15T10:00:00Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Collected",
+                "timestamp": "2024-04-15T10:00:01Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "fetch",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:01Z"
+              },
+              {
+                "name": "fetch",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:02Z"
+              },
+              {
+                "name": "fetch",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:03Z"
+              },
+              {
+                "name": "fetch",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:04Z"
+              },
+              {
+                "name": "fetch",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:05Z"
+              }
+            ]
+          },
+          "processor": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Process",
+                "timestamp": "2024-04-15T10:00:06Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Processed",
+                "timestamp": "2024-04-15T10:00:07Z"
+              }
+            ],
+            "tool_calls": [
+              {
+                "name": "transform",
+                "arguments": {},
+                "timestamp": "2024-04-15T10:00:07Z"
+              }
+            ]
+          },
+          "notifier": {
+            "messages": [
+              {
+                "role": "user",
+                "content": "Notify",
+                "timestamp": "2024-04-15T10:00:08Z"
+              },
+              {
+                "role": "assistant",
+                "content": "Notified",
+                "timestamp": "2024-04-15T10:00:09Z"
+              }
+            ],
+            "tool_calls": []
+          }
+        },
+        "coordination_events": []
+      }
+    }
+  ]
+}

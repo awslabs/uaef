@@ -1,0 +1,169 @@
+{
+  "test_cases": [
+    {
+      "name": "goal_fully_achieved",
+      "description": "User goal completely achieved",
+      "scenario_type": "complete",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "I need to book a flight to Paris for next Monday", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "I'll help you book that. What time preference?", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Morning flight", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "Found flights. Best option is 8 AM departure for $350.", "timestamp": "2024-04-15T10:00:03Z"},
+          {"role": "user", "content": "Book it", "timestamp": "2024-04-15T10:00:04Z"},
+          {"role": "assistant", "content": "Flight booked! Confirmation: FLT123, Monday 8 AM to Paris.", "timestamp": "2024-04-15T10:00:05Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Book flight to Paris for Monday"
+      }
+    },
+    {
+      "name": "partially_completed",
+      "description": "Some goals met, others not",
+      "scenario_type": "partial",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "I need flight and hotel for Paris", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Let me help with that", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Book them please", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "I booked your flight to Paris for Monday.", "timestamp": "2024-04-15T10:00:03Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Book flight and hotel for Paris"
+      }
+    },
+    {
+      "name": "goal_not_achieved",
+      "description": "User goal not achieved",
+      "scenario_type": "incomplete",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "I need to reset my password", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Passwords are important for security.", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Can you help me reset it?", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "Password security best practices include using special characters.", "timestamp": "2024-04-15T10:00:03Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Reset password"
+      }
+    },
+    {
+      "name": "goal_changed_achieved_new",
+      "description": "User changes goal, new goal achieved",
+      "scenario_type": "complete",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Book flight to Paris", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Looking for Paris flights", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Actually, make it London instead", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "No problem! Flight to London booked.", "timestamp": "2024-04-15T10:00:03Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Book flight to London"
+      }
+    },
+    {
+      "name": "user_cancels",
+      "description": "User cancels/changes mind",
+      "scenario_type": "incomplete",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Order pizza", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "What toppings?", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Never mind, I changed my mind", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "No problem!", "timestamp": "2024-04-15T10:00:03Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Order pizza"
+      }
+    },
+    {
+      "name": "multi_goal_all_complete",
+      "description": "Multiple goals, all achieved",
+      "scenario_type": "complete",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Check weather and set alarm for 7 AM", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Weather is sunny tomorrow. Alarm set for 7 AM.", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Check weather and set alarm"
+      }
+    },
+    {
+      "name": "abandoned_conversation",
+      "description": "Conversation abandoned before completion",
+      "scenario_type": "incomplete",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Help me file my taxes", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "I'll guide you through filing taxes. First, gather your W2 forms.", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Okay", "timestamp": "2024-04-15T10:00:02Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "File taxes"
+      }
+    },
+    {
+      "name": "no_success_criteria",
+      "description": "Edge case: no success criteria provided",
+      "scenario_type": "edge_case",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Chat with me", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Hello! How are you?", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": null
+      }
+    },
+    {
+      "name": "clarification_then_complete",
+      "description": "Needed clarification but then completed",
+      "scenario_type": "complete",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Send the report", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Which report and to whom?", "timestamp": "2024-04-15T10:00:01Z"},
+          {"role": "user", "content": "Q3 report to the CEO", "timestamp": "2024-04-15T10:00:02Z"},
+          {"role": "assistant", "content": "Q3 report sent to CEO successfully.", "timestamp": "2024-04-15T10:00:03Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Send Q3 report to CEO"
+      }
+    },
+    {
+      "name": "wrong_goal_completed",
+      "description": "Completed something, but not what user asked",
+      "scenario_type": "incomplete",
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Show me sales data", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Here's the marketing budget breakdown", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": []
+      },
+      "ground_truth": {
+        "expected_output": "Display sales data"
+      }
+    }
+  ]
+}

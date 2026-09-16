@@ -1,0 +1,10 @@
+title: Guides
+nav:
+  - metrics-catalog.md
+  - adapters.md
+  - ground-truth-datasets.md
+  - use-cases.md
+  - experiments.md
+  - persistence-and-configuration.md
+  - custom-metrics.md
+  - hitl.md

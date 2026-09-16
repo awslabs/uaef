@@ -1,0 +1,149 @@
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "uaef"
+version = "0.2.0"
+description = "Universal Agent Evaluation Framework - Framework-agnostic evaluation for AI agents"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Amazon.com, Inc. or its affiliates"}
+]
+keywords = ["ai", "agents", "evaluation", "testing", "metrics", "llm"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+# Full capability core — `pip install uaef` installs everything needed to
+# exercise every metric, adapter, analysis, judge, and the remote client SDK.
+# UAEF's purpose is letting users test all metrics out of the box, so all
+# runtime capabilities ship in the required core rather than behind extras.
+# (Only developer tooling and the optional Jupyter kernel remain opt-in.)
+dependencies = [
+    # Canonical models, config, GenericJSON adapter, AWS persistence.
+    "pydantic>=2.0.0",
+    "boto3>=1.28.0",
+    "pyyaml>=6.0",
+    "jsonpath-ng>=1.6.0",
+    "numpy>=1.24.0",
+    # Third-party metric backends (RAGAS / DeepEval).
+    "deepeval>=1.0.0",
+    "ragas>=0.1.0,<0.5.0",  # CVE-2026-6587: SSRF in multimodal faithfulness (no fix available; we don't use that module)
+    "langchain-community>=0.3.0,<0.4.0",
+    "datasets>=2.14.0",
+    "ipykernel>=6.31.0",
+    "dotenv>=0.9.9",
+    "strands-agents>=1.37.0",
+    "strands-agents-tools>=0.5.1",
+    # LangGraph / LangChain adapter support.
+    "langchain-core>=1.3.3",
+    "langchain-aws>=1.4.5",
+    "langgraph>=1.1.10",
+    # Tabular analysis & reporting (root cause, clustering, trends).
+    "pandas>=2.0.0",
+    "scikit-learn>=1.3.0",
+    "openpyxl>=3.1.5",
+    "matplotlib>=3.7.0",
+    # Security constraints
+    "pillow>=12.3.0",  # 13 GHSAs fixed in 12.3.0 (heap OOB read/write, OS command injection, DoS)
+    "urllib3>=2.7.0",
+    "aiohttp>=3.14.3",  # GHSA-cq5v-8q36-5273 (High), GHSA-mq44-7p77-q5h7 / GHSA-mfx4-hv73-q22v (Medium), fixed in 3.14.3
+    "langsmith>=0.8.18",  # GHSA-f4xh-w4cj-qxq8: TracingMiddleware arbitrary file read, fixed in 0.8.18
+    "starlette>=1.3.1",
+    "PyJWT>=2.13.0",
+    "idna>=3.14",
+    "tornado>=6.5.8",  # GHSA-mpf4-983q-p7j4 (High) + GHSA-8423-8fgw-73vq / GHSA-wwv5-g3v4-889x, fixed in 6.5.8
+    "python-multipart>=0.0.32",
+    "mcp>=1.28.1",  # GHSA-hvrp-rf83-w775 / vj7q-gjh5-988w / jpw9-pfvf-9f58: MCP SDK auth & host-validation, fixed by 1.28.1
+    "soupsieve>=2.8.4",  # GHSA-2wc2-fm75-p42x / 836r-79rf-4m37: memory exhaustion + ReDoS, fixed in 2.8.4
+    "cryptography>=50.0.0",  # GHSA-g6cj-pr64-35w5, fixed in 50.0.0 (supersedes GHSA-537c-gmf6-5ccf, fixed in 48.0.1)
+    "langgraph-checkpoint>=4.1.1",  # GHSA-fjqc-hq36-qh5p: unsafe JSON deserialization, fixed in 4.1.1
+    "setuptools>=83.0.0",  # GHSA-h35f-9h28-mq5c: MANIFEST.in exclusion bypass, fixed in 83.0.0
+    "pydantic-settings>=2.14.2",  # GHSA-4xgf-cpjx-pc3j: symlink escape in secrets source, fixed in 2.14.2
+    "langchain>=1.3.9",  # GHSA-gr75-jv2w-4656: path traversal in file-search middleware, fixed in 1.3.9
+    "langgraph-sdk>=0.3.15",  # GHSA-w39p-vh2g-g8g5: unsafe URL path construction, fixed in 0.3.15
+    # Remote client SDK (UAEFClient).
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+# The capability extras below are retained as no-op aliases of the full core
+# so existing install commands (e.g. `pip install "uaef[integrations]"`) and
+# the service Worker's pinned `uaef[server]==0.2.0` keep resolving. Every
+# capability is already in the required core, so these add nothing.
+integrations = []
+langgraph = []
+analysis = []
+judge = []
+client = []
+# What the service Worker Lambda installs. Now identical to the full core;
+# because the core pulls all heavy backends, the Worker exceeds the 250MB
+# unzipped zip limit and is packaged as a container image (see WorkerStack).
+server = []
+notebooks = ["ipykernel>=6.31.0"]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "hypothesis>=6.0.0",  # property-based tests (tests/test_client_sdk_parity.py)
+    "black>=23.0.0",
+    "mypy>=1.0.0",
+    "ruff>=0.1.0",
+    "build>=1.0.0",
+    "twine>=5.0.0",
+]
+# Retained for compatibility. The core already includes every capability;
+# `all` additionally pulls the optional Jupyter kernel.
+all = ["uaef[notebooks]"]
+
+# Tooling-only groups. Unlike [project.optional-dependencies] these are never
+# published with the wheel — they exist for `uv sync --group <name>` in CI and
+# local development.
+[dependency-groups]
+# The MkDocs documentation site under docs/. Installed with
+# `uv sync --group docs --frozen`, so uv.lock must be regenerated (`uv lock`)
+# whenever this list changes.
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocs-awesome-nav>=3.0.0",   # builds nav from docs/docs/.nav.yml
+    "mkdocstrings-python>=1.12.0", # API reference generated from docstrings
+    "pymdown-extensions>=10.0",
+]
+
+# [project.urls] intentionally omitted until a canonical public repository and
+# documentation URL exist. The previous values pointed at a repository that does
+# not exist, which is worse than declaring nothing.
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+addopts = "-p no:deepeval"

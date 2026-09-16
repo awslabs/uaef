@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      containers:
+        - name: uaef-service
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: COGNITO_USER_POOL_ID
+              value: {{ .Values.cognito.userPoolId | quote }}
+            - name: COGNITO_APP_CLIENT_ID
+              value: {{ .Values.cognito.appClientId | quote }}
+            - name: COGNITO_REGION
+              value: {{ .Values.cognito.region | quote }}
+            - name: COGNITO_DOMAIN
+              value: {{ .Values.cognito.domain | quote }}
+            - name: AUTH_MODE
+              value: {{ .Values.cognito.authMode | quote }}
+            - name: AWS_DEFAULT_REGION
+              value: {{ .Values.aws.region | quote }}
+            - name: AWS_REGION
+              value: {{ .Values.aws.region | quote }}
+            - name: JOBS_TABLE_NAME
+              value: {{ .Values.aws.jobsTableName | quote }}
+            - name: PAYLOAD_BUCKET_NAME
+              value: {{ .Values.aws.payloadBucketName | quote }}
+            - name: UAEF_DYNAMODB_TABLE
+              value: {{ .Values.aws.experimentTableName | quote }}
+            - name: UAEF_S3_BUCKET
+              value: {{ .Values.aws.resultsBucketName | quote }}
+            - name: UAEF_EXPECTED_VERSION
+              value: {{ .Values.uaef.expectedVersion | quote }}
+            - name: WORKER_FUNCTION_NAME
+              value: {{ if .Values.orchestrator.workerFunctionName }}{{ .Values.orchestrator.workerFunctionName | quote }}{{ else }}"__INLINE_WORKER__"{{ end }}
+            - name: WORKER_MODE
+              value: {{ if .Values.orchestrator.stateMachineArn }}"lambda"{{ else }}"inline"{{ end }}
+            {{- if .Values.orchestrator.stateMachineArn }}
+            - name: EVAL_STATE_MACHINE_ARN
+              value: {{ .Values.orchestrator.stateMachineArn | quote }}
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.livenessProbe.httpGet.path }}
+              port: {{ .Values.livenessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.readinessProbe.httpGet.path }}
+              port: {{ .Values.readinessProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

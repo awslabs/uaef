@@ -1,0 +1,260 @@
+{
+  "test_cases": [
+    {
+      "name": "low_cost_high_quality",
+      "description": "High quality with low cost (within threshold, score equals quality)",
+      "scenario_type": "efficient",
+      "expected_score": 0.85,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {
+          "cost_usd": 0.005,
+          "quality_score": 0.85
+        }
+      }
+    },
+    {
+      "name": "at_threshold",
+      "description": "Exactly at $0.01 threshold - no penalty applied",
+      "scenario_type": "threshold",
+      "expected_score": 0.8,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {
+          "cost_usd": 0.01,
+          "quality_score": 0.8
+        }
+      }
+    },
+    {
+      "name": "very_low_cost",
+      "description": "Very low cost below threshold - no penalty, score equals quality",
+      "scenario_type": "below_threshold",
+      "expected_score": 0.8,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {
+          "cost_usd": 0.0001,
+          "quality_score": 0.8
+        }
+      }
+    },
+    {
+      "name": "high_cost",
+      "description": "5x cost above threshold - sqrt penalty: 0.8/sqrt(5) = 0.36",
+      "scenario_type": "above_threshold",
+      "expected_score": 0.36,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {
+          "cost_usd": 0.05,
+          "quality_score": 0.8
+        }
+      }
+    },
+    {
+      "name": "no_cost_info",
+      "description": "No cost information in trace - returns None",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {
+          "quality_score": 0.8
+        }
+      }
+    },
+    {
+      "name": "zero_cost",
+      "description": "Zero cost - returns None (code treats 0 same as missing)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {
+          "cost_usd": 0.0,
+          "quality_score": 0.8
+        }
+      }
+    },
+    {
+      "name": "moderate_cost",
+      "description": "2x cost above threshold - sqrt penalty: 0.8/sqrt(2) = 0.57",
+      "scenario_type": "above_threshold",
+      "expected_score": 0.57,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {
+          "cost_usd": 0.02,
+          "quality_score": 0.8
+        }
+      }
+    },
+    {
+      "name": "low_quality_low_cost",
+      "description": "Low quality even with low cost - within threshold, score equals quality",
+      "scenario_type": "inefficient",
+      "expected_score": 0.3,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Poor answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {
+          "cost_usd": 0.005,
+          "quality_score": 0.3
+        }
+      }
+    },
+    {
+      "name": "negative_cost",
+      "description": "Invalid negative cost returns score 0.0",
+      "scenario_type": "invalid_data",
+      "expected_score": 0.0,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {
+          "cost_usd": -0.01,
+          "quality_score": 0.8
+        }
+      }
+    },
+    {
+      "name": "high_quality_low_cost",
+      "description": "High quality with very low cost - within threshold, score equals quality",
+      "scenario_type": "efficient",
+      "expected_score": 0.95,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Excellent answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {
+          "cost_usd": 0.002,
+          "quality_score": 0.95
+        }
+      }
+    },
+    {
+      "name": "no_quality_score",
+      "description": "Cost present but no quality_score - returns None",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {
+          "cost_usd": 0.005
+        }
+      }
+    },
+    {
+      "name": "quality_score_string_type",
+      "description": "quality_score is a string - returns None (invalid type)",
+      "scenario_type": "edge_case",
+      "expected_score": null,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {
+          "cost_usd": 0.005,
+          "quality_score": "good"
+        }
+      }
+    },
+    {
+      "name": "heavy_penalty_within_threshold",
+      "description": "Heavy mode: within threshold, score equals quality (no penalty)",
+      "scenario_type": "penalty_mode",
+      "metric_params": {"expected_cost_usd": 0.01, "penalty_mode": "heavy"},
+      "expected_score": 0.8,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {
+          "cost_usd": 0.005,
+          "quality_score": 0.8
+        }
+      }
+    },
+    {
+      "name": "heavy_penalty_2x_above",
+      "description": "Heavy mode: 2x cost, linear penalty: 0.8/2.0 = 0.40",
+      "scenario_type": "penalty_mode",
+      "metric_params": {"expected_cost_usd": 0.01, "penalty_mode": "heavy"},
+      "expected_score": 0.40,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {
+          "cost_usd": 0.02,
+          "quality_score": 0.8
+        }
+      }
+    },
+    {
+      "name": "heavy_penalty_5x_above",
+      "description": "Heavy mode: 5x cost, linear penalty: 0.8/5.0 = 0.16",
+      "scenario_type": "penalty_mode",
+      "metric_params": {"expected_cost_usd": 0.01, "penalty_mode": "heavy"},
+      "expected_score": 0.16,
+      "trace": {
+        "messages": [
+          {"role": "user", "content": "Question", "timestamp": "2024-04-15T10:00:00Z"},
+          {"role": "assistant", "content": "Answer", "timestamp": "2024-04-15T10:00:01Z"}
+        ],
+        "tool_calls": [],
+        "metadata": {
+          "cost_usd": 0.05,
+          "quality_score": 0.8
+        }
+      }
+    }
+  ]
+}
