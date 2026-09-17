@@ -194,5 +194,7 @@ uaef-service/=*
 .awsenv.sh
 
 # ASH (Automated Security Helper) scan output — regenerated on every scan.
-# The .ash/.ash.yaml config is intentionally kept tracked.
-.ash/ash_output/
+.ash/
+
+# Kiro IDE workspace settings (local, per-developer).
+.kiro/

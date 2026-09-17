@@ -1,19 +1,15 @@
 # grype configuration — auto-loaded by `grype dir:.` when run from the repo root
-# (the GitLab CI `grype` job runs `grype dir:. --fail-on high -o table`).
+# (run `grype dir:. --fail-on high -o table` from the repo root).
 #
-# This file is the grype-native mirror of the grype accepted-risk register that
-# already lives in .ash/.ash.yaml (the ASH scanner reads that; standalone grype
-# in GitLab CI reads THIS). Keep the two in sync: if you add/remove/renew a
-# suppression here, do the same in .ash/.ash.yaml, and vice-versa.
+# This file is the accepted-risk register for grype scans.
 #
 # Nothing below changes application behaviour — this is scanner configuration
 # only. Each entry is a consciously ACCEPTED RISK, not a false positive, and is
 # scoped to a specific (advisory ID + package) pair so that any NEW advisory on
 # these packages still fails the build and forces review.
 #
-# RE-REVIEW BY: 2026-10-31 (grype has no native expiration field; this mirrors
-# the `expiration` set on the same entries in .ash/.ash.yaml). If a fix has been
-# adopted by then, DELETE the corresponding entry instead of renewing it.
+# RE-REVIEW BY: 2026-10-31 (grype has no native expiration field). If a fix has
+# been adopted by then, DELETE the corresponding entry instead of renewing it.
 
 ignore:
   # =====================================================================
@@ -32,42 +28,42 @@ ignore:
   - vulnerability: GHSA-7f5h-v6xp-fcq8   # High — Range-header O(n^2) DoS; fix >=1.3.1 needs coordinated fastapi upgrade
     package:
       name: starlette
-    reason: "Starlette Range-header DoS. Fix needs a coordinated fastapi/starlette/uvicorn upgrade (fastapi 0.115.6 pins starlette 0.41.x). Deferred; behind ALB + Cognito auth. Mirrors .ash/.ash.yaml; re-review 2026-10-31."
+    reason: "Starlette Range-header DoS. Fix needs a coordinated fastapi/starlette/uvicorn upgrade (fastapi 0.115.6 pins starlette 0.41.x). Deferred; behind ALB + Cognito auth. Re-review 2026-10-31."
   - vulnerability: GHSA-82w8-qh3p-5jfq   # High — request.form() size limits silently ignored
     package:
       name: starlette
-    reason: "Starlette form() size limits ignored. Fix needs a coordinated fastapi upgrade. Deferred; behind ALB + Cognito auth. Mirrors .ash/.ash.yaml; re-review 2026-10-31."
+    reason: "Starlette form() size limits ignored. Fix needs a coordinated fastapi upgrade. Deferred; behind ALB + Cognito auth. Re-review 2026-10-31."
   - vulnerability: GHSA-wqp7-x3pw-xc5r   # High — StaticFiles SSRF/UNC on Windows (not reachable here)
     package:
       name: starlette
-    reason: "Starlette StaticFiles SSRF/UNC (Windows). Not reachable: service mounts no StaticFiles and runs on Linux. Fix needs a coordinated fastapi upgrade. Mirrors .ash/.ash.yaml; re-review 2026-10-31."
+    reason: "Starlette StaticFiles SSRF/UNC (Windows). Not reachable: service mounts no StaticFiles and runs on Linux. Fix needs a coordinated fastapi upgrade. Re-review 2026-10-31."
   - vulnerability: GHSA-86qp-5c8j-p5mr   # Medium — missing Host-header validation
     package:
       name: starlette
-    reason: "Starlette Host-header validation poisoning request.url.path. Fix needs a coordinated fastapi upgrade. Mitigated by ALB + Cognito auth. Mirrors .ash/.ash.yaml; re-review 2026-10-31."
+    reason: "Starlette Host-header validation poisoning request.url.path. Fix needs a coordinated fastapi upgrade. Mitigated by ALB + Cognito auth. Re-review 2026-10-31."
   - vulnerability: GHSA-2c2j-9gv5-cj73   # Medium — large-file multipart parsing DoS
     package:
       name: starlette
-    reason: "Starlette large-file multipart parsing DoS. Fix needs a coordinated fastapi upgrade. Mitigated by ALB + Cognito auth. Mirrors .ash/.ash.yaml; re-review 2026-10-31."
+    reason: "Starlette large-file multipart parsing DoS. Fix needs a coordinated fastapi upgrade. Mitigated by ALB + Cognito auth. Re-review 2026-10-31."
   - vulnerability: GHSA-x746-7m8f-x49c   # Medium — arbitrary HTTP method dispatch via getattr
     package:
       name: starlette
-    reason: "Starlette arbitrary HTTP method dispatch via getattr on HTTPEndpoint. Fix needs a coordinated fastapi upgrade. Deferred. Mirrors .ash/.ash.yaml; re-review 2026-10-31."
+    reason: "Starlette arbitrary HTTP method dispatch via getattr on HTTPEndpoint. Fix needs a coordinated fastapi upgrade. Deferred. Re-review 2026-10-31."
   - vulnerability: GHSA-jp82-jpqv-5vv3   # Low — unvalidated path poisoning request.url.hostname
     package:
       name: starlette
-    reason: "Starlette unvalidated path concatenated into authority poisoning request.url.hostname. Fix needs a coordinated fastapi upgrade. Mitigated by ALB + Cognito auth. Mirrors .ash/.ash.yaml; re-review 2026-10-31."
+    reason: "Starlette unvalidated path concatenated into authority poisoning request.url.hostname. Fix needs a coordinated fastapi upgrade. Mitigated by ALB + Cognito auth. Re-review 2026-10-31."
 
   # =====================================================================
   # No-upstream-fix accepted risks (transitive deps in uv.lock). These are NOT
   # deferred bumps — no patched release exists — and the vulnerable code path is
-  # not reachable in UAEF's usage. Mirrors .ash/.ash.yaml.
+  # not reachable in UAEF's usage.
   # =====================================================================
   - vulnerability: GHSA-95ww-475f-pr4f   # ragas — SSRF in multi-modal faithfulness module (unused)
     package:
       name: ragas
-    reason: "ragas SSRF in the multi-modal faithfulness module; no upstream fix (constraint <0.5.0) and UAEF never invokes that module, so the path is unreachable. Mirrors .ash/.ash.yaml; re-review 2026-10-31."
+    reason: "ragas SSRF in the multi-modal faithfulness module; no upstream fix (constraint <0.5.0) and UAEF never invokes that module, so the path is unreachable. Re-review 2026-10-31."
   - vulnerability: GHSA-w8v5-vhqr-4h9v   # diskcache — unsafe pickle deserialization (internal cache only)
     package:
       name: diskcache
-    reason: "diskcache unsafe pickle deserialization; no upstream fix. Used only as an internal cache for values UAEF itself computes (never untrusted input), so the path is not exposed. Mirrors .ash/.ash.yaml; re-review 2026-10-31."
+    reason: "diskcache unsafe pickle deserialization; no upstream fix. Used only as an internal cache for values UAEF itself computes (never untrusted input), so the path is not exposed. Re-review 2026-10-31."

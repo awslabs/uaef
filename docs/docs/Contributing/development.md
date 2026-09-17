@@ -34,11 +34,11 @@ dependencies.**
 
 [`pyproject.toml`](https://github.com/awslabs/uaef/blob/main/pyproject.toml) has a `# Security constraints` block where dependency floors
 are raised to clear specific advisories, each with an inline GHSA comment. When
-the `grype` CI job fails on a new advisory, the convention is to **raise the
-floor there** and re-run `uv lock` — not to suppress the finding. Suppressions
-in `.grype.yaml` are reserved for accepted risks where no upstream fix exists,
-or where the fix requires a coordinated major upgrade. Keep `.grype.yaml` and
-`.ash/.ash.yaml` in sync.
+a `grype` scan flags a new advisory, the convention is to **raise the floor
+there** and re-run `uv lock` — not to suppress the finding. Suppressions in
+[`.grype.yaml`](https://github.com/awslabs/uaef/blob/main/.grype.yaml) are
+reserved for accepted risks where no upstream fix exists, or where the fix
+requires a coordinated major upgrade.
 
 ## Notebook output filter (one-time setup)
 
