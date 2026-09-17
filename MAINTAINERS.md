@@ -4,11 +4,11 @@
 
 | Name | GitHub | Affiliation |
 |------|--------|-------------|
-| Samaneh Aminikhanghahi | | AWS |
-| Amulya Cherian | | AWS |
-| Yuxuan Zhou | | AWS |
-| Tristan Sylvain | | AWS |
-| Elaine Wu | | AWS |
+| Samaneh Aminikhanghahi | [@aminikha](https://github.com/aminikha) | AWS |
+| Amulya Cherian | [@amch01](https://github.com/amch01) | AWS |
+| Yuxuan Zhou | [@YXZhou61](https://github.com/YXZhou61) | AWS |
+| Tristan Sylvain | [@TiSU32](https://github.com/TiSU32) | AWS |
+| Elaine Wu | [@ytwu1015](https://github.com/ytwu1015) | AWS |
 
 ## Responsibilities
 
