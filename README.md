@@ -89,8 +89,8 @@ See [docs/docs/Getting-Started/core-concepts.md](docs/docs/Getting-Started/core-
 This project uses [uv](https://docs.astral.sh/uv/) for dependency management. `pyproject.toml` + `uv.lock` is the single source of truth for all dependencies.
 
 ```bash
-git clone <repository-url>
-cd agenticevaluationframework
+git clone https://github.com/awslabs/uaef.git
+cd uaef
 uv sync            # install all dependencies from the lockfile
 ```
 
@@ -292,25 +292,3 @@ render in the repo, but they are also the source for a MkDocs site — run
 | Writing custom metrics | [docs/docs/Guides/custom-metrics.md](docs/docs/Guides/custom-metrics.md) |
 | AWS deployment | [uaef-service/README.md](uaef-service/README.md) |
 | Security model, tenant isolation, judge trust boundary | [SECURITY.md](SECURITY.md) |
-
-## Contributing
-
-Setup, `uv` dependency rules, the notebook output filter, tests, and code style: **[docs/docs/Contributing/development.md](docs/docs/Contributing/development.md)**
-
-Pull request process and how to add metrics or adapters: [docs/docs/Contributing/contributing.md](docs/docs/Contributing/contributing.md)
-
-```bash
-uv sync --extra dev        # install with developer tooling
-uv run pytest              # run the tests
-```
-
-## License
-
-This project is licensed under the Apache License 2.0 — see the [LICENSE](LICENSE) and [NOTICE](NOTICE) files for details.
-
-## Support Team
-Samaneh Aminikhanghahi - aminikha@amazon.com
-Amulya Cherian - amcheria@amazon.com
-Yuxuan Zhou - yuxuzh@amazon.com
-Tristan Sylvain - sylvtri@amazon.com
-Elaine Wu - uelaine@amazon.com

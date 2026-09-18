@@ -33,12 +33,9 @@ dependencies.**
 ### Security constraints
 
 [`pyproject.toml`](https://github.com/awslabs/uaef/blob/main/pyproject.toml) has a `# Security constraints` block where dependency floors
-are raised to clear specific advisories, each with an inline GHSA comment. When
-the `grype` CI job fails on a new advisory, the convention is to **raise the
-floor there** and re-run `uv lock` — not to suppress the finding. Suppressions
-in `.grype.yaml` are reserved for accepted risks where no upstream fix exists,
-or where the fix requires a coordinated major upgrade. Keep `.grype.yaml` and
-`.ash/.ash.yaml` in sync.
+are raised to clear specific advisories, each with an inline GHSA comment. When a
+vulnerability scan flags a new advisory, the convention is to **raise the floor
+there** and re-run `uv lock`, rather than suppressing the finding.
 
 ## Notebook output filter (one-time setup)
 
@@ -103,5 +100,3 @@ src/uaef/
 - [Metrics Catalog](../Guides/metrics-catalog.md) — every metric, with formulas and examples
 - [Custom Metrics](../Guides/custom-metrics.md) — metrics you keep in your own codebase
 - [Adapters](../Guides/adapters.md) — writing a new adapter
-- [`docs/dev/`](https://github.com/awslabs/uaef/tree/main/docs/dev) — internal improvement
-  notes and backlogs, kept out of this site

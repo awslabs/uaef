@@ -17,9 +17,8 @@ docs/                      <- you are here; mkdocs.yml lives at this level
 │   ├── Advanced/
 │   ├── API-Reference/     <- `::: uaef.<module>` directives, no hand-written API prose
 │   └── Contributing/
-├── dev/                   <- internal working notes; NOT published
-├── _md_to_pdf.py          <- one-off doc conversion tooling
-└── _md_to_docx.py
+├── check_build.sh         <- strict-ish build check; run by `make build` and by CI
+└── .gitignore             <- ignores the built site/
 ```
 
 The `docs/docs/` nesting is deliberate: CI runs `cd docs && mkdocs gh-deploy`, which
@@ -52,8 +51,8 @@ for `mkdocs build --strict`.
 - **API reference is generated.** Pages under `API-Reference/` contain only a short intro
   and `::: uaef.<module>` directives resolved against `../src`. Document new functions with
   docstrings, not by editing these pages. A new *module* needs a directive added.
-- **Internal notes stay out.** `dev/` sits outside `docs/docs/`, so backlogs and design
-  scratch are readable in the repo but never published.
+- **Everything under `docs/docs/` is published.** There is no unpublished scratch area;
+  design notes and backlogs belong in issues, not in this directory.
 - **Non-site files link to GitHub.** Anything outside `docs/docs/` — source under `src/`,
   `SECURITY.md`, `LICENSE`, `uaef-service/` — cannot be linked relatively, because relative
   links cannot escape `docs_dir`. Write it as an absolute link on `main` with the path as

@@ -90,8 +90,9 @@ def invoke_agentcore_runtime(
 #:
 #: There is no ``messages`` field: multi-turn evaluation requires an endpoint that
 #: keeps conversation state itself, so a turn carries only its query and the
-#: session id. Client-side history replay was removed deliberately — see
-#: docs/dev/multi-turn-backlog.md §1.
+#: session id. Client-side history replay was removed deliberately: replaying a
+#: transcript into a stateful endpoint duplicates context the endpoint already
+#: has, so the turn under evaluation no longer reflects production behaviour.
 DEFAULT_REQUEST_FIELDS: Dict[str, str] = {
     "query": "query",
     "session_id": "session_id",
