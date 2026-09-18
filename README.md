@@ -10,6 +10,7 @@ UAEF works with LangGraph, LangChain, AWS Bedrock, Langfuse, Strands, AgentCore,
 | Deploy the service to AWS | [Deployment](#deployment) → **[uaef-service/README.md](uaef-service/README.md)** |
 | Run the demo app locally | [demo/README.md](demo/README.md) |
 | See every metric | [docs/docs/Guides/metrics-catalog.md](docs/docs/Guides/metrics-catalog.md) |
+| Generate a test dataset + harness from an agent's source | [docs/docs/Guides/generating-an-eval-suite.md](docs/docs/Guides/generating-an-eval-suite.md) |
 | Browse all documentation | **[docs/docs/index.md](docs/docs/index.md)** — or build the site: `cd docs && make docs` |
 
 ## Architecture

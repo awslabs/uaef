@@ -3,6 +3,7 @@ nav:
   - metrics-catalog.md
   - adapters.md
   - ground-truth-datasets.md
+  - generating-an-eval-suite.md
   - use-cases.md
   - experiments.md
   - persistence-and-configuration.md
