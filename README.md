@@ -125,13 +125,14 @@ The capability extras (`integrations`, `langgraph`, `analysis`, `judge`, `client
 ```python
 from uaef.api import evaluate
 from uaef.models import AgentTrace, Message, MessageRole, GroundTruth
-from datetime import datetime
+from datetime import datetime, timezone
+from uuid import uuid4
 
 trace = AgentTrace(
-    trace_id="trace_001",
+    trace_id=uuid4(),
     messages=[
-        Message(role=MessageRole.USER, content="What is the capital of France?", timestamp=datetime.utcnow()),
-        Message(role=MessageRole.ASSISTANT, content="The capital of France is Paris.", timestamp=datetime.utcnow()),
+        Message(role=MessageRole.USER, content="What is the capital of France?", timestamp=datetime.now(timezone.utc)),
+        Message(role=MessageRole.ASSISTANT, content="The capital of France is Paris.", timestamp=datetime.now(timezone.utc)),
     ],
     tool_calls=[],
     session_id="session_123",
