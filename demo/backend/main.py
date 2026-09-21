@@ -48,6 +48,12 @@ from uaef.data import (
 
 logger = logging.getLogger(__name__)
 
+# The library's agent-invocation SSRF guard blocks private/loopback/metadata
+# endpoints by default. The demo runs locally and its whole point is evaluating
+# a localhost agent, so opt in to private endpoints here (setdefault, so an
+# operator can still force strict mode). The deployed Worker never does this.
+os.environ.setdefault("UAEF_ALLOW_PRIVATE_AGENT_ENDPOINTS", "true")
+
 # API-key authentication for the demo API. Fails closed: if UAEF_DEMO_API_KEY
 # is unset, every request is rejected with a 503 rather than silently allowed.
 # (Security review M-06: auth used to default to *disabled* when the key was

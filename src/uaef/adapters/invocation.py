@@ -15,10 +15,69 @@ is a core dependency and is imported lazily here only to keep this module import
 in environments where AWS credentials/clients are not configured.
 """
 
+import ipaddress
 import json
+import os
+import socket
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
+from urllib.parse import urlparse
 from uuid import uuid4
+
+#: Opt-out (trusted local use only) for the SSRF guard on agent endpoints. The
+#: deployed Worker must never set this; the local demo/notebook — which targets
+#: localhost agents — may, to allow private/loopback endpoints.
+_ALLOW_PRIVATE_ENDPOINTS_ENV = "UAEF_ALLOW_PRIVATE_AGENT_ENDPOINTS"
+
+
+def _allow_private_endpoints() -> bool:
+    return os.environ.get(_ALLOW_PRIVATE_ENDPOINTS_ENV, "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+
+
+def _validate_agent_endpoint(endpoint: str) -> None:
+    """Reject SSRF-prone agent endpoints before issuing a server-side request.
+
+    The deployed Worker fetches caller-supplied endpoints with the *service's*
+    credentials, so an unvalidated URL is a full SSRF: a caller could point it at
+    the cloud metadata IP (``169.254.169.254``) to steal the service role's
+    credentials, or at internal VPC addresses. We require http/https and — unless
+    explicitly opted out for trusted local use via
+    ``UAEF_ALLOW_PRIVATE_AGENT_ENDPOINTS`` — block any host that resolves to a
+    non-global address (private, loopback, link-local, reserved, multicast).
+
+    Note: this resolves DNS and validates every returned address, which closes
+    the trivial exploit. It does not by itself defeat DNS-rebinding (the address
+    could change between this check and the request); network-level egress
+    controls remain the defense-in-depth backstop for that.
+    """
+    parsed = urlparse(endpoint)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError(f"Agent endpoint must use http or https (got {parsed.scheme!r}).")
+    host = parsed.hostname
+    if not host:
+        raise ValueError("Agent endpoint URL has no host.")
+
+    if _allow_private_endpoints():
+        return
+
+    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    try:
+        addrinfos = socket.getaddrinfo(host, port, proto=socket.IPPROTO_TCP)
+    except socket.gaierror as exc:
+        raise ValueError(f"Agent endpoint host could not be resolved: {host}") from exc
+
+    for info in addrinfos:
+        ip = ipaddress.ip_address(info[4][0])
+        if not ip.is_global or ip.is_multicast:
+            raise ValueError(
+                f"Agent endpoint {host!r} resolves to a non-public address ({ip}); "
+                "refusing the request to prevent SSRF. Set "
+                f"{_ALLOW_PRIVATE_ENDPOINTS_ENV}=true only for trusted local endpoints."
+            )
 
 __all__ = [
     "invoke_http_agent",
@@ -135,6 +194,10 @@ def invoke_http_agent(
             "HTTP agent invocation requires 'httpx'. "
             "Install with: pip install httpx"
         ) from exc
+
+    # SSRF guard: the endpoint is caller-supplied and fetched with the service's
+    # credentials, so validate it before any request leaves the process.
+    _validate_agent_endpoint(endpoint)
 
     fields = {**DEFAULT_REQUEST_FIELDS, **(field_map or {})}
 
