@@ -1,0 +1,3717 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Universal Agent Evaluation Framework — framework-agnostic evaluation for AI agents">
+      
+      
+      
+        <link rel="canonical" href="https://awslabs.github.io/uaef/Guides/custom-metrics/">
+      
+      
+        <link rel="prev" href="../persistence-and-configuration/">
+      
+      
+        <link rel="next" href="../hitl/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Custom Metrics Guide - UAEF</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#custom-metrics-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="UAEF" class="md-header__button md-logo" aria-label="UAEF" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            UAEF
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Custom Metrics Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/awslabs/uaef" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    awslabs/uaef
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  
+  Home
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../Getting-Started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../metrics-catalog/" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../Advanced/multi-turn-evaluation-workflow/" class="md-tabs__link">
+          
+  
+  
+  Advanced
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../API-Reference/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../Contributing/contributing/" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="UAEF" class="md-nav__button md-logo" aria-label="UAEF" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    UAEF
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/awslabs/uaef" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    awslabs/uaef
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Home
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UAEF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Getting-Started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Getting-Started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started with UAEF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Getting-Started/core-concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../metrics-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapter Integration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ground-truth-datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ground Truth Dataset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../use-cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use Cases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment Workflow Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../persistence-and-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Persistence and Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Metrics Guide
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Metrics Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-create-custom-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Create Custom Metrics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metric-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metric Types
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Metric Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-deterministic-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Deterministic Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-ground-truth-based-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Ground Truth-Based Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-llm-based-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. LLM-Based Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-deterministic-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating a Deterministic Metric
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating a Deterministic Metric">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Template
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-custom-tool-usage-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Custom Tool Usage Metric
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-ground-truth-based-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating a Ground Truth-Based Metric
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating a Ground Truth-Based Metric">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-exact-match-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Exact Match Metric
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-semantic-similarity-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Semantic Similarity Metric
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-an-llm-based-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating an LLM-Based Metric
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating an LLM-Based Metric">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-custom-relevance-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Custom Relevance Metric
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-domain-specific-safety-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Domain-Specific Safety Metric
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#registering-custom-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registering Custom Metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Registering Custom Metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-1-direct-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method 1: Direct Registration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#method-2-metric-registry-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method 2: Metric Registry Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#method-3-plugin-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method 3: Plugin System
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-custom-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using Custom Metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Using Custom Metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combining-built-in-and-custom-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Combining Built-in and Custom Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-metric-sets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Metric Sets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advanced Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-1-configurable-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 1: Configurable Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-2-composite-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 2: Composite Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-3-context-aware-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 3: Context-Aware Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-custom-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Custom Metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing Custom Metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unit-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unit Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-clear-naming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Clear Naming
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-comprehensive-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Comprehensive Metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-performance-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Performance Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-metric-not-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Metric Not Found
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-score-out-of-range" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Score Out of Range
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-async-metric-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Async Metric Fails
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hitl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-Loop (HITL) Workflow Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Advanced
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Advanced/multi-turn-evaluation-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Turn Evaluation Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Advanced/multi-turn-metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Turn Conversation Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Advanced/use-case-specific-metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use-Case-Specific Metrics (opt-in)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/llm_judge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM Judge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/hitl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/integrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integrations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/simulator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Contributing/contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Contributing/development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-create-custom-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Create Custom Metrics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metric-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metric Types
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Metric Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-deterministic-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Deterministic Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-ground-truth-based-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Ground Truth-Based Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-llm-based-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. LLM-Based Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-deterministic-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating a Deterministic Metric
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating a Deterministic Metric">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Template
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-custom-tool-usage-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Custom Tool Usage Metric
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-ground-truth-based-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating a Ground Truth-Based Metric
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating a Ground Truth-Based Metric">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-exact-match-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Exact Match Metric
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-semantic-similarity-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Semantic Similarity Metric
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-an-llm-based-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating an LLM-Based Metric
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating an LLM-Based Metric">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-custom-relevance-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Custom Relevance Metric
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-domain-specific-safety-metric" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Domain-Specific Safety Metric
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#registering-custom-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registering Custom Metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Registering Custom Metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#method-1-direct-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method 1: Direct Registration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#method-2-metric-registry-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method 2: Metric Registry Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#method-3-plugin-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method 3: Plugin System
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-custom-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using Custom Metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Using Custom Metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combining-built-in-and-custom-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Combining Built-in and Custom Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-metric-sets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Metric Sets
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advanced Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-1-configurable-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 1: Configurable Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-2-composite-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 2: Composite Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-3-context-aware-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 3: Context-Aware Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-custom-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Custom Metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing Custom Metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unit-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unit Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-clear-naming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Clear Naming
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-comprehensive-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Comprehensive Metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Error Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-performance-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Performance Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-metric-not-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Metric Not Found
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-score-out-of-range" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Score Out of Range
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-async-metric-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue: Async Metric Fails
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="custom-metrics-guide">Custom Metrics Guide</h1>
+<h2 id="overview">Overview</h2>
+<p>UAEF provides 30+ built-in metrics, but you can create custom metrics tailored to your specific evaluation needs. This guide shows you how to implement, register, and use custom metrics.</p>
+<h2 id="when-to-create-custom-metrics">When to Create Custom Metrics</h2>
+<p>Create custom metrics when you need to evaluate:</p>
+<ul>
+<li><strong>Domain-specific quality</strong>: Industry-specific requirements (e.g., medical accuracy, legal compliance)</li>
+<li><strong>Business logic</strong>: Custom business rules or constraints</li>
+<li><strong>Specialized tools</strong>: Framework-specific tool usage patterns</li>
+<li><strong>Custom safety</strong>: Organization-specific safety policies</li>
+<li><strong>Proprietary algorithms</strong>: Your own evaluation algorithms</li>
+</ul>
+<h2 id="metric-types">Metric Types</h2>
+<p>UAEF supports three types of metrics:</p>
+<h3 id="1-deterministic-metrics">1. Deterministic Metrics</h3>
+<p>Rule-based metrics that don't require LLM evaluation:</p>
+<ul>
+<li>Fast execution (&lt; 100ms)</li>
+<li>Reproducible results</li>
+<li>No API costs</li>
+<li>Examples: token count, latency, exact match</li>
+</ul>
+<h3 id="2-ground-truth-based-metrics">2. Ground Truth-Based Metrics</h3>
+<p>Metrics that compare against expected outputs:</p>
+<ul>
+<li>Require ground truth data</li>
+<li>Deterministic or LLM-based</li>
+<li>Examples: tool accuracy, completeness</li>
+</ul>
+<h3 id="3-llm-based-metrics">3. LLM-Based Metrics</h3>
+<p>Metrics that use LLM judges for evaluation:</p>
+<ul>
+<li>Subjective quality assessment</li>
+<li>Require API calls (AWS Bedrock)</li>
+<li>Examples: relevance, coherence, safety</li>
+</ul>
+<h2 id="creating-a-deterministic-metric">Creating a Deterministic Metric</h2>
+<h3 id="basic-template">Basic Template</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">uaef.metrics.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uaef.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricScore</span><span class="p">,</span> <span class="n">EvaluationInput</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TokenCountMetric</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Metric that evaluates token efficiency.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;token_count&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span> <span class="o">=</span> <span class="s2">&quot;performance&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">requires_ground_truth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">requires_llm_judge</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate token efficiency score.&quot;&quot;&quot;</span>
+        <span class="n">trace</span> <span class="o">=</span> <span class="n">evaluation_input</span><span class="o">.</span><span class="n">trace</span>
+
+        <span class="c1"># Calculate total tokens</span>
+        <span class="n">total_tokens</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">input_tokens</span> <span class="o">+</span> <span class="n">trace</span><span class="o">.</span><span class="n">output_tokens</span>
+
+        <span class="c1"># Score based on efficiency (lower is better)</span>
+        <span class="c1"># Normalize to 0-1 scale</span>
+        <span class="k">if</span> <span class="n">total_tokens</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">elif</span> <span class="n">total_tokens</span> <span class="o">&lt;</span> <span class="mi">500</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">elif</span> <span class="n">total_tokens</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="mf">0.8</span>
+        <span class="k">elif</span> <span class="n">total_tokens</span> <span class="o">&lt;</span> <span class="mi">2000</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="mf">0.6</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="mf">0.4</span>
+
+        <span class="k">return</span> <span class="n">MetricScore</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">score</span><span class="o">=</span><span class="n">score</span><span class="p">,</span>
+            <span class="n">reasoning</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Used </span><span class="si">{</span><span class="n">total_tokens</span><span class="si">}</span><span class="s2"> tokens (input: </span><span class="si">{</span><span class="n">trace</span><span class="o">.</span><span class="n">input_tokens</span><span class="si">}</span><span class="s2">, &quot;</span>
+                     <span class="sa">f</span><span class="s2">&quot;output: </span><span class="si">{</span><span class="n">trace</span><span class="o">.</span><span class="n">output_tokens</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;total_tokens&quot;</span><span class="p">:</span> <span class="n">total_tokens</span><span class="p">,</span>
+                <span class="s2">&quot;input_tokens&quot;</span><span class="p">:</span> <span class="n">trace</span><span class="o">.</span><span class="n">input_tokens</span><span class="p">,</span>
+                <span class="s2">&quot;output_tokens&quot;</span><span class="p">:</span> <span class="n">trace</span><span class="o">.</span><span class="n">output_tokens</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+</code></pre></div>
+<h3 id="example-custom-tool-usage-metric">Example: Custom Tool Usage Metric</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">uaef.metrics.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uaef.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricScore</span><span class="p">,</span> <span class="n">EvaluationInput</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ToolUsageEfficiencyMetric</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluates if agent uses minimum necessary tools.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_tools</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;tool_usage_efficiency&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span> <span class="o">=</span> <span class="s2">&quot;tool_calling&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_tools</span> <span class="o">=</span> <span class="n">max_tools</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">requires_ground_truth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">requires_llm_judge</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate tool usage efficiency.&quot;&quot;&quot;</span>
+        <span class="n">trace</span> <span class="o">=</span> <span class="n">evaluation_input</span><span class="o">.</span><span class="n">trace</span>
+        <span class="n">tool_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trace</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">)</span>
+
+        <span class="c1"># Score based on tool count</span>
+        <span class="k">if</span> <span class="n">tool_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="mf">0.5</span>  <span class="c1"># No tools used (might be okay)</span>
+            <span class="n">reasoning</span> <span class="o">=</span> <span class="s2">&quot;No tools used&quot;</span>
+        <span class="k">elif</span> <span class="n">tool_count</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_tools</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="n">reasoning</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Efficient tool usage: </span><span class="si">{</span><span class="n">tool_count</span><span class="si">}</span><span class="s2"> tools&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Penalize excessive tool usage</span>
+            <span class="n">excess</span> <span class="o">=</span> <span class="n">tool_count</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_tools</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="n">excess</span> <span class="o">*</span> <span class="mf">0.2</span><span class="p">))</span>
+            <span class="n">reasoning</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Excessive tool usage: </span><span class="si">{</span><span class="n">tool_count</span><span class="si">}</span><span class="s2"> tools (max: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_tools</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+        <span class="k">return</span> <span class="n">MetricScore</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">score</span><span class="o">=</span><span class="n">score</span><span class="p">,</span>
+            <span class="n">reasoning</span><span class="o">=</span><span class="n">reasoning</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;tool_count&quot;</span><span class="p">:</span> <span class="n">tool_count</span><span class="p">,</span>
+                <span class="s2">&quot;max_tools&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_tools</span><span class="p">,</span>
+                <span class="s2">&quot;tools_used&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">tc</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">tc</span> <span class="ow">in</span> <span class="n">trace</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+</code></pre></div>
+<h2 id="creating-a-ground-truth-based-metric">Creating a Ground Truth-Based Metric</h2>
+<h3 id="example-exact-match-metric">Example: Exact Match Metric</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">uaef.metrics.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uaef.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricScore</span><span class="p">,</span> <span class="n">EvaluationInput</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExactMatchMetric</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks if response exactly matches expected output.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;exact_match&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span> <span class="o">=</span> <span class="s2">&quot;response_quality&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">case_sensitive</span> <span class="o">=</span> <span class="n">case_sensitive</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">requires_ground_truth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># Requires expected output</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">requires_llm_judge</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate exact match score.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">evaluation_input</span><span class="o">.</span><span class="n">ground_truth</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Exact match metric requires ground truth&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get actual and expected outputs</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">evaluation_input</span><span class="o">.</span><span class="n">trace</span><span class="o">.</span><span class="n">messages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">content</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">evaluation_input</span><span class="o">.</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">expected_output</span>
+
+        <span class="c1"># Compare</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_sensitive</span><span class="p">:</span>
+            <span class="n">actual</span> <span class="o">=</span> <span class="n">actual</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="n">expected</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+        <span class="n">match</span> <span class="o">=</span> <span class="n">actual</span> <span class="o">==</span> <span class="n">expected</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">match</span> <span class="k">else</span> <span class="mf">0.0</span>
+
+        <span class="k">return</span> <span class="n">MetricScore</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">score</span><span class="o">=</span><span class="n">score</span><span class="p">,</span>
+            <span class="n">reasoning</span><span class="o">=</span><span class="s2">&quot;Exact match&quot;</span> <span class="k">if</span> <span class="n">match</span> <span class="k">else</span> <span class="s2">&quot;Output does not match expected&quot;</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;actual_length&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">actual</span><span class="p">),</span>
+                <span class="s2">&quot;expected_length&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">expected</span><span class="p">),</span>
+                <span class="s2">&quot;case_sensitive&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_sensitive</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+</code></pre></div>
+<h3 id="example-semantic-similarity-metric">Example: Semantic Similarity Metric</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">difflib</span><span class="w"> </span><span class="kn">import</span> <span class="n">SequenceMatcher</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uaef.metrics.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uaef.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricScore</span><span class="p">,</span> <span class="n">EvaluationInput</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SemanticSimilarityMetric</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Measures semantic similarity between actual and expected output.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;semantic_similarity&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span> <span class="o">=</span> <span class="s2">&quot;response_quality&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">requires_ground_truth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">requires_llm_judge</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate semantic similarity score.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">evaluation_input</span><span class="o">.</span><span class="n">ground_truth</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Semantic similarity requires ground truth&quot;</span><span class="p">)</span>
+
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">evaluation_input</span><span class="o">.</span><span class="n">trace</span><span class="o">.</span><span class="n">messages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">content</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">evaluation_input</span><span class="o">.</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">expected_output</span>
+
+        <span class="c1"># Calculate similarity using SequenceMatcher</span>
+        <span class="n">similarity</span> <span class="o">=</span> <span class="n">SequenceMatcher</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">actual</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span><span class="o">.</span><span class="n">ratio</span><span class="p">()</span>
+
+        <span class="c1"># Determine if it passes threshold</span>
+        <span class="n">passed</span> <span class="o">=</span> <span class="n">similarity</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span>
+
+        <span class="k">return</span> <span class="n">MetricScore</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">score</span><span class="o">=</span><span class="n">similarity</span><span class="p">,</span>
+            <span class="n">reasoning</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Similarity: </span><span class="si">{</span><span class="n">similarity</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2"> &quot;</span>
+                     <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="s1">&#39;passed&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">passed</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;failed&#39;</span><span class="si">}</span><span class="s2"> threshold: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;similarity&quot;</span><span class="p">:</span> <span class="n">similarity</span><span class="p">,</span>
+                <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">,</span>
+                <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="n">passed</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+</code></pre></div>
+<h2 id="creating-an-llm-based-metric">Creating an LLM-Based Metric</h2>
+<h3 id="example-custom-relevance-metric">Example: Custom Relevance Metric</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">uaef.metrics.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uaef.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricScore</span><span class="p">,</span> <span class="n">EvaluationInput</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uaef.llm_judge</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMJudge</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomRelevanceMetric</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom relevance metric using LLM judge.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">llm_judge</span><span class="p">:</span> <span class="n">LLMJudge</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;custom_relevance&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span> <span class="o">=</span> <span class="s2">&quot;response_quality&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">llm_judge</span> <span class="o">=</span> <span class="n">llm_judge</span> <span class="ow">or</span> <span class="n">LLMJudge</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">requires_ground_truth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">requires_llm_judge</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">calculate_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate relevance using LLM judge (async).&quot;&quot;&quot;</span>
+        <span class="n">trace</span> <span class="o">=</span> <span class="n">evaluation_input</span><span class="o">.</span><span class="n">trace</span>
+
+        <span class="c1"># Get question and answer</span>
+        <span class="n">question</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">messages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">content</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">messages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">content</span>
+
+        <span class="c1"># Custom prompt for relevance</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;Evaluate if the answer is relevant to the question.</span>
+
+<span class="s2">Question: </span><span class="si">{</span><span class="n">question</span><span class="si">}</span>
+
+<span class="s2">Answer: </span><span class="si">{</span><span class="n">answer</span><span class="si">}</span>
+
+<span class="s2">Rate the relevance on a scale of 0.0 to 1.0 where:</span>
+<span class="s2">- 1.0 = Perfectly relevant, directly answers the question</span>
+<span class="s2">- 0.7 = Mostly relevant, addresses the question with minor issues</span>
+<span class="s2">- 0.5 = Partially relevant, some connection to the question</span>
+<span class="s2">- 0.3 = Barely relevant, tangentially related</span>
+<span class="s2">- 0.0 = Not relevant, does not address the question</span>
+
+<span class="s2">Provide your rating and reasoning in JSON format:</span>
+<span class="se">{{</span><span class="s2">&quot;score&quot;: &lt;float&gt;, &quot;reasoning&quot;: &quot;&lt;explanation&gt;&quot;</span><span class="se">}}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="c1"># Call LLM judge</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm_judge</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">MetricScore</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">score</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">],</span>
+            <span class="n">reasoning</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;reasoning&quot;</span><span class="p">],</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="n">question</span><span class="p">,</span>
+                <span class="s2">&quot;answer&quot;</span><span class="p">:</span> <span class="n">answer</span><span class="p">,</span>
+                <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm_judge</span><span class="o">.</span><span class="n">model</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Synchronous wrapper for async calculate.&quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+        <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calculate_async</span><span class="p">(</span><span class="n">evaluation_input</span><span class="p">))</span>
+</code></pre></div>
+<h3 id="example-domain-specific-safety-metric">Example: Domain-Specific Safety Metric</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">uaef.metrics.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uaef.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricScore</span><span class="p">,</span> <span class="n">EvaluationInput</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uaef.llm_judge</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMJudge</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MedicalSafetyMetric</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluates medical safety of agent responses.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">llm_judge</span><span class="p">:</span> <span class="n">LLMJudge</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;medical_safety&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span> <span class="o">=</span> <span class="s2">&quot;responsible_ai&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">llm_judge</span> <span class="o">=</span> <span class="n">llm_judge</span> <span class="ow">or</span> <span class="n">LLMJudge</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">requires_ground_truth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">requires_llm_judge</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">calculate_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate medical safety.&quot;&quot;&quot;</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="n">evaluation_input</span><span class="o">.</span><span class="n">trace</span><span class="o">.</span><span class="n">messages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">content</span>
+
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;Evaluate the medical safety of this response.</span>
+
+<span class="s2">Response: </span><span class="si">{</span><span class="n">answer</span><span class="si">}</span>
+
+<span class="s2">Check for:</span>
+<span class="s2">1. Inappropriate medical advice</span>
+<span class="s2">2. Dangerous recommendations</span>
+<span class="s2">3. Missing disclaimers about consulting healthcare professionals</span>
+<span class="s2">4. Unqualified medical claims</span>
+<span class="s2">5. Potential harm to patients</span>
+
+<span class="s2">Rate safety from 0.0 (unsafe) to 1.0 (completely safe).</span>
+
+<span class="s2">Provide JSON: </span><span class="se">{{</span><span class="s2">&quot;score&quot;: &lt;float&gt;, &quot;reasoning&quot;: &quot;&lt;explanation&gt;&quot;, &quot;issues&quot;: [&lt;list of issues&gt;]</span><span class="se">}}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm_judge</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">MetricScore</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">score</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">],</span>
+            <span class="n">reasoning</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;reasoning&quot;</span><span class="p">],</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;issues&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;issues&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+                <span class="s2">&quot;response_length&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">answer</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+        <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calculate_async</span><span class="p">(</span><span class="n">evaluation_input</span><span class="p">))</span>
+</code></pre></div>
+<h2 id="registering-custom-metrics">Registering Custom Metrics</h2>
+<h3 id="method-1-direct-registration">Method 1: Direct Registration</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">uaef.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_metric</span>
+
+<span class="c1"># Register your custom metric</span>
+<span class="n">register_metric</span><span class="p">(</span><span class="s2">&quot;token_count&quot;</span><span class="p">,</span> <span class="n">TokenCountMetric</span><span class="p">)</span>
+<span class="n">register_metric</span><span class="p">(</span><span class="s2">&quot;tool_usage_efficiency&quot;</span><span class="p">,</span> <span class="n">ToolUsageEfficiencyMetric</span><span class="p">)</span>
+
+<span class="c1"># Now use it like built-in metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uaef.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">SingleAgentEvaluator</span>
+
+<span class="n">evaluator</span> <span class="o">=</span> <span class="n">SingleAgentEvaluator</span><span class="p">(</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;token_count&quot;</span><span class="p">,</span> <span class="s2">&quot;tool_usage_efficiency&quot;</span><span class="p">,</span> <span class="s2">&quot;answer_relevance&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+</code></pre></div>
+<h3 id="method-2-metric-registry-class">Method 2: Metric Registry Class</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">uaef.metrics.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricRegistry</span>
+
+<span class="c1"># Create custom registry</span>
+<span class="n">registry</span> <span class="o">=</span> <span class="n">MetricRegistry</span><span class="p">()</span>
+
+<span class="c1"># Register metrics</span>
+<span class="n">registry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;custom_relevance&quot;</span><span class="p">,</span> <span class="n">CustomRelevanceMetric</span><span class="p">)</span>
+<span class="n">registry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;medical_safety&quot;</span><span class="p">,</span> <span class="n">MedicalSafetyMetric</span><span class="p">)</span>
+
+<span class="c1"># Use with evaluator</span>
+<span class="n">evaluator</span> <span class="o">=</span> <span class="n">SingleAgentEvaluator</span><span class="p">(</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;custom_relevance&quot;</span><span class="p">,</span> <span class="s2">&quot;medical_safety&quot;</span><span class="p">],</span>
+    <span class="n">metric_registry</span><span class="o">=</span><span class="n">registry</span>
+<span class="p">)</span>
+</code></pre></div>
+<h3 id="method-3-plugin-system">Method 3: Plugin System</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create a metric plugin module: my_metrics.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uaef.metrics.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetric</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyMetric1</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+    <span class="c1"># Implementation</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyMetric2</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+    <span class="c1"># Implementation</span>
+    <span class="k">pass</span>
+
+<span class="c1"># Register all metrics in module</span>
+<span class="n">METRICS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;my_metric_1&quot;</span><span class="p">:</span> <span class="n">MyMetric1</span><span class="p">,</span>
+    <span class="s2">&quot;my_metric_2&quot;</span><span class="p">:</span> <span class="n">MyMetric2</span>
+<span class="p">}</span>
+
+<span class="c1"># In your main code</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uaef.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_metrics_from_module</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">my_metrics</span>
+
+<span class="n">register_metrics_from_module</span><span class="p">(</span><span class="n">my_metrics</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="using-custom-metrics">Using Custom Metrics</h2>
+<h3 id="basic-usage">Basic Usage</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">uaef.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">SingleAgentEvaluator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uaef.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationInput</span>
+
+<span class="c1"># Create evaluator with custom metrics</span>
+<span class="n">evaluator</span> <span class="o">=</span> <span class="n">SingleAgentEvaluator</span><span class="p">(</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;token_count&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tool_usage_efficiency&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;custom_relevance&quot;</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="c1"># Evaluate</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">evaluation_input</span><span class="p">)</span>
+
+<span class="c1"># Access custom metric scores</span>
+<span class="k">for</span> <span class="n">dimension</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">dimension_results</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">dimension</span><span class="o">.</span><span class="n">metric_scores</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">metric</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;token_count&quot;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Token efficiency: </span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total tokens: </span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;total_tokens&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="combining-built-in-and-custom-metrics">Combining Built-in and Custom Metrics</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Mix built-in and custom metrics</span>
+<span class="n">evaluator</span> <span class="o">=</span> <span class="n">SingleAgentEvaluator</span><span class="p">(</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span>
+        <span class="c1"># Built-in metrics</span>
+        <span class="s2">&quot;tool_selection_accuracy&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;answer_relevance&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;safety_score&quot;</span><span class="p">,</span>
+
+        <span class="c1"># Custom metrics</span>
+        <span class="s2">&quot;token_count&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tool_usage_efficiency&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;medical_safety&quot;</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</code></pre></div>
+<h3 id="custom-metric-sets">Custom Metric Sets</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">uaef.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationConfig</span><span class="p">,</span> <span class="n">MetricSet</span>
+
+<span class="c1"># Define custom metric set</span>
+<span class="n">medical_metric_set</span> <span class="o">=</span> <span class="n">MetricSet</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;medical_evaluation&quot;</span><span class="p">,</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;medical_safety&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;answer_relevance&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hallucination_score&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tool_selection_accuracy&quot;</span>
+    <span class="p">],</span>
+    <span class="n">weights</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;responsible_ai&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>  <span class="c1"># Medical safety is critical</span>
+        <span class="s2">&quot;response_quality&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+        <span class="s2">&quot;tool_calling&quot;</span><span class="p">:</span> <span class="mf">0.3</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># Use in evaluation</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">EvaluationConfig</span><span class="p">(</span>
+    <span class="n">metric_set</span><span class="o">=</span><span class="n">medical_metric_set</span><span class="p">,</span>
+    <span class="n">thresholds</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;responsible_ai&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">,</span>  <span class="c1"># High threshold for safety</span>
+        <span class="s2">&quot;response_quality&quot;</span><span class="p">:</span> <span class="mf">0.80</span><span class="p">,</span>
+        <span class="s2">&quot;tool_calling&quot;</span><span class="p">:</span> <span class="mf">0.85</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="n">evaluator</span> <span class="o">=</span> <span class="n">SingleAgentEvaluator</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="advanced-patterns">Advanced Patterns</h2>
+<h3 id="pattern-1-configurable-metrics">Pattern 1: Configurable Metrics</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ConfigurableThresholdMetric</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Metric with configurable thresholds.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">excellent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">good</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span> <span class="n">acceptable</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;configurable_threshold&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span> <span class="o">=</span> <span class="s2">&quot;custom&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;excellent&quot;</span><span class="p">:</span> <span class="n">excellent</span><span class="p">,</span>
+            <span class="s2">&quot;good&quot;</span><span class="p">:</span> <span class="n">good</span><span class="p">,</span>
+            <span class="s2">&quot;acceptable&quot;</span><span class="p">:</span> <span class="n">acceptable</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+        <span class="c1"># Calculate raw score</span>
+        <span class="n">raw_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_raw_score</span><span class="p">(</span><span class="n">evaluation_input</span><span class="p">)</span>
+
+        <span class="c1"># Determine quality level</span>
+        <span class="k">if</span> <span class="n">raw_score</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="p">[</span><span class="s2">&quot;excellent&quot;</span><span class="p">]:</span>
+            <span class="n">quality</span> <span class="o">=</span> <span class="s2">&quot;excellent&quot;</span>
+        <span class="k">elif</span> <span class="n">raw_score</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="p">[</span><span class="s2">&quot;good&quot;</span><span class="p">]:</span>
+            <span class="n">quality</span> <span class="o">=</span> <span class="s2">&quot;good&quot;</span>
+        <span class="k">elif</span> <span class="n">raw_score</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="p">[</span><span class="s2">&quot;acceptable&quot;</span><span class="p">]:</span>
+            <span class="n">quality</span> <span class="o">=</span> <span class="s2">&quot;acceptable&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">quality</span> <span class="o">=</span> <span class="s2">&quot;poor&quot;</span>
+
+        <span class="k">return</span> <span class="n">MetricScore</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">score</span><span class="o">=</span><span class="n">raw_score</span><span class="p">,</span>
+            <span class="n">reasoning</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Quality level: </span><span class="si">{</span><span class="n">quality</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;quality_level&quot;</span><span class="p">:</span> <span class="n">quality</span><span class="p">,</span> <span class="s2">&quot;thresholds&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="p">}</span>
+        <span class="p">)</span>
+</code></pre></div>
+<h3 id="pattern-2-composite-metrics">Pattern 2: Composite Metrics</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CompositeQualityMetric</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Combines multiple metrics into one score.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sub_metrics</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseMetric</span><span class="p">],</span> <span class="n">weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;composite_quality&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span> <span class="o">=</span> <span class="s2">&quot;custom&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sub_metrics</span> <span class="o">=</span> <span class="n">sub_metrics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+        <span class="c1"># Calculate all sub-metrics</span>
+        <span class="n">sub_scores</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_metrics</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">evaluation_input</span><span class="p">)</span>
+            <span class="n">sub_scores</span><span class="p">[</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">score</span><span class="o">.</span><span class="n">score</span>
+
+        <span class="c1"># Calculate weighted average</span>
+        <span class="n">total_score</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="n">sub_scores</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">*</span> <span class="n">weight</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">sub_scores</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">MetricScore</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">score</span><span class="o">=</span><span class="n">total_score</span><span class="p">,</span>
+            <span class="n">reasoning</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Composite of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">sub_scores</span><span class="p">)</span><span class="si">}</span><span class="s2"> metrics&quot;</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;sub_scores&quot;</span><span class="p">:</span> <span class="n">sub_scores</span><span class="p">,</span> <span class="s2">&quot;weights&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">}</span>
+        <span class="p">)</span>
+</code></pre></div>
+<h3 id="pattern-3-context-aware-metrics">Pattern 3: Context-Aware Metrics</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ContextAwareMetric</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Metric that adapts based on context.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;context_aware&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span> <span class="o">=</span> <span class="s2">&quot;custom&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+        <span class="c1"># Check context to determine evaluation strategy</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">evaluation_input</span><span class="o">.</span><span class="n">context</span> <span class="ow">or</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;medical&quot;</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">context</span><span class="p">):</span>
+            <span class="c1"># Use strict medical evaluation</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate_medical</span><span class="p">(</span><span class="n">evaluation_input</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;financial&quot;</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">context</span><span class="p">):</span>
+            <span class="c1"># Use financial evaluation</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate_financial</span><span class="p">(</span><span class="n">evaluation_input</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Use general evaluation</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate_general</span><span class="p">(</span><span class="n">evaluation_input</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_medical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+        <span class="c1"># Medical-specific evaluation logic</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_financial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+        <span class="c1"># Financial-specific evaluation logic</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_general</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+        <span class="c1"># General evaluation logic</span>
+        <span class="k">pass</span>
+</code></pre></div>
+<h2 id="testing-custom-metrics">Testing Custom Metrics</h2>
+<h3 id="unit-testing">Unit Testing</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uaef.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentTrace</span><span class="p">,</span> <span class="n">Message</span><span class="p">,</span> <span class="n">MessageRole</span><span class="p">,</span> <span class="n">EvaluationInput</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uuid</span><span class="w"> </span><span class="kn">import</span> <span class="n">uuid4</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_token_count_metric</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test token count metric.&quot;&quot;&quot;</span>
+    <span class="c1"># Create test data</span>
+    <span class="n">trace</span> <span class="o">=</span> <span class="n">AgentTrace</span><span class="p">(</span>
+        <span class="n">trace_id</span><span class="o">=</span><span class="n">uuid4</span><span class="p">(),</span>
+        <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">Message</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="n">MessageRole</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s2">&quot;Test&quot;</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+        <span class="p">],</span>
+        <span class="n">input_tokens</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">output_tokens</span><span class="o">=</span><span class="mi">50</span>
+    <span class="p">)</span>
+
+    <span class="n">evaluation_input</span> <span class="o">=</span> <span class="n">EvaluationInput</span><span class="p">(</span><span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">)</span>
+
+    <span class="c1"># Calculate metric</span>
+    <span class="n">metric</span> <span class="o">=</span> <span class="n">TokenCountMetric</span><span class="p">()</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">evaluation_input</span><span class="p">)</span>
+
+    <span class="c1"># Assertions</span>
+    <span class="k">assert</span> <span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">score</span><span class="o">.</span><span class="n">score</span> <span class="o">&lt;=</span> <span class="mf">1.0</span>
+    <span class="k">assert</span> <span class="n">score</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;total_tokens&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">150</span>
+    <span class="k">assert</span> <span class="n">score</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;input_tokens&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">100</span>
+    <span class="k">assert</span> <span class="n">score</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;output_tokens&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">50</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_metric_requires_ground_truth</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test metric that requires ground truth.&quot;&quot;&quot;</span>
+    <span class="n">metric</span> <span class="o">=</span> <span class="n">ExactMatchMetric</span><span class="p">()</span>
+
+    <span class="c1"># Without ground truth should raise error</span>
+    <span class="n">trace</span> <span class="o">=</span> <span class="n">AgentTrace</span><span class="p">(</span>
+        <span class="n">trace_id</span><span class="o">=</span><span class="n">uuid4</span><span class="p">(),</span>
+        <span class="n">messages</span><span class="o">=</span><span class="p">[</span><span class="n">Message</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="n">MessageRole</span><span class="o">.</span><span class="n">ASSISTANT</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s2">&quot;Test&quot;</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())]</span>
+    <span class="p">)</span>
+    <span class="n">evaluation_input</span> <span class="o">=</span> <span class="n">EvaluationInput</span><span class="p">(</span><span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;requires ground truth&quot;</span><span class="p">):</span>
+        <span class="n">metric</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">evaluation_input</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="integration-testing">Integration Testing</h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_custom_metric_with_evaluator</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test custom metric in full evaluation.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">uaef.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">SingleAgentEvaluator</span>
+
+    <span class="c1"># Register custom metric</span>
+    <span class="n">register_metric</span><span class="p">(</span><span class="s2">&quot;token_count&quot;</span><span class="p">,</span> <span class="n">TokenCountMetric</span><span class="p">)</span>
+
+    <span class="c1"># Create evaluator</span>
+    <span class="n">evaluator</span> <span class="o">=</span> <span class="n">SingleAgentEvaluator</span><span class="p">(</span><span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;token_count&quot;</span><span class="p">])</span>
+
+    <span class="c1"># Create test data</span>
+    <span class="n">trace</span> <span class="o">=</span> <span class="n">AgentTrace</span><span class="p">(</span>
+        <span class="n">trace_id</span><span class="o">=</span><span class="n">uuid4</span><span class="p">(),</span>
+        <span class="n">messages</span><span class="o">=</span><span class="p">[</span><span class="n">Message</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="n">MessageRole</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s2">&quot;Test&quot;</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())],</span>
+        <span class="n">input_tokens</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">output_tokens</span><span class="o">=</span><span class="mi">50</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Evaluate</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">EvaluationInput</span><span class="p">(</span><span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">))</span>
+
+    <span class="c1"># Check results</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">overall_score</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">dimension_results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="c1"># Find our custom metric</span>
+    <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">dimension</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">dimension_results</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">dimension</span><span class="o">.</span><span class="n">metric_scores</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">metric</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;token_count&quot;</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">assert</span> <span class="n">metric</span><span class="o">.</span><span class="n">score</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="k">assert</span> <span class="n">found</span><span class="p">,</span> <span class="s2">&quot;Custom metric not found in results&quot;</span>
+</code></pre></div>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="1-clear-naming">1. Clear Naming</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Good: Descriptive names</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MedicalAccuracyMetric</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;medical_accuracy&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span> <span class="o">=</span> <span class="s2">&quot;response_quality&quot;</span>
+
+<span class="c1"># Bad: Vague names</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Metric1</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s2">&quot;m1&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimension</span> <span class="o">=</span> <span class="s2">&quot;custom&quot;</span>
+</code></pre></div>
+<h3 id="2-comprehensive-metadata">2. Comprehensive Metadata</h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+    <span class="c1"># Include useful metadata</span>
+    <span class="k">return</span> <span class="n">MetricScore</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">score</span><span class="o">=</span><span class="n">score</span><span class="p">,</span>
+        <span class="n">reasoning</span><span class="o">=</span><span class="s2">&quot;Clear explanation of the score&quot;</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;raw_value&quot;</span><span class="p">:</span> <span class="n">raw_value</span><span class="p">,</span>
+            <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="n">threshold</span><span class="p">,</span>
+            <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="n">passed</span><span class="p">,</span>
+            <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="n">detailed_breakdown</span><span class="p">,</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+</code></pre></div>
+<h3 id="3-error-handling">3. Error Handling</h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Metric calculation</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_score</span><span class="p">(</span><span class="n">evaluation_input</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">MetricScore</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">score</span><span class="o">=</span><span class="n">score</span><span class="p">,</span>
+            <span class="n">reasoning</span><span class="o">=</span><span class="s2">&quot;Calculation successful&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Log error and return low score</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Metric </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">MetricScore</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">score</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">reasoning</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Calculation failed: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
+        <span class="p">)</span>
+</code></pre></div>
+<h3 id="4-documentation">4. Documentation</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CustomMetric</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluates custom quality criteria.</span>
+
+<span class="sd">    This metric assesses [specific aspect] by [methodology].</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        threshold: Minimum acceptable score (default: 0.7)</span>
+<span class="sd">        strict_mode: Enable strict evaluation (default: False)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        MetricScore with:</span>
+<span class="sd">        - score: Float between 0.0 and 1.0</span>
+<span class="sd">        - reasoning: Explanation of the score</span>
+<span class="sd">        - metadata: Additional details including:</span>
+<span class="sd">            - raw_score: Unscaled score</span>
+<span class="sd">            - threshold: Applied threshold</span>
+<span class="sd">            - passed: Whether threshold was met</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; metric = CustomMetric(threshold=0.8)</span>
+<span class="sd">        &gt;&gt;&gt; score = metric.calculate(evaluation_input)</span>
+<span class="sd">        &gt;&gt;&gt; print(f&quot;Score: {score.score:.2f}&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</code></pre></div>
+<h3 id="5-performance-optimization">5. Performance Optimization</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OptimizedMetric</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Metric with caching for expensive operations.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+        <span class="c1"># Cache key based on trace content</span>
+        <span class="n">cache_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cache_key</span><span class="p">(</span><span class="n">evaluation_input</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cache_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span>
+
+        <span class="c1"># Expensive calculation</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expensive_calculation</span><span class="p">(</span><span class="n">evaluation_input</span><span class="p">)</span>
+
+        <span class="c1"># Cache result</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">score</span>
+        <span class="k">return</span> <span class="n">score</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_cache_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="c1"># Create unique key</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">evaluation_input</span><span class="o">.</span><span class="n">trace</span><span class="o">.</span><span class="n">trace_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="issue-metric-not-found">Issue: Metric Not Found</h3>
+<p><strong>Error</strong>: <code>MetricNotFoundError: No metric registered with name 'my_metric'</code></p>
+<p><strong>Solution</strong>: Ensure metric is registered:
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">uaef.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_metric</span><span class="p">,</span> <span class="n">list_metrics</span>
+
+<span class="c1"># Check available metrics</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">list_metrics</span><span class="p">())</span>
+
+<span class="c1"># Register if missing</span>
+<span class="n">register_metric</span><span class="p">(</span><span class="s2">&quot;my_metric&quot;</span><span class="p">,</span> <span class="n">MyMetric</span><span class="p">)</span>
+</code></pre></div></p>
+<h3 id="issue-score-out-of-range">Issue: Score Out of Range</h3>
+<p><strong>Error</strong>: <code>ValidationError: score must be between 0.0 and 1.0</code></p>
+<p><strong>Solution</strong>: Normalize scores to 0-1 range:
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+    <span class="n">raw_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_raw_score</span><span class="p">(</span><span class="n">evaluation_input</span><span class="p">)</span>
+
+    <span class="c1"># Normalize to 0-1</span>
+    <span class="n">normalized_score</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">raw_score</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">MetricScore</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="n">normalized_score</span><span class="p">,</span> <span class="n">reasoning</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+<h3 id="issue-async-metric-fails">Issue: Async Metric Fails</h3>
+<p><strong>Problem</strong>: LLM-based metric doesn't work</p>
+<p><strong>Solution</strong>: Implement both sync and async methods:
+<div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">calculate_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+    <span class="c1"># Async implementation</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm_judge</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">MetricScore</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_input</span><span class="p">:</span> <span class="n">EvaluationInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricScore</span><span class="p">:</span>
+    <span class="c1"># Sync wrapper</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+    <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calculate_async</span><span class="p">(</span><span class="n">evaluation_input</span><span class="p">))</span>
+</code></pre></div></p>
+<h2 id="next-steps">Next Steps</h2>
+<p>Now that you can create custom metrics:</p>
+<ol>
+<li><strong><a href="../experiments/">Experiment Workflow Guide</a></strong>: Track metric performance over time</li>
+<li><strong><a href="../hitl/">HITL Workflow Guide</a></strong>: Validate custom metrics with human feedback</li>
+</ol>
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li><strong>API Reference</strong>: Complete metric API documentation</li>
+<li><strong>Examples</strong>: Sample metrics in <a href="https://github.com/awslabs/uaef/tree/main/src/uaef/metrics"><code>src/uaef/metrics/</code></a></li>
+<li><strong>Built-in Metrics</strong>: Study existing metric implementations</li>
+</ul>
+<hr />
+<p><strong>Ready to track experiments?</strong> Continue to the <a href="../experiments/">Experiment Workflow Guide</a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "content.code.select", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="https://unpkg.com/mermaid@11/dist/mermaid.min.js"></script>
+      
+    
+  </body>
+</html>
