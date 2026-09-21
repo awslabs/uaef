@@ -59,6 +59,9 @@ def capture(monkeypatch):
     _FakeClient.calls = []
     _FakeClient.response = {"stream_events": [], "response": "ok"}
     monkeypatch.setattr(httpx, "Client", _FakeClient)
+    # These tests use fake hosts (e.g. "agent") and never touch the network, so
+    # opt out of the SSRF endpoint guard (which would otherwise try to resolve them).
+    monkeypatch.setenv("UAEF_ALLOW_PRIVATE_AGENT_ENDPOINTS", "true")
     return _FakeClient
 
 
@@ -271,3 +274,53 @@ class TestCoerceMessageStillWorks:
         ]
         coerced = [LangGraphAdapter._coerce_message(m) for m in hist]
         assert [type(c).__name__ for c in coerced] == ["HumanMessage", "AIMessage"]
+
+
+class TestSsrfEndpointGuard:
+    """The endpoint is caller-supplied and fetched server-side, so it must be
+    validated against SSRF before any request is issued (unless explicitly
+    opted out for trusted local use)."""
+
+    def _fake_resolve(self, monkeypatch, ip: str):
+        import uaef.adapters.invocation as inv
+
+        def fake_getaddrinfo(host, port, *a, **k):
+            return [(2, 1, 6, "", (ip, port))]
+
+        monkeypatch.setattr(inv.socket, "getaddrinfo", fake_getaddrinfo)
+
+    def test_blocks_cloud_metadata_ip(self, monkeypatch):
+        monkeypatch.delenv("UAEF_ALLOW_PRIVATE_AGENT_ENDPOINTS", raising=False)
+        self._fake_resolve(monkeypatch, "169.254.169.254")
+        with pytest.raises(ValueError, match="non-public address"):
+            invoke_http_agent("http://metadata.example/latest/meta-data/", "q")
+
+    def test_blocks_loopback(self, monkeypatch):
+        monkeypatch.delenv("UAEF_ALLOW_PRIVATE_AGENT_ENDPOINTS", raising=False)
+        self._fake_resolve(monkeypatch, "127.0.0.1")
+        with pytest.raises(ValueError, match="non-public address"):
+            invoke_http_agent("http://localhost:8080/invoke", "q")
+
+    def test_blocks_private_rfc1918(self, monkeypatch):
+        monkeypatch.delenv("UAEF_ALLOW_PRIVATE_AGENT_ENDPOINTS", raising=False)
+        self._fake_resolve(monkeypatch, "10.0.0.5")
+        with pytest.raises(ValueError, match="non-public address"):
+            invoke_http_agent("http://internal.svc/invoke", "q")
+
+    def test_rejects_non_http_scheme(self, monkeypatch):
+        monkeypatch.delenv("UAEF_ALLOW_PRIVATE_AGENT_ENDPOINTS", raising=False)
+        with pytest.raises(ValueError, match="http or https"):
+            invoke_http_agent("file:///etc/passwd", "q")
+
+    def test_allows_public_endpoint(self, monkeypatch, capture):
+        # capture sets the opt-out; clear it so we exercise the real guard, then
+        # resolve to a public IP -> the request should go through.
+        monkeypatch.delenv("UAEF_ALLOW_PRIVATE_AGENT_ENDPOINTS", raising=False)
+        self._fake_resolve(monkeypatch, "8.8.8.8")
+        invoke_http_agent("https://agent.example.com/invoke", "q")
+        assert capture.calls[0]["endpoint"] == "https://agent.example.com/invoke"
+
+    def test_opt_out_allows_localhost(self, monkeypatch, capture):
+        # capture already sets UAEF_ALLOW_PRIVATE_AGENT_ENDPOINTS=true.
+        invoke_http_agent("http://localhost:8080/invoke", "q")
+        assert capture.calls[0]["endpoint"] == "http://localhost:8080/invoke"
