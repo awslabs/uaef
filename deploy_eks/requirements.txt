@@ -2,8 +2,12 @@
 # FastAPI + ASGI server
 # python-multipart >= 0.0.32 fixes arbitrary file write (GHSA-wp53-j4wj-2cfg) + several DoS
 # advisories (GHSA-pp6c/5rvq/mj87/v9pg/vffw/6jv3). Matches the core pyproject floor.
-fastapi==0.115.6
-starlette==0.41.3
+# starlette >= 1.3.1 clears the DoS / Host-header / StaticFiles-SSRF / getattr-dispatch
+# advisories (CVE-2025-54121, CVE-2025-62727, CVE-2026-48710, CVE-2026-48817/48818,
+# CVE-2026-54282/54283). fastapi 0.141.x drops the old starlette<0.42 cap
+# (now requires starlette>=0.46.0), so both move together.
+fastapi==0.141.1
+starlette==1.3.1
 uvicorn[standard]==0.34.0
 python-multipart==0.0.32
 
