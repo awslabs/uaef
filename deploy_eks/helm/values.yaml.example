@@ -75,3 +75,12 @@ readinessProbe:
 nodeSelector: {}
 tolerations: []
 affinity: {}
+
+# Network egress policy (defense-in-depth for SSRF). When enabled, denies pod
+# egress to the link-local metadata range (169.254.0.0/16, incl. IMDS
+# 169.254.169.254) while allowing DNS and all other traffic. Requires a CNI
+# that enforces egress NetworkPolicy (Calico, Cilium, or AWS VPC CNI with
+# network policy enabled); otherwise it is a silent no-op. Also enable IMDSv2
+# with a metadata hop limit of 1 at the node level.
+networkPolicy:
+  enabled: true
