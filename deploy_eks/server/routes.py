@@ -67,7 +67,10 @@ def _inline_worker_invoke(**kwargs) -> Dict[str, Any]:
             }
         except Exception as exc:
             import io
-            error_payload = json.dumps({"error": str(exc)}).encode("utf-8")
+            logger.exception("Inline worker invocation failed")
+            error_payload = json.dumps(
+                {"error": "Internal worker error. See server logs for details."}
+            ).encode("utf-8")
             return {
                 "StatusCode": 200,
                 "FunctionError": "Unhandled",

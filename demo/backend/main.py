@@ -134,9 +134,10 @@ def get_aws_identity():
             "user_id": identity.get("UserId", ""),
         }
     except Exception as e:
+        logger.warning("Failed to resolve AWS identity: %s", e)
         return {
             "authenticated": False,
-            "error": str(e),
+            "error": "Unable to determine AWS identity.",
         }
 
 
@@ -286,7 +287,8 @@ def get_experiments():
             ]
         }
     except Exception as e:
-        return {"experiments": [], "error": str(e)}
+        logger.warning("Failed to list experiments: %s", e)
+        return {"experiments": [], "error": "Failed to list experiments."}
 
 
 @app.get("/api/experiments/{experiment_id}")
@@ -404,7 +406,8 @@ async def validate_data(
 
         df = load_ground_truth_file(content=content, filename=fname)
     except Exception as e:
-        return {"valid": False, "error": f"Failed to read data: {e}"}
+        logger.warning("Failed to read ground truth data (%s): %s", fname, e)
+        return {"valid": False, "error": "Failed to read data. Check the file format and try again."}
 
     result = validate_ground_truth(df, filename=fname)
     return result.model_dump()
@@ -440,7 +443,8 @@ def list_agentcore_runtimes(region: str = "us-east-1"):
         return {"runtimes": runtimes, "region": region}
 
     except Exception as e:
-        return {"runtimes": [], "region": region, "error": str(e)}
+        logger.warning("Failed to list AgentCore runtimes: %s", e)
+        return {"runtimes": [], "region": region, "error": "Failed to list runtimes."}
 
 
 class CompareRequest(BaseModel):
@@ -738,20 +742,22 @@ async def run_evaluation(
             })
 
         except Exception as e:
+            logger.warning("Query %d failed during evaluation: %s", i + 1, e)
+            client_error = "Agent invocation or evaluation failed for this query."
             errors.append({
                 "index": i + 1,
                 "query": query,
-                "error": str(e),
+                "error": client_error,
             })
             progress.append({
                 "index": i + 1,
                 "query": query,
                 "status": "error",
-                "error": str(e),
+                "error": client_error,
             })
 
     if not traces:
-        raise HTTPException(500, f"All {len(gt_rows)} queries failed. Errors: {errors}")
+        raise HTTPException(500, f"All {len(gt_rows)} queries failed. See server logs for details.")
 
     # Run batch evaluation
     eval_kwargs = {}
