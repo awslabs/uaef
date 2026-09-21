@@ -1,0 +1,43 @@
+{{- if .Values.networkPolicy.enabled }}
+# Defense-in-depth for the SSRF surface. invoke_http_agent already validates
+# caller-supplied agent endpoints at the application layer (rejecting private,
+# loopback, link-local and metadata addresses before the request). This policy
+# adds a network-layer backstop that closes the residual DNS-rebinding window
+# for the highest-impact target: the instance metadata / container credential
+# endpoints on the link-local range (169.254.0.0/16, which includes
+# 169.254.169.254 and 169.254.170.2).
+#
+# It deliberately does NOT block RFC1918 ranges, so VPC interface endpoints
+# (S3/DynamoDB/Bedrock), CoreDNS and other in-cluster traffic keep working.
+#
+# NOTE: NetworkPolicy egress is only enforced when the cluster CNI supports it
+# (Calico, Cilium, or the AWS VPC CNI with network policy enabled). On a CNI
+# without egress enforcement this is a silent no-op — the application-layer
+# guard remains the primary control. Complement this at the node level with
+# IMDSv2 and a metadata hop limit of 1.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-egress
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  policyTypes:
+    - Egress
+  egress:
+    # DNS resolution (CoreDNS / kube-dns).
+    - ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # All other egress except the link-local metadata range.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 169.254.0.0/16
+{{- end }}
