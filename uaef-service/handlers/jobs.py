@@ -458,8 +458,9 @@ def create_evaluate_job(event: Dict[str, Any], operation: str) -> Dict[str, Any]
     # --- 1. Parse + schema-validate the body (400 on failure, no Job) -------
     try:
         body = _parse_body(event)
-    except ValueError as exc:
-        return _error(400, str(exc))
+    except ValueError:
+        # The exception embeds the underlying parser message; return a fixed hint.
+        return _error(400, "Request body is not valid JSON or base64.")
 
     schema_cls = _OPERATIONS[operation]
     try:

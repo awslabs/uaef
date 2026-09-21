@@ -334,7 +334,11 @@ def handler(event: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
     try:
         result = _dispatch(method, resource, event, caller_sub)
     except _HandlerUnavailable as exc:
-        return _error(501, f"Not implemented: {exc}")
+        # Do not echo the exception (may name internal modules/resources).
+        safe_message, correlation_id = job_state.sanitize_error(
+            exc, context="Requested operation is not available"
+        )
+        return _error(501, safe_message, correlationId=correlation_id)
     except Exception as exc:  # noqa: BLE001 — contain handler errors as 500
         # Security review M-03: never return exception detail (boto3/S3/
         # DynamoDB errors can carry bucket names, keys, ARNs) to the caller.

@@ -183,8 +183,8 @@ def create_invoke_evaluate_job(event: Dict[str, Any]) -> Dict[str, Any]:
     """
     try:
         body = jobs._parse_body(event)
-    except ValueError as exc:
-        return jobs._error(400, str(exc))
+    except ValueError:
+        return jobs._error(400, "Request body is not valid JSON or base64.")
 
     try:
         model = schemas.InvokeEvaluateRequest.model_validate(body)
@@ -273,8 +273,8 @@ def validate_data(event: Dict[str, Any]) -> Any:
 
     try:
         body = jobs._parse_body(event)
-    except ValueError as exc:
-        return jobs._error(400, str(exc))
+    except ValueError:
+        return jobs._error(400, "Request body is not valid JSON or base64.")
 
     data_ref = (body or {}).get("data_ref") or (body or {}).get("s3_data_path")
     if not data_ref:
@@ -397,8 +397,8 @@ def compare_experiments(event: Dict[str, Any], caller_sub: str | None = None) ->
 
     try:
         body = jobs._parse_body(event)
-    except ValueError as exc:
-        return jobs._error(400, str(exc))
+    except ValueError:
+        return jobs._error(400, "Request body is not valid JSON or base64.")
 
     experiment_ids = (body or {}).get("experiment_ids") or []
     if not isinstance(experiment_ids, list) or len(experiment_ids) < 2:
@@ -473,8 +473,8 @@ def generate_report(event: Dict[str, Any], caller_sub: str | None = None) -> Any
 
     try:
         body = jobs._parse_body(event)
-    except ValueError as exc:
-        return jobs._error(400, str(exc))
+    except ValueError:
+        return jobs._error(400, "Request body is not valid JSON or base64.")
 
     experiment_id = (body or {}).get("experiment_id")
     if not experiment_id:
