@@ -1351,7 +1351,10 @@ def _validate_data(event: Dict[str, Any]) -> Dict[str, Any]:
         result["multi_turn"] = any(len(s) > 1 for s in sessions)
         return result
     except Exception as exc:  # noqa: BLE001
-        return {"valid": False, "error": str(exc)}
+        # Never return the raw exception (may carry file paths / S3 keys / ARNs);
+        # full detail goes to server logs keyed by the correlation ID.
+        safe_message, correlation_id = _sanitize_error(exc, context="Failed to validate data")
+        return {"valid": False, "error": safe_message, "correlationId": correlation_id}
 
 
 # --------------------------------------------------------------------------- #
