@@ -3,7 +3,7 @@
 
 """DimensionResult data model."""
 
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -17,7 +17,8 @@ class DimensionResult(BaseModel):
     Attributes:
         dimension_name: Name of the dimension (e.g., "tool_calling", "response_quality")
         metric_scores: List of individual metric scores in this dimension
-        aggregate_score: Weighted average score for the dimension (0-1)
+        aggregate_score: Weighted average score for the dimension (0-1), or
+            None if no metric in the dimension was applicable
         weight: Weight of this dimension in overall score calculation
     """
     
@@ -31,9 +32,9 @@ class DimensionResult(BaseModel):
         description="List of individual metric scores in this dimension",
         min_length=1
     )
-    aggregate_score: float = Field(
+    aggregate_score: Optional[float] = Field(
         ...,
-        description="Weighted average score for the dimension",
+        description="Weighted average score for the dimension, or None if not applicable",
         ge=0.0,
         le=1.0
     )
@@ -54,9 +55,9 @@ class DimensionResult(BaseModel):
     
     @field_validator("aggregate_score", "weight")
     @classmethod
-    def validate_score_bounds(cls, v: float) -> float:
+    def validate_score_bounds(cls, v: Optional[float]) -> Optional[float]:
         """Validate that scores and weights are between 0 and 1."""
-        if not 0.0 <= v <= 1.0:
+        if v is not None and not 0.0 <= v <= 1.0:
             raise ValueError(f"Value must be between 0 and 1, got {v}")
         return v
     

@@ -54,22 +54,22 @@ class SingleAgentEvaluator(BaseEvaluator):
         
         # Set default dimension weights if not provided
         self.default_dimension_weights = default_dimension_weights or {
-            "tool_calling": 0.25,
-            "response_quality": 0.25,
-            "responsible_ai": 0.20,
-            "performance": 0.10,
-            "multi_turn": 0.10,
-            "reasoning": 0.10
+            "Tool Calling": 0.25,
+            "Response Quality": 0.25,
+            "Responsible AI": 0.20,
+            "Performance": 0.10,
+            "Multi-Turn": 0.10,
+            "Reasoning": 0.10
         }
         
         # Set default thresholds if not provided
         self.default_thresholds = default_thresholds or {
-            "tool_calling": 0.7,
-            "response_quality": 0.7,
-            "responsible_ai": 0.8,
-            "performance": 0.6,
-            "multi_turn": 0.6,
-            "reasoning": 0.6
+            "Tool Calling": 0.7,
+            "Response Quality": 0.7,
+            "Responsible AI": 0.8,
+            "Performance": 0.6,
+            "Multi-Turn": 0.6,
+            "Reasoning": 0.6
         }
         
         logger.info(

@@ -55,12 +55,12 @@ class MultiTurnEvaluator(BaseEvaluator):
         
         # Set default dimension weights focused on multi-turn metrics
         self.default_dimension_weights = default_dimension_weights or {
-            "multi_turn": 1.0  # Focus on multi-turn dimension
+            "Multi-Turn": 1.0  # Focus on multi-turn dimension
         }
         
         # Set default thresholds
         self.default_thresholds = default_thresholds or {
-            "multi_turn": 0.7
+            "Multi-Turn": 0.7
         }
         
         logger.info("Initialized MultiTurnEvaluator")

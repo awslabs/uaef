@@ -235,6 +235,7 @@ class FailureClusterer:
             dim_scores = {
                 dr.dimension_name: dr.aggregate_score
                 for dr in result.dimension_results
+                if dr.aggregate_score is not None
             }
             for dim in dimension_list:
                 # Consider failed if score < 0.7 (common threshold)

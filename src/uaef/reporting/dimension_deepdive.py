@@ -334,7 +334,7 @@ class DimensionDashboardGenerator:
                     dim_result = dr
                     break
             
-            if dim_result:
+            if dim_result and dim_result.aggregate_score is not None:
                 dimension_scores.append(dim_result.aggregate_score)
                 
                 # Check if dimension failed

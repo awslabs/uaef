@@ -804,7 +804,8 @@ def _build_ui_result(
         unavailable: Dict[str, Dict[str, str]] = {}
         per_turn: Dict[str, Any] = {}
         for dim in getattr(r, "dimension_results", []) or []:
-            dim_scores[dim.dimension_name] = float(dim.aggregate_score)
+            if dim.aggregate_score is not None:
+                dim_scores[dim.dimension_name] = float(dim.aggregate_score)
             for ms in getattr(dim, "metric_scores", []) or []:
                 if metric_list and ms.metric_name not in metric_list:
                     continue

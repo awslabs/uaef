@@ -111,7 +111,8 @@ def _print_result(label: str, result) -> None:
     print(f"{'=' * 60}")
     print(f"Overall: {result.overall_score:.2f}   passed={result.passed}")
     for dim in result.dimension_results:
-        print(f"\n{dim.dimension_name} ({dim.aggregate_score:.2f}):")
+        agg = "N/A" if dim.aggregate_score is None else f"{dim.aggregate_score:.2f}"
+        print(f"\n{dim.dimension_name} ({agg}):")
         for m in dim.metric_scores:
             score = f"{m.score:.2f}" if m.score is not None else "N/A"
             raw = m.metadata.get("raw") if m.metadata else None

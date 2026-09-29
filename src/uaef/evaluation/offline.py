@@ -66,6 +66,8 @@ class BatchStatistics:
         for result in results:
             for dim_result in result.dimension_results:
                 dim_name = dim_result.dimension_name
+                if dim_result.aggregate_score is None:
+                    continue
                 if dim_name not in dimension_scores:
                     dimension_scores[dim_name] = []
                 dimension_scores[dim_name].append(dim_result.aggregate_score)
@@ -159,24 +161,24 @@ class OfflineEvaluator(BaseEvaluator):
         
         # Set default dimension weights
         self.default_dimension_weights = default_dimension_weights or {
-            "tool_calling": 0.25,
-            "response_quality": 0.25,
-            "responsible_ai": 0.20,
-            "performance": 0.10,
-            "multi_turn": 0.10,
-            "multi_agent": 0.05,
-            "reasoning": 0.05
+            "Tool Calling": 0.25,
+            "Response Quality": 0.25,
+            "Responsible AI": 0.20,
+            "Performance": 0.10,
+            "Multi-Turn": 0.10,
+            "Multi-Agent": 0.05,
+            "Reasoning": 0.05
         }
         
         # Set default thresholds
         self.default_thresholds = default_thresholds or {
-            "tool_calling": 0.7,
-            "response_quality": 0.7,
-            "responsible_ai": 0.8,
-            "performance": 0.6,
-            "multi_turn": 0.6,
-            "multi_agent": 0.6,
-            "reasoning": 0.6
+            "Tool Calling": 0.7,
+            "Response Quality": 0.7,
+            "Responsible AI": 0.8,
+            "Performance": 0.6,
+            "Multi-Turn": 0.6,
+            "Multi-Agent": 0.6,
+            "Reasoning": 0.6
         }
         
         logger.info(
@@ -537,7 +539,10 @@ class OfflineEvaluator(BaseEvaluator):
                 ]
                 
                 for dim in result.dimension_results:
-                    row.append(f"{dim.aggregate_score:.3f}")
+                    row.append(
+                        "N/A" if dim.aggregate_score is None
+                        else f"{dim.aggregate_score:.3f}"
+                    )
                 
                 writer.writerow(row)
             
@@ -610,7 +615,8 @@ class OfflineEvaluator(BaseEvaluator):
             status_text = "PASSED" if result.passed else "FAILED"
             
             dimensions_html = "<br>".join([
-                f"{d.dimension_name}: {d.aggregate_score:.3f}"
+                f"{d.dimension_name}: "
+                f"{'N/A' if d.aggregate_score is None else f'{d.aggregate_score:.3f}'}"
                 for d in result.dimension_results
             ])
             
