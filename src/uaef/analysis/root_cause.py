@@ -230,6 +230,8 @@ class RootCauseAnalyzer:
         
         for dimension_result in evaluation_result.dimension_results:
             for metric_score in dimension_result.metric_scores:
+                if metric_score.score is None:  # not applicable or failed
+                    continue
                 # Consider a metric failed if score is below 0.7 (typical threshold)
                 if metric_score.score < 0.7:
                     failed_metrics_by_dimension[dimension_result.dimension_name].append(
@@ -340,6 +342,8 @@ class RootCauseAnalyzer:
             
             for dimension_result in result.dimension_results:
                 for metric_score in dimension_result.metric_scores:
+                    if metric_score.score is None:  # not applicable or failed
+                        continue
                     if metric_score.score < 0.7:
                         metric_name = metric_score.metric_name
                         failed_metrics_in_eval.add(metric_name)
@@ -426,6 +430,8 @@ class RootCauseAnalyzer:
         scores = []
         for dimension_result in evaluation_result.dimension_results:
             for metric_score in dimension_result.metric_scores:
+                if metric_score.score is None:  # not applicable or failed
+                    continue
                 if metric_score.metric_name in failed_metrics:
                     scores.append(metric_score.score)
         

@@ -582,6 +582,8 @@ class ImprovementTracker:
         for result in evaluation_results:
             for dimension_result in result.dimension_results:
                 for metric_score in dimension_result.metric_scores:
+                    if metric_score.score is None:  # not applicable or failed
+                        continue
                     metric_name = metric_score.metric_name
                     if metric_name not in metric_values:
                         metric_values[metric_name] = []

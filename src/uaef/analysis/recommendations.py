@@ -522,6 +522,8 @@ class RecommendationEngine:
             for result in top_results:
                 for dim_result in result.dimension_results:
                     for metric_score in dim_result.metric_scores:
+                        if metric_score.score is None:  # not applicable or failed
+                            continue
                         if metric_score.metric_name in rec.affected_metrics:
                             if metric_score.score >= 0.9:
                                 example = (
@@ -568,6 +570,8 @@ class RecommendationEngine:
             for result in failed_results:
                 for dim_result in result.dimension_results:
                     for metric_score in dim_result.metric_scores:
+                        if metric_score.score is None:  # not applicable or failed
+                            continue
                         if metric_score.metric_name in rec.affected_metrics:
                             if metric_score.score < 0.7:
                                 affected_count += 1
@@ -914,6 +918,8 @@ class RecommendationEngine:
         for result in passed_results:
             for dim_result in result.dimension_results:
                 for metric_score in dim_result.metric_scores:
+                    if metric_score.score is None:  # not applicable or failed
+                        continue
                     metric_scores[metric_score.metric_name].append(metric_score.score)
         
         # Identify metrics with lowest average scores

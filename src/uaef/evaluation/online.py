@@ -13,6 +13,7 @@ This module provides real-time evaluation functionality with:
 import asyncio
 import time
 from typing import Dict, List, Optional, Tuple
+from uuid import NAMESPACE_URL, uuid5
 
 from uaef.evaluation.base_evaluator import BaseEvaluator
 from uaef.logging import get_logger
@@ -561,57 +562,54 @@ class OnlineEvaluator(BaseEvaluator):
         logger.info(f"Aggregating metrics for session with {len(turn_results)} turns")
         
         # Collect all dimension results across turns
-        all_dimension_results = {}
-        
+        all_dimension_results: Dict[str, List[DimensionResult]] = {}
+
         for turn_result in turn_results:
-            for dim_name, dim_result in turn_result.dimension_results.items():
-                if dim_name not in all_dimension_results:
-                    all_dimension_results[dim_name] = []
-                all_dimension_results[dim_name].append(dim_result)
-        
-        # Calculate average scores per dimension
-        aggregated_dimensions = {}
-        
+            for dim_result in turn_result.dimension_results:
+                all_dimension_results.setdefault(dim_result.dimension_name, []).append(dim_result)
+
+        # Average each dimension over the turns where it was applicable
+        aggregated_dimensions = []
+
         for dim_name, dim_results in all_dimension_results.items():
-            avg_score = sum(dr.score for dr in dim_results) / len(dim_results)
-            
+            applicable = [dr.aggregate_score for dr in dim_results if dr.aggregate_score is not None]
+            avg_score = sum(applicable) / len(applicable) if applicable else None
+
             # Combine all metric scores from this dimension
             all_metric_scores = []
             for dr in dim_results:
                 all_metric_scores.extend(dr.metric_scores)
-            
-            aggregated_dimensions[dim_name] = DimensionResult(
+
+            aggregated_dimensions.append(DimensionResult(
                 dimension_name=dim_name,
-                score=avg_score,
+                aggregate_score=avg_score,
                 metric_scores=all_metric_scores,
-                weight=dim_results[0].weight if dim_results else 1.0
-            )
-        
-        # Calculate overall session score
-        overall_score = sum(
-            dr.score * dr.weight 
-            for dr in aggregated_dimensions.values()
-        ) / sum(dr.weight for dr in aggregated_dimensions.values())
-        
-        # Aggregate failures and warnings
-        all_failures = []
-        all_warnings = []
-        
-        for turn_result in turn_results:
-            all_failures.extend(turn_result.failures)
-            all_warnings.extend(turn_result.warnings)
-        
+                weight=dim_results[0].weight,
+            ))
+
+        overall_score = self.calculate_overall_score(aggregated_dimensions)
+
+        # Aggregate failures and warnings, preserving order
+        all_failures = list(dict.fromkeys(f for tr in turn_results for f in tr.failures))
+        all_warnings = list(dict.fromkeys(w for tr in turn_results for w in tr.warnings))
+
         # Determine if session passed (all turns must pass)
         passed = all(tr.passed for tr in turn_results)
-        
+
+        # trace_id is a UUID; derive a stable one from the session id when given
+        trace_id = (
+            uuid5(NAMESPACE_URL, f"uaef-session/{session_id}")
+            if session_id else turn_results[0].trace_id
+        )
+
         # Create session result
         session_result = EvaluationResult(
-            trace_id=session_id or f"session_{turn_results[0].trace_id}",
+            trace_id=trace_id,
             dimension_results=aggregated_dimensions,
             overall_score=overall_score,
             passed=passed,
-            failures=list(set(all_failures)),  # Remove duplicates
-            warnings=list(set(all_warnings)),  # Remove duplicates
+            failures=all_failures,
+            warnings=all_warnings,
             metadata={
                 "num_turns": len(turn_results),
                 "session_id": session_id,

@@ -214,7 +214,7 @@ class FailureClusterer:
             for dim_result in result.dimension_results:
                 all_dimensions.add(dim_result.dimension_name)
                 for metric_score in dim_result.metric_scores:
-                    all_metrics.add(metric_score.name)
+                    all_metrics.add(metric_score.metric_name)
         
         dimension_list = sorted(all_dimensions)
         metric_list = sorted(all_metrics)
@@ -246,7 +246,9 @@ class FailureClusterer:
             metric_scores = {}
             for dim_result in result.dimension_results:
                 for metric_score in dim_result.metric_scores:
-                    metric_scores[metric_score.name] = metric_score.score
+                    if metric_score.score is None:  # not applicable or failed
+                        continue
+                    metric_scores[metric_score.metric_name] = metric_score.score
             
             for metric in metric_list:
                 score = metric_scores.get(metric, 1.0)
@@ -405,8 +407,10 @@ class FailureClusterer:
         for result in results:
             for dim_result in result.dimension_results:
                 for metric_score in dim_result.metric_scores:
+                    if metric_score.score is None:  # not applicable or failed
+                        continue
                     if metric_score.score < 0.7:  # Failed metric
-                        metric_counts[metric_score.name] += 1
+                        metric_counts[metric_score.metric_name] += 1
         
         # Get metrics that failed in at least 50% of cluster members
         common_metrics = [

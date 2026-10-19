@@ -168,3 +168,54 @@ class TestMetricFailures:
             AgentTrace(trace_id=uuid4(), messages=[], tool_calls=[])
         )
         assert any("raising_metric failed" in w for w in result.warnings)
+
+
+class TestSessionAggregation:
+    def _turn(self, scores, passed=True, warnings=()):
+        from uaef.models.dimension_result import DimensionResult
+        from uaef.models.evaluation_result import EvaluationResult
+
+        return EvaluationResult(
+            trace_id=uuid4(),
+            dimension_results=[
+                DimensionResult(
+                    dimension_name=name,
+                    metric_scores=[MetricScore(metric_name=f"{name}_m", score=score)],
+                    aggregate_score=score,
+                    weight=1.0,
+                )
+                for name, score in scores.items()
+            ],
+            overall_score=0.5,
+            passed=passed,
+            warnings=list(warnings),
+        )
+
+    def test_averages_applicable_turns_only(self):
+        evaluator = OnlineEvaluator()
+        turns = [
+            self._turn({"Response Quality": 0.8, "Tool Calling": None}, warnings=["w"]),
+            self._turn({"Response Quality": 0.6, "Tool Calling": 1.0}, passed=False, warnings=["w"]),
+        ]
+        session = evaluator.aggregate_session_metrics(turns, session_id="s-1")
+
+        by_name = {d.dimension_name: d for d in session.dimension_results}
+        assert by_name["Response Quality"].aggregate_score == pytest.approx(0.7)
+        assert by_name["Tool Calling"].aggregate_score == pytest.approx(1.0)
+        assert len(by_name["Response Quality"].metric_scores) == 2
+        assert session.overall_score == pytest.approx(0.85)
+        assert session.passed is False
+        assert session.warnings == ["w"]
+        assert session.metadata["session_id"] == "s-1"
+        # Stable id per session
+        again = evaluator.aggregate_session_metrics(turns, session_id="s-1")
+        assert again.trace_id == session.trace_id
+
+    def test_without_session_id_uses_first_turn(self):
+        turns = [self._turn({"Response Quality": 0.9})]
+        session = OnlineEvaluator().aggregate_session_metrics(turns)
+        assert session.trace_id == turns[0].trace_id
+
+    def test_empty_raises(self):
+        with pytest.raises(ValueError):
+            OnlineEvaluator().aggregate_session_metrics([])

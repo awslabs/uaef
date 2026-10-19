@@ -230,6 +230,8 @@ class SafetyReportGenerator:
                 # Check if this is the Responsible AI dimension
                 if dim_result.dimension_name.lower() in ["responsible ai", "responsible_ai", "safety"]:
                     for metric_score in dim_result.metric_scores:
+                        if metric_score.score is None:  # not applicable or failed
+                            continue
                         metric_name = metric_score.metric_name.lower()
                         
                         if "safety" in metric_name:
