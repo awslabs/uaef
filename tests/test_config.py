@@ -68,6 +68,32 @@ class TestUAEFConfig:
         with pytest.raises(ValueError):
             UAEFConfig(log_level="INVALID")
 
+    def test_from_file_accepts_str_and_empty_file(self, tmp_path):
+        path = tmp_path / "empty.yaml"
+        path.write_text("")
+        assert UAEFConfig.from_file(str(path)).llm_judge.model_id == UAEFConfig().llm_judge.model_id
+
+    def test_quickstart_yaml_matches_schema(self, tmp_path):
+        # Unknown keys are silently ignored by pydantic, so a doc example
+        # with made-up keys would "load" but configure nothing.
+        import re
+        from pathlib import Path
+
+        doc = (Path(__file__).parents[1] / "docs/docs/Getting-Started/quickstart.md").read_text()
+        block = re.search(r"`uaef_config\.yaml`.*?```yaml\n(.*?)```", doc, re.S).group(1)
+        path = tmp_path / "uaef_config.yaml"
+        path.write_text(block)
+
+        import yaml
+        raw = yaml.safe_load(block)
+        for section, values in raw.items():
+            field = UAEFConfig.model_fields[section]
+            assert set(values) <= set(field.annotation.model_fields), section
+
+        cfg = UAEFConfig.from_file(path)
+        assert cfg.llm_judge.model_id == "us.anthropic.claude-sonnet-4-6"
+        assert cfg.storage.s3_bucket is None
+
 
 class TestGlobalConfig:
     def setup_method(self):
