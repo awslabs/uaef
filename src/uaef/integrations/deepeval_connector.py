@@ -3,6 +3,7 @@
 
 """DeepEval connector for external metric integration."""
 
+import inspect
 import os
 import sys
 import tempfile
@@ -70,6 +71,18 @@ def _messages_to_deepeval_turns(messages: list) -> list:
         # SYSTEM / TOOL: skip
     return turns
 
+
+def _measure(metric: Any, test_case: Any) -> None:
+    """Run ``metric.measure`` without DeepEval's progress indicator.
+
+    UAEF calls DeepEval from concurrent worker threads; its progress output
+    there can deadlock on tqdm's global lock alongside RAGAS (seen in Jupyter).
+    ``_show_indicator`` is only passed when the installed DeepEval accepts it.
+    """
+    if "_show_indicator" in inspect.signature(metric.measure).parameters:
+        metric.measure(test_case, _show_indicator=False)
+    else:
+        metric.measure(test_case)
 
 class DeepEvalConnector:
     """
@@ -301,7 +314,7 @@ class DeepEvalConnector:
             
             # Calculate metric
             metric = ContextualPrecisionMetric(model=self._model)
-            metric.measure(test_case)
+            _measure(metric, test_case)
             
             return MetricScore(
                 metric_name="deepeval_contextual_precision",
@@ -367,7 +380,7 @@ class DeepEvalConnector:
             
             # Calculate metric
             metric = ContextualRecallMetric(model=self._model)
-            metric.measure(test_case)
+            _measure(metric, test_case)
             
             return MetricScore(
                 metric_name="deepeval_contextual_recall",
@@ -429,7 +442,7 @@ class DeepEvalConnector:
             
             # Calculate metric
             metric = HallucinationMetric(model=self._model)
-            metric.measure(test_case)
+            _measure(metric, test_case)
             
             return MetricScore(
                 metric_name="deepeval_hallucination",
@@ -521,7 +534,7 @@ class DeepEvalConnector:
             
             # Calculate metric
             metric = ToolCorrectnessMetric(model=self._model)
-            metric.measure(test_case)
+            _measure(metric, test_case)
             
             return MetricScore(
                 metric_name="deepeval_tool_correctness",
@@ -577,7 +590,7 @@ class DeepEvalConnector:
             )
 
             metric = ContextualRelevancyMetric(model=self._model)
-            metric.measure(test_case)
+            _measure(metric, test_case)
 
             return MetricScore(
                 metric_name="deepeval_contextual_relevancy",
@@ -632,7 +645,7 @@ class DeepEvalConnector:
             )
 
             metric = FaithfulnessMetric(model=self._model)
-            metric.measure(test_case)
+            _measure(metric, test_case)
 
             return MetricScore(
                 metric_name="deepeval_faithfulness",
@@ -678,7 +691,7 @@ class DeepEvalConnector:
             )
 
             metric = AnswerRelevancyMetric(model=self._model)
-            metric.measure(test_case)
+            _measure(metric, test_case)
 
             return MetricScore(
                 metric_name="deepeval_answer_relevancy",
@@ -754,7 +767,7 @@ class DeepEvalConnector:
                 metric_kwargs["evaluation_steps"] = evaluation_steps
             
             metric = GEval(**metric_kwargs)
-            metric.measure(test_case)
+            _measure(metric, test_case)
             
             return MetricScore(
                 metric_name="deepeval_geval",
@@ -821,7 +834,7 @@ class DeepEvalConnector:
         test_case = ConversationalTestCase(turns=turns, chatbot_role=role)
         metric = RoleAdherenceMetric(model=self._model)
         try:
-            metric.measure(test_case)
+            _measure(metric, test_case)
         except Exception as e:
             logger.error(f"Error calculating DeepEval role adherence: {e}")
             raise

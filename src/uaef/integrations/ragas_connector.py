@@ -127,7 +127,10 @@ class RAGASConnector:
 
     def _evaluate_kwargs(self) -> Dict[str, Any]:
         """Build extra kwargs for ragas evaluate() with optional llm/embeddings."""
-        kwargs: Dict[str, Any] = {}
+        # No progress bars: UAEF calls RAGAS from concurrent worker threads, and
+        # tqdm bars there can deadlock on tqdm's global lock (seen in Jupyter
+        # with DeepEval running alongside).
+        kwargs: Dict[str, Any] = {"show_progress": False}
         if self._llm is not None:
             kwargs["llm"] = self._llm
         if self._embeddings is not None:

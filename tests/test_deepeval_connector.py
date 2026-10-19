@@ -293,3 +293,29 @@ class TestUnavailableLibrary:
         c._deepeval_available = False
         with pytest.raises(ImportError, match=r"integrations.*pip install 'uaef\[integrations\]'"):
             c.transform_to_deepeval_format(_make_eval_input(_simple_trace()))
+
+
+class TestMeasureWithoutIndicator:
+    """Progress output from worker threads can deadlock tqdm alongside RAGAS."""
+
+    def test_indicator_disabled_when_supported(self):
+        from uaef.integrations.deepeval_connector import _measure
+
+        class Metric:
+            def measure(self, test_case, _show_indicator=True):
+                self.args = (test_case, _show_indicator)
+
+        m = Metric()
+        _measure(m, "tc")
+        assert m.args == ("tc", False)
+
+    def test_falls_back_when_not_supported(self):
+        from uaef.integrations.deepeval_connector import _measure
+
+        class Metric:
+            def measure(self, test_case):
+                self.args = (test_case,)
+
+        m = Metric()
+        _measure(m, "tc")
+        assert m.args == ("tc",)

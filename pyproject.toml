@@ -37,6 +37,7 @@ dependencies = [
     "numpy>=1.24.0",
     # Third-party metric backends (RAGAS / DeepEval).
     "deepeval>=1.0.0",
+    "aiobotocore>=2.13.0",  # DeepEval's AmazonBedrockModel (judge metrics on Bedrock instead of OpenAI)
     "ragas>=0.1.0,<0.5.0",  # CVE-2026-6587: SSRF in multimodal faithfulness (no fix available; we don't use that module)
     "langchain-community>=0.3.0,<0.4.0",
     "datasets>=2.14.0",
@@ -89,11 +90,16 @@ client = []
 # because the core pulls all heavy backends, the Worker exceeds the 250MB
 # unzipped zip limit and is packaged as a container image (see WorkerStack).
 server = []
-notebooks = ["ipykernel>=6.31.0"]
+notebooks = [
+    "ipykernel>=6.31.0",
+    "fastapi>=0.115.0",  # notebooks/serve_langgraph_agent.py (local test server for 00_langgraph)
+]
 dev = [
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",
     "hypothesis>=6.0.0",  # property-based tests (tests/test_client_sdk_parity.py)
+    "moto>=5.0.0",  # mocked DynamoDB/S3 (tests/test_storage_*.py)
+    "nbclient>=0.10.0",  # notebook smoke tests (tests/test_notebooks.py)
     "black>=23.0.0",
     "mypy>=1.0.0",
     "ruff>=0.1.0",
