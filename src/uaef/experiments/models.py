@@ -16,7 +16,7 @@ class AgentDesign(BaseModel):
     
     Attributes:
         framework: Agent framework (e.g., "langgraph", "bedrock", "langchain")
-        model: LLM model identifier (e.g., "anthropic.claude-3-sonnet-20240229-v1:0")
+        model: LLM model identifier (e.g., "us.anthropic.claude-sonnet-4-6")
         tools: List of tool names available to the agent
         system_prompt: System prompt used for the agent
         parameters: Additional agent parameters (temperature, max_tokens, etc.)
@@ -42,7 +42,7 @@ class AgentDesign(BaseModel):
         json_schema_extra = {
             "example": {
                 "framework": "langgraph",
-                "model": "anthropic.claude-3-sonnet-20240229-v1:0",
+                "model": "us.anthropic.claude-sonnet-4-6",
                 "tools": ["search", "calculator", "database_query"],
                 "system_prompt": "You are a helpful assistant...",
                 "parameters": {
@@ -235,7 +235,7 @@ class ExperimentRun(BaseModel):
                 "run_name": "baseline-v1",
                 "agent_design": {
                     "framework": "langgraph",
-                    "model": "anthropic.claude-3-sonnet-20240229-v1:0",
+                    "model": "us.anthropic.claude-sonnet-4-6",
                     "tools": ["search", "calculator"],
                     "system_prompt": "You are a helpful assistant...",
                     "parameters": {"temperature": 0.7}

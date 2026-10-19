@@ -46,7 +46,7 @@ from uaef.experiments import AgentDesign
 # Define agent configuration
 agent_design = AgentDesign(
     framework="langgraph",
-    model="anthropic.claude-3-sonnet-20240229-v1:0",
+    model="us.anthropic.claude-sonnet-4-6",
     tools=["search", "calculator", "database_query"],
     system_prompt="You are a helpful customer support agent.",
     parameters={"temperature": 0.7, "max_tokens": 2048}
@@ -107,7 +107,7 @@ from uaef.experiments import AgentDesign
 # Define baseline agent
 baseline_design = AgentDesign(
     framework="langgraph",
-    model="anthropic.claude-3-sonnet-20240229-v1:0",
+    model="us.anthropic.claude-sonnet-4-6",
     tools=["get_weather", "get_forecast"],
     system_prompt="You are a weather information assistant.",
     parameters={"temperature": 0.5, "max_tokens": 1024}
@@ -187,7 +187,7 @@ print("Baseline set successfully")
 # Make improvements to agent
 improved_design = AgentDesign(
     framework="langgraph",
-    model="anthropic.claude-3-sonnet-20240229-v1:0",
+    model="us.anthropic.claude-sonnet-4-6",
     tools=["get_weather", "get_forecast", "get_historical_weather"],  # Added tool
     system_prompt="You are a weather information assistant with access to historical data.",
     parameters={"temperature": 0.3, "max_tokens": 1024}  # Lower temperature
@@ -315,7 +315,7 @@ variant_a = manager.create_run(
     run_name="variant-a-high-temp",
     agent_design=AgentDesign(
         framework="langgraph",
-        model="anthropic.claude-3-sonnet-20240229-v1:0",
+        model="us.anthropic.claude-sonnet-4-6",
         tools=["search"],
         system_prompt="You are helpful.",
         parameters={"temperature": 0.9}  # High temperature
@@ -327,7 +327,7 @@ variant_b = manager.create_run(
     run_name="variant-b-low-temp",
     agent_design=AgentDesign(
         framework="langgraph",
-        model="anthropic.claude-3-sonnet-20240229-v1:0",
+        model="us.anthropic.claude-sonnet-4-6",
         tools=["search"],
         system_prompt="You are helpful.",
         parameters={"temperature": 0.1}  # Low temperature
@@ -371,7 +371,7 @@ for i, config in enumerate(configs):
         run_name=f"config-{i}",
         agent_design=AgentDesign(
             framework="langgraph",
-            model="anthropic.claude-3-sonnet-20240229-v1:0",
+            model="us.anthropic.claude-sonnet-4-6",
             tools=["search"],
             system_prompt="You are helpful.",
             parameters=config

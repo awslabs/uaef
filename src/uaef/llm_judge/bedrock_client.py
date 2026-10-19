@@ -124,7 +124,7 @@ class BedrockClient:
         Invoke a Bedrock model with retry logic.
         
         Args:
-            model_id: Bedrock model ID (e.g., "anthropic.claude-3-sonnet-20240229-v1:0")
+            model_id: Bedrock model ID (e.g., "us.anthropic.claude-sonnet-4-6")
             prompt: The prompt to send to the model
             max_tokens: Maximum tokens in response
             temperature: Sampling temperature (0.0-1.0)
