@@ -52,6 +52,12 @@ jobs:
     if: github.event_name == 'push'
     needs: build
     runs-on: ubuntu-latest
+    # Merges landing seconds apart otherwise race each other's push to
+    # gh-pages and the loser fails. Queue deploys instead of cancelling, so
+    # the last merge always publishes.
+    concurrency:
+      group: gh-pages-deploy
+      cancel-in-progress: false
     permissions:
       contents: write
     steps:
