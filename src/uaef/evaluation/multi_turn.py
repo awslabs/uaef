@@ -185,6 +185,8 @@ class MultiTurnEvaluator(BaseEvaluator):
                 "Ground truth not provided, some metrics may be skipped"
             )
         
+        warnings.extend(self._metric_error_warnings(metric_scores))
+
         # Identify unmet success criteria (Requirement 10.6)
         unmet_criteria = self._identify_unmet_criteria(
             metric_scores=metric_scores,

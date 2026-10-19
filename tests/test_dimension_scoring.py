@@ -10,6 +10,7 @@ import pytest
 
 import uaef.metrics  # noqa: F401  (registers built-in metrics)
 from uaef.evaluation import base_evaluator
+from uaef.evaluation.base_evaluator import BaseEvaluator
 from uaef.evaluation.multi_agent import MultiAgentEvaluator
 from uaef.evaluation.multi_turn import MultiTurnEvaluator
 from uaef.evaluation.offline import OfflineEvaluator
@@ -147,3 +148,23 @@ class TestMetricFailures:
     def test_failed_metric_is_kept_in_parallel_results(self, evaluator, evaluation_input):
         scores = evaluator.calculate_metrics_parallel([_RaisingMetric()], evaluation_input)
         assert [s.metric_name for s in scores] == ["raising_metric"]
+
+    def test_failed_metric_surfaces_as_warning(self, evaluator):
+        failed = BaseEvaluator._failed_metric_score(
+            _RaisingMetric(), RuntimeError("judge timed out")
+        )
+        ok = MetricScore(metric_name="fine", score=0.9)
+        na = MetricScore(metric_name="not_applicable", score=None)
+        warnings = evaluator._metric_error_warnings([failed, ok, na])
+        assert warnings == [
+            "Metric raising_metric failed (RuntimeError): judge timed out"
+        ]
+
+    def test_evaluate_reports_failed_metric_in_warnings(self, evaluator, monkeypatch):
+        monkeypatch.setattr(
+            evaluator, "_get_metrics_to_calculate", lambda metric_set: [_RaisingMetric()]
+        )
+        result = evaluator.evaluate(
+            AgentTrace(trace_id=uuid4(), messages=[], tool_calls=[])
+        )
+        assert any("raising_metric failed" in w for w in result.warnings)

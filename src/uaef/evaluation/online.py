@@ -264,6 +264,8 @@ class OnlineEvaluator(BaseEvaluator):
                 f"exceeding threshold of {self.latency_threshold_ms}ms"
             )
         
+        warnings.extend(self._metric_error_warnings(deterministic_scores))
+
         # Calculate partial scores and pass/fail
         partial_dimension_results = self.aggregate_dimension_scores(
             metric_scores=deterministic_scores,
@@ -490,7 +492,7 @@ class OnlineEvaluator(BaseEvaluator):
             overall_score=overall_score,
             passed=passed,
             failures=failures,
-            warnings=partial_result.warnings,
+            warnings=partial_result.warnings + self._metric_error_warnings(llm_scores),
             metadata=metadata
         )
     

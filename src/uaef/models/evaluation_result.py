@@ -89,7 +89,7 @@ class EvaluationResult(BaseModel):
                 "trace_id": "660e8400-e29b-41d4-a716-446655440001",
                 "dimension_results": [
                     {
-                        "dimension_name": "tool_calling",
+                        "dimension_name": "Tool Calling",
                         "metric_scores": [],
                         "aggregate_score": 0.85,
                         "weight": 0.4

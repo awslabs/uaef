@@ -165,6 +165,8 @@ class SingleAgentEvaluator(BaseEvaluator):
                     "Ground truth not provided, some metrics may be skipped"
                 )
         
+        warnings.extend(self._metric_error_warnings(metric_scores))
+
         # Create evaluation result
         result = EvaluationResult(
             trace_id=trace.trace_id,

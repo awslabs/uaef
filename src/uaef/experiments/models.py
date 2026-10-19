@@ -242,7 +242,7 @@ class ExperimentRun(BaseModel):
                 },
                 "config_snapshot": {
                     "metric_set": ["tool_accuracy", "answer_relevance"],
-                    "thresholds": {"tool_calling": 0.8},
+                    "thresholds": {"Tool Calling": 0.8},
                     "evaluation_mode": "offline"
                 },
                 "git_commit": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0",  # pragma: allowlist secret

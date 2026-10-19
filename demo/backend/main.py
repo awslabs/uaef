@@ -328,7 +328,9 @@ def get_experiment_results(experiment_id: str):
             metric_scores = {}
             for dim in ev.get("dimension_results", []):
                 dim_name = dim.get("dimension_name", "")
-                dimension_scores[dim_name] = dim.get("aggregate_score", 0)
+                # Skip N/A dimensions (no applicable metrics)
+                if dim.get("aggregate_score") is not None:
+                    dimension_scores[dim_name] = dim["aggregate_score"]
                 for ms in dim.get("metric_scores", []):
                     m_name = ms.get("metric_name", "")
                     m_score = ms.get("score")
@@ -822,7 +824,9 @@ async def run_evaluation(
             "metric_scores": {},
         }
         for dim in r.dimension_results:
-            row_data["dimension_scores"][dim.dimension_name] = dim.aggregate_score
+            # Skip N/A dimensions (no applicable metrics)
+            if dim.aggregate_score is not None:
+                row_data["dimension_scores"][dim.dimension_name] = dim.aggregate_score
             for ms in dim.metric_scores:
                 # Only include metrics the user selected
                 if metric_list and ms.metric_name not in metric_list:

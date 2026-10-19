@@ -522,6 +522,22 @@ class BaseEvaluator(ABC):
             metadata={"error": str(error), "error_type": type(error).__name__}
         )
 
+    @staticmethod
+    def _metric_error_warnings(metric_scores: List[MetricScore]) -> List[str]:
+        """
+        Build one warning per metric whose calculation raised.
+
+        A dimension whose metrics all errored aggregates to None (N/A) and is
+        skipped by threshold checks, so without these warnings an errored
+        metric would be indistinguishable from a non-applicable one.
+        """
+        return [
+            f"Metric {s.metric_name} failed "
+            f"({s.metadata.get('error_type', 'Error')}): {s.metadata['error']}"
+            for s in metric_scores
+            if s.metadata and s.metadata.get("error")
+        ]
+
     async def _safe_calculate_metric_async(
         self,
         metric: BaseMetric,
@@ -796,7 +812,7 @@ class BaseEvaluator(ABC):
             overall_score=overall_score,
             passed=passed,
             failures=failures,
-            warnings=[],
+            warnings=self._metric_error_warnings(metric_scores),
             metadata={
                 "num_metrics": len(metric_scores),
                 "num_dimensions": len(dimension_results),

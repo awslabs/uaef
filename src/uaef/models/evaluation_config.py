@@ -78,17 +78,17 @@ class MetricSet(BaseModel):
         """Pydantic configuration."""
         json_schema_extra = {
             "example": {
-                "dimensions": ["tool_calling", "response_quality", "performance"],
+                "dimensions": ["Tool Calling", "Response Quality", "Performance"],
                 "metrics": ["tool_accuracy", "answer_relevance", "latency_score"],
                 "weights": {
-                    "tool_calling": 0.4,
-                    "response_quality": 0.4,
-                    "performance": 0.2
+                    "Tool Calling": 0.4,
+                    "Response Quality": 0.4,
+                    "Performance": 0.2
                 },
                 "thresholds": {
-                    "tool_calling": 0.7,
-                    "response_quality": 0.8,
-                    "performance": 0.6
+                    "Tool Calling": 0.7,
+                    "Response Quality": 0.8,
+                    "Performance": 0.6
                 }
             }
         }
@@ -151,9 +151,9 @@ class EvaluationConfig(BaseModel):
         json_schema_extra = {
             "example": {
                 "metric_set": {
-                    "dimensions": ["tool_calling", "response_quality"],
+                    "dimensions": ["Tool Calling", "Response Quality"],
                     "metrics": ["tool_accuracy", "answer_relevance"],
-                    "weights": {"tool_calling": 0.5, "response_quality": 0.5}
+                    "weights": {"Tool Calling": 0.5, "Response Quality": 0.5}
                 },
                 "mode": "offline",
                 "llm_judge_config": {

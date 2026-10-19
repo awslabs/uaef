@@ -15,7 +15,7 @@ class DimensionResult(BaseModel):
     Aggregated result for a single evaluation dimension.
     
     Attributes:
-        dimension_name: Name of the dimension (e.g., "tool_calling", "response_quality")
+        dimension_name: Name of the dimension (e.g., "Tool Calling", "Response Quality")
         metric_scores: List of individual metric scores in this dimension
         aggregate_score: Weighted average score for the dimension (0-1), or
             None if no metric in the dimension was applicable
@@ -73,7 +73,7 @@ class DimensionResult(BaseModel):
         """Pydantic configuration."""
         json_schema_extra = {
             "example": {
-                "dimension_name": "tool_calling",
+                "dimension_name": "Tool Calling",
                 "metric_scores": [
                     {
                         "metric_name": "tool_accuracy",
