@@ -115,10 +115,10 @@ class OnlineEvaluator(BaseEvaluator):
         
         # Set default thresholds for online evaluation
         self.default_thresholds = default_thresholds or {
-            "tool_calling": 0.7,
-            "response_quality": 0.6,
-            "responsible_ai": 0.8,
-            "performance": 0.5
+            "Tool Calling": 0.7,
+            "Response Quality": 0.6,
+            "Responsible AI": 0.8,
+            "Performance": 0.5
         }
         
         # Storage for async results (in production, use database)

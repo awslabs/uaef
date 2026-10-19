@@ -53,24 +53,24 @@ class MultiAgentEvaluator(BaseEvaluator):
 
         # Set default dimension weights if not provided
         self.default_dimension_weights = default_dimension_weights or {
-            "tool_calling": 0.20,
-            "response_quality": 0.20,
-            "responsible_ai": 0.15,
-            "performance": 0.10,
-            "multi_turn": 0.10,
-            "multi_agent": 0.20,  # Higher weight for multi-agent scenarios
-            "reasoning": 0.05
+            "Tool Calling": 0.20,
+            "Response Quality": 0.20,
+            "Responsible AI": 0.15,
+            "Performance": 0.10,
+            "Multi-Turn": 0.10,
+            "Multi-Agent": 0.20,  # Higher weight for multi-agent scenarios
+            "Reasoning": 0.05
         }
 
         # Set default thresholds if not provided
         self.default_thresholds = default_thresholds or {
-            "tool_calling": 0.7,
-            "response_quality": 0.7,
-            "responsible_ai": 0.8,
-            "performance": 0.6,
-            "multi_turn": 0.6,
-            "multi_agent": 0.7,
-            "reasoning": 0.6
+            "Tool Calling": 0.7,
+            "Response Quality": 0.7,
+            "Responsible AI": 0.8,
+            "Performance": 0.6,
+            "Multi-Turn": 0.6,
+            "Multi-Agent": 0.7,
+            "Reasoning": 0.6
         }
 
         logger.info(

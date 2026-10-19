@@ -56,6 +56,7 @@ class BaseEvaluator(ABC):
         """
         self.metric_registry = metric_registry or get_registry()
         self.max_workers = max_workers
+        self._warned_dimension_keys: set = set()
         
         logger.info(
             f"Initialized {self.__class__.__name__} with max_workers={max_workers}"
@@ -470,8 +471,6 @@ class BaseEvaluator(ABC):
             result = await self._safe_calculate_metric_async(metric, evaluation_input)
             if result is not None:
                 scores.append(result)
-            elif isinstance(result, Exception):
-                logger.error(f"Failed to calculate metric {metric.get_name()}: {result}")
 
         return scores
     
@@ -488,7 +487,9 @@ class BaseEvaluator(ABC):
             evaluation_input: Input data for evaluation
             
         Returns:
-            MetricScore or None if calculation fails
+            MetricScore, a failed placeholder MetricScore (score=None,
+            metadata["error"] set) if calculation raises, or None if the
+            metric was skipped for missing ground truth
         """
         try:
             # Check if ground truth is required but missing
@@ -504,8 +505,23 @@ class BaseEvaluator(ABC):
             
         except Exception as e:
             logger.error(f"Error calculating metric {metric.get_name()}: {str(e)}")
-            return None
+            return self._failed_metric_score(metric, e)
     
+    @staticmethod
+    def _failed_metric_score(metric: BaseMetric, error: Exception) -> MetricScore:
+        """
+        Build a placeholder score for a metric whose calculation raised.
+
+        Keeps the failure visible in dimension_results (distinct from a metric
+        that legitimately returned score=None as not applicable).
+        """
+        return MetricScore(
+            metric_name=metric.get_name(),
+            score=None,
+            reasoning=f"Evaluation failed: {error}",
+            metadata={"error": str(error), "error_type": type(error).__name__}
+        )
+
     async def _safe_calculate_metric_async(
         self,
         metric: BaseMetric,
@@ -523,7 +539,9 @@ class BaseEvaluator(ABC):
             evaluation_input: Input data for evaluation
             
         Returns:
-            MetricScore or None if calculation fails
+            MetricScore, a failed placeholder MetricScore (score=None,
+            metadata["error"] set) if calculation raises, or None if the
+            metric was skipped for missing ground truth
         """
         try:
             # Check if ground truth is required but missing
@@ -540,7 +558,7 @@ class BaseEvaluator(ABC):
             
         except Exception as e:
             logger.error(f"Error calculating metric {metric.get_name()}: {str(e)}")
-            return None
+            return self._failed_metric_score(metric, e)
 
     def _run_multi_turn(
         self,
@@ -791,6 +809,36 @@ class BaseEvaluator(ABC):
             },
         )
 
+    def _warn_unknown_dimension_keys(
+        self,
+        config: Optional[Dict[str, float]],
+        label: str
+    ) -> None:
+        """
+        Warn (once per key) when a dimension_weights/thresholds key doesn't
+        match any dimension name the metric registry produces.
+
+        Such keys are silently ignored by aggregation and threshold checks,
+        so a typo or naming mismatch would otherwise go unnoticed.
+        """
+        if not config:
+            return
+
+        try:
+            known = set(self.metric_registry.list_metrics_by_dimension().keys())
+        except Exception as e:
+            logger.debug(f"Could not list registry dimensions: {e}")
+            return
+
+        for key in config:
+            if key in known or (label, key) in self._warned_dimension_keys:
+                continue
+            self._warned_dimension_keys.add((label, key))
+            logger.warning(
+                f"{label} key '{key}' does not match any registered dimension "
+                f"{sorted(known)}; it will be ignored"
+            )
+
     def aggregate_dimension_scores(
         self,
         metric_scores: List[MetricScore],
@@ -806,6 +854,8 @@ class BaseEvaluator(ABC):
         Returns:
             List of DimensionResult objects
         """
+        self._warn_unknown_dimension_keys(dimension_weights, "dimension_weights")
+
         # Group scores by dimension
         dimension_scores: Dict[str, List[MetricScore]] = {}
         
@@ -836,11 +886,12 @@ class BaseEvaluator(ABC):
             # Filter out None scores (non-applicable metrics)
             valid_scores = [s for s in scores if s.score is not None]
 
-            # Calculate weighted average from valid scores only
+            # Calculate weighted average from valid scores only. A dimension
+            # with no applicable metrics is not applicable (None), not 0.0.
             if valid_scores:
                 aggregate_score = sum(s.score for s in valid_scores) / len(valid_scores)
             else:
-                aggregate_score = 0.0
+                aggregate_score = None
 
             # Get dimension weight
             weight = 1.0
@@ -871,6 +922,11 @@ class BaseEvaluator(ABC):
         Returns:
             Overall weighted score (0-1)
         """
+        # Skip dimensions with no applicable metrics
+        dimension_results = [
+            d for d in dimension_results if d.aggregate_score is not None
+        ]
+
         if not dimension_results:
             return 0.0
         
@@ -904,12 +960,18 @@ class BaseEvaluator(ABC):
         """
         if not thresholds:
             return True, []
+
+        self._warn_unknown_dimension_keys(thresholds, "thresholds")
         
         failures = []
         
         for dimension_result in dimension_results:
             dimension_name = dimension_result.dimension_name
             
+            # Dimensions with no applicable metrics can't fail a threshold
+            if dimension_result.aggregate_score is None:
+                continue
+
             if dimension_name in thresholds:
                 threshold = thresholds[dimension_name]
                 

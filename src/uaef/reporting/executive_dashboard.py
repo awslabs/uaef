@@ -229,6 +229,8 @@ class ExecutiveDashboardGenerator:
         dimension_scores = defaultdict(list)
         for result in results:
             for dim_result in result.dimension_results:
+                if dim_result.aggregate_score is None:
+                    continue
                 dimension_scores[dim_result.dimension_name].append(
                     dim_result.aggregate_score
                 )

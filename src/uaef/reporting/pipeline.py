@@ -547,6 +547,8 @@ def _collect_dimension_scores(results: List[EvaluationResult]) -> Dict[str, List
     dim_scores: Dict[str, List[float]] = {}
     for r in results:
         for dim in r.dimension_results:
+            if dim.aggregate_score is None:
+                continue
             dim_scores.setdefault(dim.dimension_name, []).append(dim.aggregate_score)
     return dim_scores
 
