@@ -1,0 +1,6 @@
+question,expected_output,expected_tool_calls
+What is the current stock price of AMZN?,"AMZN is trading at $185.20, up 1.4%.","[{""name"": ""get_stock_price"", ""arguments"": {""ticker"": ""AMZN""}}]"
+Show me the latest news for MSFT.,The latest MSFT headline: Microsoft reports 16% growth in cloud revenue.,"[{""name"": ""get_company_news"", ""arguments"": {""ticker"": ""MSFT""}}]"
+What is NVIDIA's (NVDA) P/E ratio?,NVDA has a P/E ratio of 55.7.,"[{""name"": ""get_financial_ratios"", ""arguments"": {""ticker"": ""NVDA""}}]"
+Give me AAPL's current price and its latest news.,"AAPL is trading at $227.50, down 0.6%. Latest news: Apple announces new on-device AI features.","[{""name"": ""get_stock_price"", ""arguments"": {""ticker"": ""AAPL""}}, {""name"": ""get_company_news"", ""arguments"": {""ticker"": ""AAPL""}}]"
+What is the stock price for ticker ZZZZ?,No data is available for ZZZZ.,"[{""name"": ""get_stock_price"", ""arguments"": {""ticker"": ""ZZZZ""}}]"

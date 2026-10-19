@@ -28,6 +28,9 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 import uvicorn
 import asyncio
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # --- Build the LangGraph agent (same as notebook Step 1) ---
@@ -49,7 +52,7 @@ my_config = Config(
 bedrock_runtime = boto3.client(service_name="bedrock-runtime", config=my_config)
 bedrock_llm = ChatBedrock(
     client=bedrock_runtime,
-    model_id="anthropic.claude-3-sonnet-20240229-v1:0",
+    model_id="us.anthropic.claude-sonnet-4-6",
     model_kwargs={"max_tokens": 1024, "temperature": 0.0},
 )
 
@@ -99,8 +102,10 @@ async def invoke(req: InvokeRequest):
         )
     except asyncio.TimeoutError:
         raise HTTPException(status_code=504, detail="Agent timed out")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        # Log the detail server-side; don't echo exception text to the caller.
+        logger.exception("Agent invocation failed")
+        raise HTTPException(status_code=500, detail="Agent invocation failed")
 
     serialized = []
     for evt in events:
