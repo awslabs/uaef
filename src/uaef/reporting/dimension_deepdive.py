@@ -18,6 +18,11 @@ from uaef.reporting.models import Chart, ChartType, Dashboard
 logger = logging.getLogger(__name__)
 
 
+def _normalize_dimension(name: str) -> str:
+    """Normalize a dimension name so "Multi-Turn", "multi turn" and "multi_turn" match."""
+    return name.strip().lower().replace("-", "_").replace(" ", "_")
+
+
 # Dimension definitions with metric prefixes
 DIMENSION_DEFINITIONS = {
     "tool_calling": {
@@ -326,11 +331,15 @@ class DimensionDashboardGenerator:
         dimension_scores = []
         failed_count = 0
         
+        # Evaluators report display names ("Tool Calling", "Multi-Turn") while
+        # DIMENSION_DEFINITIONS is keyed by snake_case; accept either form.
+        wanted = {_normalize_dimension(dimension), _normalize_dimension(dim_def["name"])}
+
         for result in results:
             # Find dimension result
             dim_result = None
             for dr in result.dimension_results:
-                if dr.dimension_name.lower() == dimension.lower():
+                if _normalize_dimension(dr.dimension_name) in wanted:
                     dim_result = dr
                     break
             
@@ -342,7 +351,7 @@ class DimensionDashboardGenerator:
                     failed_count += 1
                 
                 # Collect metric scores
-                for metric_score in dim_result.metric_scores:
+                for metric_score in dim_result.scored_metrics():
                     # Check if metric belongs to this dimension
                     if any(
                         metric_score.metric_name.startswith(prefix)
@@ -579,7 +588,7 @@ class DimensionDashboardGenerator:
                 worst = min(failures, key=lambda x: x["score"])
                 failure_examples[metric] = {
                     "score": worst["score"],
-                    "reasoning": worst.get("reasoning", "No reasoning provided")[:100]
+                    "reasoning": (worst.get("reasoning") or "No reasoning provided")[:100]
                 }
         
         if not failure_counts:

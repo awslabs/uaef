@@ -198,3 +198,6 @@ uaef-service/=*
 
 # Kiro IDE workspace settings (local, per-developer).
 .kiro/
+
+# Downloaded by notebooks/00_langgraph.ipynb (LangGraph travel-assistant tutorial DB)
+notebooks/travel2*.sqlite

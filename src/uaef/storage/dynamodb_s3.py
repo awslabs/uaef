@@ -11,6 +11,7 @@ import json
 import logging
 from datetime import datetime
 from decimal import Decimal
+from functools import cached_property
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
@@ -80,14 +81,41 @@ class DynamoS3Storage:
         self._dynamodb = boto3.resource("dynamodb", region_name=region)
         self._s3 = boto3.client("s3", region_name=region)
         self._table_name = self.config.dynamodb_table_name
-        self._bucket = self.config.s3_bucket
+        self._region = region
         self._prefix = self.config.s3_prefix
         self._table = self._dynamodb.Table(self._table_name)
 
         logger.info(
             f"DynamoS3Storage initialized: table={self._table_name}, "
-            f"bucket={self._bucket}, prefix={self._prefix}"
+            f"bucket={self.config.s3_bucket or '<account default>'}, prefix={self._prefix}"
         )
+
+    @cached_property
+    def account_id(self) -> str:
+        """Caller's AWS account, resolved on first S3 use (STS GetCallerIdentity).
+
+        Every S3 call passes it as ExpectedBucketOwner so results are never
+        read from or written to a same-named bucket in someone else's account.
+        """
+        sts = boto3.client("sts", region_name=self._region)
+        return sts.get_caller_identity()["Account"]
+
+    @cached_property
+    def bucket(self) -> str:
+        """Results bucket: the configured name, else uaef-results-<account-id>-<region>.
+
+        Bucket names are global, so a fixed default could resolve to a bucket
+        owned by another account.
+        """
+        return self.config.s3_bucket or f"uaef-results-{self._account_id}-{self._region}"
+
+    @property
+    def _bucket(self) -> str:
+        return self.bucket
+
+    @property
+    def _account_id(self) -> str:
+        return self.account_id
 
     # ------------------------------------------------------------------
     # Table provisioning
@@ -117,7 +145,7 @@ class DynamoS3Storage:
     def create_bucket_if_not_exists(self) -> None:
         """Create the S3 bucket if it does not already exist."""
         try:
-            self._s3.head_bucket(Bucket=self._bucket)
+            self._s3.head_bucket(Bucket=self._bucket, ExpectedBucketOwner=self._account_id)
             logger.debug(f"S3 bucket '{self._bucket}' already exists")
         except ClientError as e:
             error_code = e.response["Error"]["Code"]
@@ -131,6 +159,16 @@ class DynamoS3Storage:
                     }
                 self._s3.create_bucket(**create_kwargs)
                 logger.info(f"Created S3 bucket '{self._bucket}'")
+            elif error_code in ("403", "AccessDenied"):
+                # HeadBucket returns 403 both for a bucket owned by another
+                # account (ExpectedBucketOwner mismatch) and for an own bucket
+                # the caller may not s3:ListBucket.
+                raise PermissionError(
+                    f"Access denied to S3 bucket '{self._bucket}': either it is owned by "
+                    f"another account than {self._account_id}, or this identity lacks "
+                    f"s3:ListBucket on it. Grant access, or set UAEF_S3_BUCKET to a "
+                    f"bucket this account owns."
+                ) from e
             else:
                 raise
 
@@ -144,12 +182,23 @@ class DynamoS3Storage:
     def _result_path(self, experiment_id: str) -> str:
         return f"s3://{self._bucket}/{self._s3_key(experiment_id)}"
 
-    def _read_s3_results(self, experiment_id: str) -> Dict[str, Any]:
-        """Read the full results JSON from S3."""
+    def _read_s3_results(
+        self, experiment_id: str, result_path: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Read the full results JSON from S3.
+
+        ``result_path`` (``s3://bucket/key``, as stored on the experiment) is
+        preferred so experiments saved under an earlier bucket/prefix
+        configuration stay readable; ownership is still enforced.
+        """
+        bucket, key = self._bucket, self._s3_key(experiment_id)
+        if result_path and result_path.startswith("s3://") and "/" in result_path[5:]:
+            bucket, key = result_path[5:].split("/", 1)
         try:
             resp = self._s3.get_object(
-                Bucket=self._bucket,
-                Key=self._s3_key(experiment_id),
+                Bucket=bucket,
+                ExpectedBucketOwner=self._account_id,
+                Key=key,
             )
             return json.loads(resp["Body"].read().decode("utf-8"))
         except ClientError as e:
@@ -164,6 +213,7 @@ class DynamoS3Storage:
         """Write the full results JSON to S3."""
         self._s3.put_object(
             Bucket=self._bucket,
+            ExpectedBucketOwner=self._account_id,
             Key=self._s3_key(experiment_id),
             Body=json.dumps(data, default=_decimal_default, indent=2).encode("utf-8"),
             ContentType="application/json",
@@ -288,9 +338,14 @@ class DynamoS3Storage:
             DynamoDB item dict or None if not found.
         """
         try:
-            resp = self._table.get_item(Key={"experiment_id": experiment_id})
+            # Consistent read: callers commonly read an experiment straight
+            # after save_experiment(), which an eventual read can miss.
+            resp = self._table.get_item(
+                Key={"experiment_id": experiment_id}, ConsistentRead=True
+            )
             return resp.get("Item")
-        except ClientError:
+        except ClientError as e:
+            logger.warning(f"get_experiment({experiment_id}) failed: {e}")
             return None
 
     def get_experiment_by_name(self, name: str) -> Optional[Dict[str, Any]]:
@@ -321,7 +376,8 @@ class DynamoS3Storage:
         Returns:
             Full results dict including all evaluations.
         """
-        return self._read_s3_results(experiment_id)
+        experiment = self.get_experiment(experiment_id) or {}
+        return self._read_s3_results(experiment_id, experiment.get("result_path"))
 
     #: Name of the GSI on ``created_by`` used to scope ``list_experiments`` to
     #: a single owner (security review H-02). Must match the index name the
@@ -381,6 +437,7 @@ class DynamoS3Storage:
         try:
             self._s3.delete_object(
                 Bucket=self._bucket,
+                ExpectedBucketOwner=self._account_id,
                 Key=self._s3_key(experiment_id),
             )
         except ClientError:

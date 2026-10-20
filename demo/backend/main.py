@@ -14,6 +14,7 @@ Flow:
 """
 
 import os, sys, json, time, logging
+import hmac
 from pathlib import Path
 from uuid import uuid4, UUID
 from typing import Optional
@@ -83,7 +84,7 @@ def require_api_key(x_api_key: str = Header(default="")):
     set, every request is rejected rather than silently allowed.
     """
     if _DEMO_API_KEY:
-        if x_api_key != _DEMO_API_KEY:
+        if not hmac.compare_digest(x_api_key.encode(), _DEMO_API_KEY.encode()):
             raise HTTPException(status_code=401, detail="Invalid or missing API key")
         return
     if _ALLOW_NO_AUTH:
@@ -328,7 +329,9 @@ def get_experiment_results(experiment_id: str):
             metric_scores = {}
             for dim in ev.get("dimension_results", []):
                 dim_name = dim.get("dimension_name", "")
-                dimension_scores[dim_name] = dim.get("aggregate_score", 0)
+                # Skip N/A dimensions (no applicable metrics)
+                if dim.get("aggregate_score") is not None:
+                    dimension_scores[dim_name] = dim["aggregate_score"]
                 for ms in dim.get("metric_scores", []):
                     m_name = ms.get("metric_name", "")
                     m_score = ms.get("score")
@@ -652,8 +655,9 @@ async def run_evaluation(
         try:
             resp = s3_client.get_object(Bucket=bucket, Key=key)
             content = resp["Body"].read()
-        except Exception as e:
-            raise HTTPException(400, f"Failed to read from S3: {e}")
+        except Exception:
+            logger.exception("Failed to read dataset from %s", s3_data_path)
+            raise HTTPException(400, "Failed to read the dataset from S3")
         fname = key.split("/")[-1]
         dataset_name = fname
         dataset_s3_path = s3_data_path
@@ -662,19 +666,22 @@ async def run_evaluation(
         fname = file.filename or "upload.csv"
         dataset_name = fname
 
-        # Save uploaded file to S3 (same bucket as results)
+        # Save uploaded file to S3 (same bucket as results). The storage
+        # backend resolves the bucket (account-scoped default when
+        # UAEF_S3_BUCKET is unset) and its owner.
         try:
-            from uaef.config import get_config
-            cfg = get_config()
+            from uaef.storage.dynamodb_s3 import get_storage
+            store = get_storage()
             s3_client = boto3.client("s3")
             dataset_key = f"datasets/{fname}"
             s3_client.put_object(
-                Bucket=cfg.storage.s3_bucket,
+                Bucket=store.bucket,
+                ExpectedBucketOwner=store.account_id,
                 Key=dataset_key,
                 Body=content,
                 ContentType="application/octet-stream",
             )
-            dataset_s3_path = f"s3://{cfg.storage.s3_bucket}/{dataset_key}"
+            dataset_s3_path = f"s3://{store.bucket}/{dataset_key}"
         except Exception as e:
             logger.warning("Failed to save dataset to S3: %s", e)
             dataset_s3_path = ""
@@ -822,7 +829,9 @@ async def run_evaluation(
             "metric_scores": {},
         }
         for dim in r.dimension_results:
-            row_data["dimension_scores"][dim.dimension_name] = dim.aggregate_score
+            # Skip N/A dimensions (no applicable metrics)
+            if dim.aggregate_score is not None:
+                row_data["dimension_scores"][dim.dimension_name] = dim.aggregate_score
             for ms in dim.metric_scores:
                 # Only include metrics the user selected
                 if metric_list and ms.metric_name not in metric_list:

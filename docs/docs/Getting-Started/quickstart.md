@@ -180,49 +180,39 @@ Or use AWS credential files (`~/.aws/credentials`).
 
 ### UAEF Configuration
 
-Create a configuration file `uaef_config.yaml`:
+Create a configuration file `uaef_config.yaml`. Every key is optional and falls back to the
+default shown (or to the matching `UAEF_*` environment variable):
 
 ```yaml
-# LLM Judge Configuration
+aws:
+  region: us-east-1
+
 llm_judge:
-  model: "anthropic.claude-3-sonnet-20240229-v1:0"
-  region: "us-east-1"
-  max_retries: 3
-  timeout: 30
+  model_id: us.anthropic.claude-sonnet-4-6
+  temperature: 0.0
+  max_tokens: 2048
+  retry_attempts: 3
+  retry_delay: 1.0
 
-# Metric Configuration
-metrics:
-  default_set:
-    - tool_selection_accuracy
-    - answer_relevance
-    - safety_score
-    - latency_score
-  
-  thresholds:
-    tool_calling: 0.8
-    response_quality: 0.75
-    responsible_ai: 0.9
-    performance: 0.7
-
-# Database Configuration
-database:
-  type: "sqlite"  # or "postgresql"
-  path: "uaef.db"
-  # For PostgreSQL:
-  # host: "localhost"
-  # port: 5432
-  # database: "uaef"
-  # user: "uaef_user"
-  # password: "your_password"  # pragma: allowlist secret
+storage:                     # only used with persist=True
+  dynamodb_table_name: uaef-experiments
+  s3_prefix: evaluations/
+  # s3_bucket defaults to uaef-results-<account-id>-<region>
 ```
 
-Load configuration:
+Load it before evaluating:
 
 ```python
-from uaef.config import load_config
+from uaef.config import UAEFConfig, set_config
 
-config = load_config("uaef_config.yaml")
+set_config(UAEFConfig.from_file("uaef_config.yaml"))
 ```
+
+Metric selection and pass/fail thresholds are per call, not config: pass `metrics=[...]` and
+`thresholds={"Tool Calling": 0.8, "Response Quality": 0.75}` to `evaluate()`. Threshold keys are
+the dimension names metrics report (`"Tool Calling"`, `"Response Quality"`, `"Responsible AI"`,
+`"Performance"`, ...). See [Persistence & Configuration](../Guides/persistence-and-configuration.md)
+for every option.
 
 ## Framework Integration
 

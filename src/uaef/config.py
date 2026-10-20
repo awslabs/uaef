@@ -5,7 +5,7 @@
 
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 import yaml
 from pydantic import BaseModel, Field, field_validator
@@ -165,9 +165,13 @@ class StorageConfig(BaseModel):
         default="uaef-experiments",
         description="DynamoDB table name for experiment metadata"
     )
-    s3_bucket: str = Field(
-        default="uaef-results",
-        description="S3 bucket for full evaluation results"
+    s3_bucket: Optional[str] = Field(
+        default=None,
+        description=(
+            "S3 bucket for full evaluation results. Defaults to "
+            "uaef-results-<account-id>-<region>: bucket names are global, so a "
+            "fixed default could resolve to a bucket owned by another account."
+        )
     )
     s3_prefix: str = Field(
         default="evaluations/",
@@ -183,7 +187,7 @@ class StorageConfig(BaseModel):
         """Load storage configuration from environment variables."""
         return cls(
             dynamodb_table_name=os.getenv("UAEF_DYNAMODB_TABLE", "uaef-experiments"),
-            s3_bucket=os.getenv("UAEF_S3_BUCKET", "uaef-results"),
+            s3_bucket=os.getenv("UAEF_S3_BUCKET") or None,
             s3_prefix=os.getenv("UAEF_S3_PREFIX", "evaluations/"),
             region=os.getenv("UAEF_STORAGE_REGION"),
         )
@@ -260,7 +264,7 @@ class UAEFConfig(BaseModel):
         )
     
     @classmethod
-    def from_file(cls, config_path: Path) -> "UAEFConfig":
+    def from_file(cls, config_path: Union[str, Path]) -> "UAEFConfig":
         """
         Load configuration from a YAML or JSON file.
         
@@ -274,12 +278,13 @@ class UAEFConfig(BaseModel):
             FileNotFoundError: If config file doesn't exist
             ValueError: If config file format is invalid
         """
+        config_path = Path(config_path)
         if not config_path.exists():
             raise FileNotFoundError(f"Configuration file not found: {config_path}")
         
         with open(config_path, "r") as f:
             if config_path.suffix in [".yaml", ".yml"]:
-                config_dict = yaml.safe_load(f)
+                config_dict = yaml.safe_load(f) or {}
             elif config_path.suffix == ".json":
                 import json
                 config_dict = json.load(f)

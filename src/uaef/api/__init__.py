@@ -574,7 +574,7 @@ def create_run(
             ...     run_name="baseline-v1",
             ...     agent_design={
             ...         "framework": "langgraph",
-            ...         "model": "anthropic.claude-3-sonnet-20240229-v1:0",
+            ...         "model": "us.anthropic.claude-sonnet-4-6",
             ...         "tools": ["search", "calculator"]
             ...     },
             ...     config={"metric_set": ["tool_accuracy"]},
@@ -584,7 +584,7 @@ def create_run(
         Create with AgentDesign object:
             >>> design = AgentDesign(
             ...     framework="bedrock",
-            ...     model="anthropic.claude-3-sonnet-20240229-v1:0",
+            ...     model="us.anthropic.claude-sonnet-4-6",
             ...     tools=["search"]
             ... )
             >>> run = create_run(

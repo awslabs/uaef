@@ -8,7 +8,7 @@
 #   docker build --platform linux/amd64 -t uaef-service-eks .
 #
 # Run locally:
-#   docker run -p 8080:8080 \
+#   docker run -p 127.0.0.1:8080:8080 \
 #     -e COGNITO_USER_POOL_ID=us-east-1_xxxxx \
 #     -e COGNITO_APP_CLIENT_ID=xxxxx \
 #     -e COGNITO_REGION=us-east-1 \

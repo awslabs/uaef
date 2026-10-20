@@ -10,6 +10,7 @@ import pytest
 
 import uaef.metrics  # noqa: F401  (registers built-in metrics)
 from uaef.evaluation import base_evaluator
+from uaef.evaluation.base_evaluator import BaseEvaluator
 from uaef.evaluation.multi_agent import MultiAgentEvaluator
 from uaef.evaluation.multi_turn import MultiTurnEvaluator
 from uaef.evaluation.offline import OfflineEvaluator
@@ -147,3 +148,91 @@ class TestMetricFailures:
     def test_failed_metric_is_kept_in_parallel_results(self, evaluator, evaluation_input):
         scores = evaluator.calculate_metrics_parallel([_RaisingMetric()], evaluation_input)
         assert [s.metric_name for s in scores] == ["raising_metric"]
+
+    def test_failed_metric_surfaces_as_warning(self, evaluator):
+        failed = BaseEvaluator._failed_metric_score(
+            _RaisingMetric(), RuntimeError("judge timed out")
+        )
+        ok = MetricScore(metric_name="fine", score=0.9)
+        na = MetricScore(metric_name="not_applicable", score=None)
+        warnings = evaluator._metric_error_warnings([failed, ok, na])
+        assert warnings == [
+            "Metric raising_metric failed (RuntimeError): judge timed out"
+        ]
+
+    def test_evaluate_reports_failed_metric_in_warnings(self, evaluator, monkeypatch):
+        monkeypatch.setattr(
+            evaluator, "_get_metrics_to_calculate", lambda metric_set: [_RaisingMetric()]
+        )
+        result = evaluator.evaluate(
+            AgentTrace(trace_id=uuid4(), messages=[], tool_calls=[])
+        )
+        assert any("raising_metric failed" in w for w in result.warnings)
+
+
+class TestSessionAggregation:
+    def _turn(self, scores, passed=True, warnings=()):
+        from uaef.models.dimension_result import DimensionResult
+        from uaef.models.evaluation_result import EvaluationResult
+
+        return EvaluationResult(
+            trace_id=uuid4(),
+            dimension_results=[
+                DimensionResult(
+                    dimension_name=name,
+                    metric_scores=[MetricScore(metric_name=f"{name}_m", score=score)],
+                    aggregate_score=score,
+                    weight=1.0,
+                )
+                for name, score in scores.items()
+            ],
+            overall_score=0.5,
+            passed=passed,
+            warnings=list(warnings),
+        )
+
+    def test_averages_applicable_turns_only(self):
+        evaluator = OnlineEvaluator()
+        turns = [
+            self._turn({"Response Quality": 0.8, "Tool Calling": None}, warnings=["w"]),
+            self._turn({"Response Quality": 0.6, "Tool Calling": 1.0}, passed=False, warnings=["w"]),
+        ]
+        session = evaluator.aggregate_session_metrics(turns, session_id="s-1")
+
+        by_name = {d.dimension_name: d for d in session.dimension_results}
+        assert by_name["Response Quality"].aggregate_score == pytest.approx(0.7)
+        assert by_name["Tool Calling"].aggregate_score == pytest.approx(1.0)
+        assert len(by_name["Response Quality"].metric_scores) == 2
+        assert session.overall_score == pytest.approx(0.85)
+        assert session.passed is False
+        assert session.warnings == ["w"]
+        assert session.metadata["session_id"] == "s-1"
+        # Stable id per session
+        again = evaluator.aggregate_session_metrics(turns, session_id="s-1")
+        assert again.trace_id == session.trace_id
+
+    def test_without_session_id_gets_distinct_stable_id(self):
+        turns = [self._turn({"Response Quality": 0.9}), self._turn({"Response Quality": 0.8})]
+        evaluator = OnlineEvaluator()
+        session = evaluator.aggregate_session_metrics(turns)
+        assert session.trace_id not in {t.trace_id for t in turns}
+        assert evaluator.aggregate_session_metrics(turns).trace_id == session.trace_id
+
+    def test_empty_raises(self):
+        with pytest.raises(ValueError):
+            OnlineEvaluator().aggregate_session_metrics([])
+
+
+def test_multi_turn_per_turn_failures_surface_as_warnings(evaluator, monkeypatch):
+    monkeypatch.setattr(
+        evaluator, "_get_metrics_to_calculate", lambda metric_set: [_RaisingMetric()]
+    )
+    turns = [AgentTrace(trace_id=uuid4(), messages=[], tool_calls=[]) for _ in range(2)]
+    result = evaluator.evaluate_multi_turn(
+        per_turn_traces=turns,
+        full_trace=AgentTrace(trace_id=uuid4(), messages=[], tool_calls=[]),
+    )
+    assert [w for w in result.warnings if "raising_metric failed" in w] == [
+        "Turn 1: Metric raising_metric failed (RuntimeError): judge timed out",
+        "Turn 2: Metric raising_metric failed (RuntimeError): judge timed out",
+    ]

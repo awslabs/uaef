@@ -522,6 +522,22 @@ class BaseEvaluator(ABC):
             metadata={"error": str(error), "error_type": type(error).__name__}
         )
 
+    @staticmethod
+    def _metric_error_warnings(metric_scores: List[MetricScore]) -> List[str]:
+        """
+        Build one warning per metric whose calculation raised.
+
+        A dimension whose metrics all errored aggregates to None (N/A) and is
+        skipped by threshold checks, so without these warnings an errored
+        metric would be indistinguishable from a non-applicable one.
+        """
+        return [
+            f"Metric {s.metric_name} failed "
+            f"({s.metadata.get('error_type', 'Error')}): {s.metadata['error']}"
+            for s in metric_scores
+            if s.metadata and s.metadata.get("error")
+        ]
+
     async def _safe_calculate_metric_async(
         self,
         metric: BaseMetric,
@@ -664,6 +680,9 @@ class BaseEvaluator(ABC):
 
         per_turn_results: List[Dict] = []
         score_buckets: Dict[str, List[float]] = {}
+        # Per-turn scores are re-aggregated below without their error
+        # metadata, so record failures here, per turn.
+        per_turn_warnings: List[str] = []
 
         for turn_idx, turn_trace in enumerate(per_turn_traces):
             logger.info(f"  Per-turn evaluation: turn {turn_idx + 1}/{len(per_turn_traces)}")
@@ -694,6 +713,9 @@ class BaseEvaluator(ABC):
             scores = self.calculate_metrics_with_dependencies(
                 metrics=per_turn_metrics,
                 evaluation_input=eval_input,
+            )
+            per_turn_warnings.extend(
+                f"Turn {turn_idx + 1}: {w}" for w in self._metric_error_warnings(scores)
             )
             turn_scores = {s.metric_name: s.score for s in scores}
             turn_reasoning = {s.metric_name: s.reasoning for s in scores}
@@ -796,7 +818,7 @@ class BaseEvaluator(ABC):
             overall_score=overall_score,
             passed=passed,
             failures=failures,
-            warnings=[],
+            warnings=per_turn_warnings + self._metric_error_warnings(metric_scores),
             metadata={
                 "num_metrics": len(metric_scores),
                 "num_dimensions": len(dimension_results),

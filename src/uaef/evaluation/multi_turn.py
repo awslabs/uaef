@@ -185,6 +185,8 @@ class MultiTurnEvaluator(BaseEvaluator):
                 "Ground truth not provided, some metrics may be skipped"
             )
         
+        warnings.extend(self._metric_error_warnings(metric_scores))
+
         # Identify unmet success criteria (Requirement 10.6)
         unmet_criteria = self._identify_unmet_criteria(
             metric_scores=metric_scores,
@@ -437,7 +439,7 @@ class MultiTurnEvaluator(BaseEvaluator):
         # Check if conversation was incomplete
         completeness_scores = [
             s for s in metric_scores 
-            if s.metric_name == "conversation_completeness"
+            if s.metric_name == "conversation_completeness" and s.score is not None
         ]
         
         if completeness_scores:
@@ -455,7 +457,7 @@ class MultiTurnEvaluator(BaseEvaluator):
         # Check context retention
         context_scores = [
             s for s in metric_scores 
-            if s.metric_name == "context_retention"
+            if s.metric_name == "context_retention" and s.score is not None
         ]
         
         if context_scores:
@@ -469,7 +471,7 @@ class MultiTurnEvaluator(BaseEvaluator):
         # Check coherence
         coherence_scores = [
             s for s in metric_scores 
-            if s.metric_name == "coherence"
+            if s.metric_name == "coherence" and s.score is not None
         ]
         
         if coherence_scores:

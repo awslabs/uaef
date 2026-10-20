@@ -581,7 +581,7 @@ class ImprovementTracker:
         # Collect all metric values
         for result in evaluation_results:
             for dimension_result in result.dimension_results:
-                for metric_score in dimension_result.metric_scores:
+                for metric_score in dimension_result.scored_metrics():
                     metric_name = metric_score.metric_name
                     if metric_name not in metric_values:
                         metric_values[metric_name] = []

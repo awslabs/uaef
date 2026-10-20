@@ -1134,7 +1134,7 @@ def _generate_report_action(event: Dict[str, Any]) -> Dict[str, Any]:
                             if dim_metrics:
                                 dim_results.append(DimensionResult(
                                     dimension_name=dim_name,
-                                    aggregate_score=float(dim_score) if dim_score else 0.0,
+                                    aggregate_score=float(dim_score) if dim_score is not None else None,
                                     metric_scores=dim_metrics,
                                     weight=1.0,
                                 ))

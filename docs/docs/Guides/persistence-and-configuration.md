@@ -48,12 +48,21 @@ export AWS_REGION=us-east-1
 
 # Storage
 export UAEF_DYNAMODB_TABLE=uaef-experiments    # default
-export UAEF_S3_BUCKET=uaef-results             # default
+export UAEF_S3_BUCKET=my-uaef-results          # default: uaef-results-<account-id>-<region>
 export UAEF_S3_PREFIX=evaluations/             # default
 
 # LLM Judge (for subjective metrics)
 export UAEF_LLM_MODEL_ID=us.anthropic.claude-sonnet-4-6
 ```
+
+S3 bucket names are global, so when `UAEF_S3_BUCKET` is unset UAEF uses a bucket scoped to
+your account and region. Every S3 call also pins `ExpectedBucketOwner` to the caller's account:
+pointing `UAEF_S3_BUCKET` at a bucket owned by another account fails instead of reading or
+writing results there.
+
+Upgrading from a release where the default was `uaef-results`: set `UAEF_S3_BUCKET=uaef-results` to
+keep writing there. Experiments saved earlier stay readable either way, because results are read
+from the `result_path` stored with each experiment.
 
 ### Via a YAML config file
 
@@ -63,7 +72,7 @@ aws:
 
 storage:
   dynamodb_table_name: uaef-experiments
-  s3_bucket: uaef-results
+  s3_bucket: my-uaef-results   # omit for uaef-results-<account-id>-<region>
   s3_prefix: evaluations/
 
 llm_judge:

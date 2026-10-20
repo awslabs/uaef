@@ -15,7 +15,7 @@ class DimensionResult(BaseModel):
     Aggregated result for a single evaluation dimension.
     
     Attributes:
-        dimension_name: Name of the dimension (e.g., "tool_calling", "response_quality")
+        dimension_name: Name of the dimension (e.g., "Tool Calling", "Response Quality")
         metric_scores: List of individual metric scores in this dimension
         aggregate_score: Weighted average score for the dimension (0-1), or
             None if no metric in the dimension was applicable
@@ -53,6 +53,14 @@ class DimensionResult(BaseModel):
             raise ValueError("Dimension name cannot be empty")
         return v.strip()
     
+    def scored_metrics(self) -> List[MetricScore]:
+        """Metric scores that have a value.
+
+        Excludes not-applicable or failed metrics (``score is None``), which
+        callers must not compare or average.
+        """
+        return [m for m in self.metric_scores if m.score is not None]
+
     @field_validator("aggregate_score", "weight")
     @classmethod
     def validate_score_bounds(cls, v: Optional[float]) -> Optional[float]:
@@ -73,7 +81,7 @@ class DimensionResult(BaseModel):
         """Pydantic configuration."""
         json_schema_extra = {
             "example": {
-                "dimension_name": "tool_calling",
+                "dimension_name": "Tool Calling",
                 "metric_scores": [
                     {
                         "metric_name": "tool_accuracy",
