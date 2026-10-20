@@ -3,6 +3,8 @@
 
 """RAGAS connector for external metric integration."""
 
+import functools
+import inspect
 import sys
 from typing import Any, Dict, List, Optional
 
@@ -22,6 +24,13 @@ if sys.getrecursionlimit() < 5000:
 
 logger = get_logger(__name__)
 
+
+@functools.lru_cache(maxsize=None)
+def _ragas_evaluate_accepts(param: str) -> bool:
+    """Whether the installed ``ragas.evaluate`` takes keyword ``param``."""
+    from ragas import evaluate
+
+    return param in inspect.signature(evaluate).parameters
 
 class RAGASConnector:
     """
@@ -127,10 +136,12 @@ class RAGASConnector:
 
     def _evaluate_kwargs(self) -> Dict[str, Any]:
         """Build extra kwargs for ragas evaluate() with optional llm/embeddings."""
+        kwargs: Dict[str, Any] = {}
         # No progress bars: UAEF calls RAGAS from concurrent worker threads, and
         # tqdm bars there can deadlock on tqdm's global lock (seen in Jupyter
-        # with DeepEval running alongside).
-        kwargs: Dict[str, Any] = {"show_progress": False}
+        # with DeepEval running alongside). Older RAGAS releases lack the flag.
+        if _ragas_evaluate_accepts("show_progress"):
+            kwargs["show_progress"] = False
         if self._llm is not None:
             kwargs["llm"] = self._llm
         if self._embeddings is not None:

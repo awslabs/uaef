@@ -596,11 +596,10 @@ class OnlineEvaluator(BaseEvaluator):
         # Determine if session passed (all turns must pass)
         passed = all(tr.passed for tr in turn_results)
 
-        # trace_id is a UUID; derive a stable one from the session id when given
-        trace_id = (
-            uuid5(NAMESPACE_URL, f"uaef-session/{session_id}")
-            if session_id else turn_results[0].trace_id
-        )
+        # trace_id is a UUID distinct from every turn's; derive it stably from
+        # the session id, or from the turns' trace ids when none is given
+        session_key = session_id or ",".join(str(tr.trace_id) for tr in turn_results)
+        trace_id = uuid5(NAMESPACE_URL, f"uaef-session/{session_key}")
 
         # Create session result
         session_result = EvaluationResult(

@@ -211,11 +211,28 @@ class TestSessionAggregation:
         again = evaluator.aggregate_session_metrics(turns, session_id="s-1")
         assert again.trace_id == session.trace_id
 
-    def test_without_session_id_uses_first_turn(self):
-        turns = [self._turn({"Response Quality": 0.9})]
-        session = OnlineEvaluator().aggregate_session_metrics(turns)
-        assert session.trace_id == turns[0].trace_id
+    def test_without_session_id_gets_distinct_stable_id(self):
+        turns = [self._turn({"Response Quality": 0.9}), self._turn({"Response Quality": 0.8})]
+        evaluator = OnlineEvaluator()
+        session = evaluator.aggregate_session_metrics(turns)
+        assert session.trace_id not in {t.trace_id for t in turns}
+        assert evaluator.aggregate_session_metrics(turns).trace_id == session.trace_id
 
     def test_empty_raises(self):
         with pytest.raises(ValueError):
             OnlineEvaluator().aggregate_session_metrics([])
+
+
+def test_multi_turn_per_turn_failures_surface_as_warnings(evaluator, monkeypatch):
+    monkeypatch.setattr(
+        evaluator, "_get_metrics_to_calculate", lambda metric_set: [_RaisingMetric()]
+    )
+    turns = [AgentTrace(trace_id=uuid4(), messages=[], tool_calls=[]) for _ in range(2)]
+    result = evaluator.evaluate_multi_turn(
+        per_turn_traces=turns,
+        full_trace=AgentTrace(trace_id=uuid4(), messages=[], tool_calls=[]),
+    )
+    assert [w for w in result.warnings if "raising_metric failed" in w] == [
+        "Turn 1: Metric raising_metric failed (RuntimeError): judge timed out",
+        "Turn 2: Metric raising_metric failed (RuntimeError): judge timed out",
+    ]

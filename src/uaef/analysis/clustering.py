@@ -242,13 +242,16 @@ class FailureClusterer:
                 score = dim_scores.get(dim, 1.0)
                 vector.append(1.0 if score < 0.7 else 0.0)
             
-            # Metric features (1 if metric failed, 0 otherwise)
+            # Metric features (1 if metric failed, 0 otherwise). A metric whose
+            # calculation raised counts as failed; a not-applicable one (score
+            # None, no error) is treated like an absent metric.
             metric_scores = {}
             for dim_result in result.dimension_results:
                 for metric_score in dim_result.metric_scores:
-                    if metric_score.score is None:  # not applicable or failed
-                        continue
-                    metric_scores[metric_score.metric_name] = metric_score.score
+                    if metric_score.score is not None:
+                        metric_scores[metric_score.metric_name] = metric_score.score
+                    elif (metric_score.metadata or {}).get("error"):
+                        metric_scores[metric_score.metric_name] = 0.0
             
             for metric in metric_list:
                 score = metric_scores.get(metric, 1.0)
@@ -406,9 +409,7 @@ class FailureClusterer:
         metric_counts = defaultdict(int)
         for result in results:
             for dim_result in result.dimension_results:
-                for metric_score in dim_result.metric_scores:
-                    if metric_score.score is None:  # not applicable or failed
-                        continue
+                for metric_score in dim_result.scored_metrics():
                     if metric_score.score < 0.7:  # Failed metric
                         metric_counts[metric_score.metric_name] += 1
         

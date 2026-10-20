@@ -53,6 +53,14 @@ class DimensionResult(BaseModel):
             raise ValueError("Dimension name cannot be empty")
         return v.strip()
     
+    def scored_metrics(self) -> List[MetricScore]:
+        """Metric scores that have a value.
+
+        Excludes not-applicable or failed metrics (``score is None``), which
+        callers must not compare or average.
+        """
+        return [m for m in self.metric_scores if m.score is not None]
+
     @field_validator("aggregate_score", "weight")
     @classmethod
     def validate_score_bounds(cls, v: Optional[float]) -> Optional[float]:

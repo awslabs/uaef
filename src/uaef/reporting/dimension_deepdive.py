@@ -351,10 +351,7 @@ class DimensionDashboardGenerator:
                     failed_count += 1
                 
                 # Collect metric scores
-                for metric_score in dim_result.metric_scores:
-                    # Skip not-applicable or failed metrics (score=None)
-                    if metric_score.score is None:
-                        continue
+                for metric_score in dim_result.scored_metrics():
                     # Check if metric belongs to this dimension
                     if any(
                         metric_score.metric_name.startswith(prefix)

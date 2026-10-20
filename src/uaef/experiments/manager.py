@@ -191,10 +191,7 @@ class ExperimentManager:
         
         for evaluation in evaluations:
             for dimension_result in evaluation.dimension_results:
-                for metric_score in dimension_result.metric_scores:
-                    # Skip not-applicable or failed metrics (score=None)
-                    if metric_score.score is None:
-                        continue
+                for metric_score in dimension_result.scored_metrics():
                     metric_name = metric_score.metric_name
                     if metric_name not in metric_scores:
                         metric_scores[metric_name] = []

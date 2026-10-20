@@ -268,3 +268,13 @@ def test_evaluate_kwargs_disable_progress_bars():
     connector._llm = None
     connector._embeddings = None
     assert connector._evaluate_kwargs() == {"show_progress": False}
+
+
+def test_evaluate_kwargs_skip_show_progress_on_old_ragas(monkeypatch):
+    import uaef.integrations.ragas_connector as rc
+
+    monkeypatch.setattr(rc, "_ragas_evaluate_accepts", lambda param: False)
+    connector = RAGASConnector.__new__(RAGASConnector)
+    connector._llm = None
+    connector._embeddings = None
+    assert connector._evaluate_kwargs() == {}

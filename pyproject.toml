@@ -37,7 +37,6 @@ dependencies = [
     "numpy>=1.24.0",
     # Third-party metric backends (RAGAS / DeepEval).
     "deepeval>=1.0.0",
-    "aiobotocore>=2.13.0",  # DeepEval's AmazonBedrockModel (judge metrics on Bedrock instead of OpenAI)
     "ragas>=0.1.0,<0.5.0",  # CVE-2026-6587: SSRF in multimodal faithfulness (no fix available; we don't use that module)
     "langchain-community>=0.3.0,<0.4.0",
     "datasets>=2.14.0",
@@ -90,8 +89,12 @@ client = []
 # because the core pulls all heavy backends, the Worker exceeds the 250MB
 # unzipped zip limit and is packaged as a container image (see WorkerStack).
 server = []
+# DeepEval's AmazonBedrockModel (run DeepEval judge metrics on Bedrock instead
+# of OpenAI). Optional because aiobotocore pins botocore to a narrow window.
+deepeval-bedrock = ["aiobotocore>=2.13.0"]
 notebooks = [
     "ipykernel>=6.31.0",
+    "aiobotocore>=2.13.0",  # notebooks run DeepEval metrics on Bedrock
     "fastapi>=0.115.0",  # notebooks/serve_langgraph_agent.py (local test server for 00_langgraph)
 ]
 dev = [
@@ -108,7 +111,7 @@ dev = [
 ]
 # Retained for compatibility. The core already includes every capability;
 # `all` additionally pulls the optional Jupyter kernel.
-all = ["uaef[notebooks]"]
+all = ["uaef[notebooks,deepeval-bedrock]"]
 
 # Tooling-only groups. Unlike [project.optional-dependencies] these are never
 # published with the wheel — they exist for `uv sync --group <name>` in CI and

@@ -78,7 +78,7 @@ def test_foreign_bucket_fails_closed(aws):
     store._s3.head_bucket.side_effect = ClientError(
         {"Error": {"Code": "403", "Message": "Forbidden"}}, "HeadBucket"
     )
-    with pytest.raises(PermissionError, match="not owned by account"):
+    with pytest.raises(PermissionError, match="owned by another account"):
         store.create_bucket_if_not_exists()
     store._s3.create_bucket.assert_not_called()
 
@@ -98,3 +98,47 @@ def test_get_experiment_uses_consistent_read(aws):
     store._table.get_item.return_value = {"Item": {"experiment_id": "e1"}}
     assert store.get_experiment("e1") == {"experiment_id": "e1"}
     assert store._table.get_item.call_args.kwargs["ConsistentRead"] is True
+
+
+def test_account_lookup_is_lazy(aws, monkeypatch):
+    # DynamoDB-only use (list/get experiments) must not need STS
+    calls = []
+    real_client = boto3.client
+
+    def counting_client(service, *args, **kwargs):
+        calls.append(service)
+        return real_client(service, *args, **kwargs)
+
+    monkeypatch.setattr(boto3, "client", counting_client)
+    store = DynamoS3Storage(config=_config())
+    assert "sts" not in calls
+    assert store.bucket == f"uaef-results-{MOTO_ACCOUNT}-{REGION}"
+    assert calls.count("sts") == 1
+    assert store.account_id == MOTO_ACCOUNT
+    assert calls.count("sts") == 1  # cached
+
+
+def test_full_results_read_from_stored_result_path(aws):
+    # Experiments saved under an earlier bucket configuration stay readable
+    store = DynamoS3Storage(config=_config(s3_bucket="new-bucket"))
+    store._table = MagicMock()
+    store._table.get_item.return_value = {
+        "Item": {"experiment_id": "e1", "result_path": "s3://old-bucket/evaluations/e1.json"}
+    }
+    store._s3 = MagicMock()
+    store._s3.get_object.return_value = {"Body": MagicMock(read=lambda: b'{"evaluations": [1]}')}
+
+    assert store.get_full_results("e1") == {"evaluations": [1]}
+    kwargs = store._s3.get_object.call_args.kwargs
+    assert (kwargs["Bucket"], kwargs["Key"]) == ("old-bucket", "evaluations/e1.json")
+    assert kwargs["ExpectedBucketOwner"] == MOTO_ACCOUNT
+
+
+def test_forbidden_message_covers_missing_list_permission(aws):
+    store = DynamoS3Storage(config=_config(s3_bucket="b"))
+    store._s3 = MagicMock()
+    store._s3.head_bucket.side_effect = ClientError(
+        {"Error": {"Code": "403", "Message": "Forbidden"}}, "HeadBucket"
+    )
+    with pytest.raises(PermissionError, match="s3:ListBucket"):
+        store.create_bucket_if_not_exists()

@@ -6186,7 +6186,6 @@ name = "uaef"
 version = "0.2.0"
 source = { editable = "." }
 dependencies = [
-    { name = "aiobotocore" },
     { name = "aiohttp" },
     { name = "boto3" },
     { name = "cryptography" },
@@ -6233,8 +6232,12 @@ dependencies = [
 
 [package.optional-dependencies]
 all = [
+    { name = "aiobotocore" },
     { name = "fastapi" },
     { name = "ipykernel" },
+]
+deepeval-bedrock = [
+    { name = "aiobotocore" },
 ]
 dev = [
     { name = "black" },
@@ -6249,6 +6252,7 @@ dev = [
     { name = "twine" },
 ]
 notebooks = [
+    { name = "aiobotocore" },
     { name = "fastapi" },
     { name = "ipykernel" },
 ]
@@ -6264,7 +6268,8 @@ docs = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiobotocore", specifier = ">=2.13.0" },
+    { name = "aiobotocore", marker = "extra == 'deepeval-bedrock'", specifier = ">=2.13.0" },
+    { name = "aiobotocore", marker = "extra == 'notebooks'", specifier = ">=2.13.0" },
     { name = "aiohttp", specifier = ">=3.14.3" },
     { name = "black", marker = "extra == 'dev'", specifier = ">=23.0.0" },
     { name = "boto3", specifier = ">=1.28.0" },
@@ -6314,10 +6319,10 @@ requires-dist = [
     { name = "strands-agents-tools", specifier = ">=0.5.1" },
     { name = "tornado", specifier = ">=6.5.8" },
     { name = "twine", marker = "extra == 'dev'", specifier = ">=5.0.0" },
-    { name = "uaef", extras = ["notebooks"], marker = "extra == 'all'" },
+    { name = "uaef", extras = ["notebooks", "deepeval-bedrock"], marker = "extra == 'all'" },
     { name = "urllib3", specifier = ">=2.7.0" },
 ]
-provides-extras = ["integrations", "langgraph", "analysis", "judge", "client", "server", "notebooks", "dev", "all"]
+provides-extras = ["integrations", "langgraph", "analysis", "judge", "client", "server", "deepeval-bedrock", "notebooks", "dev", "all"]
 
 [package.metadata.requires-dev]
 docs = [

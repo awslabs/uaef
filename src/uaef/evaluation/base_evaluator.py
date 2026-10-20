@@ -680,6 +680,9 @@ class BaseEvaluator(ABC):
 
         per_turn_results: List[Dict] = []
         score_buckets: Dict[str, List[float]] = {}
+        # Per-turn scores are re-aggregated below without their error
+        # metadata, so record failures here, per turn.
+        per_turn_warnings: List[str] = []
 
         for turn_idx, turn_trace in enumerate(per_turn_traces):
             logger.info(f"  Per-turn evaluation: turn {turn_idx + 1}/{len(per_turn_traces)}")
@@ -710,6 +713,9 @@ class BaseEvaluator(ABC):
             scores = self.calculate_metrics_with_dependencies(
                 metrics=per_turn_metrics,
                 evaluation_input=eval_input,
+            )
+            per_turn_warnings.extend(
+                f"Turn {turn_idx + 1}: {w}" for w in self._metric_error_warnings(scores)
             )
             turn_scores = {s.metric_name: s.score for s in scores}
             turn_reasoning = {s.metric_name: s.reasoning for s in scores}
@@ -812,7 +818,7 @@ class BaseEvaluator(ABC):
             overall_score=overall_score,
             passed=passed,
             failures=failures,
-            warnings=self._metric_error_warnings(metric_scores),
+            warnings=per_turn_warnings + self._metric_error_warnings(metric_scores),
             metadata={
                 "num_metrics": len(metric_scores),
                 "num_dimensions": len(dimension_results),

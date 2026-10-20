@@ -387,9 +387,7 @@ class TrendAnalyzer:
         
         for result in evaluation_results:
             for dim_result in result.dimension_results:
-                for metric_score in dim_result.metric_scores:
-                    if metric_score.score is None:  # not applicable or failed
-                        continue
+                for metric_score in dim_result.scored_metrics():
                     # Filter by metric name if specified
                     if metric_name and metric_score.metric_name != metric_name:
                         continue

@@ -117,3 +117,17 @@ def test_cluster_failures_end_to_end():
     failed = [_result(score=0.3 + i * 0.01) for i in range(4)]
     clusters = FailureClusterer(min_cluster_size=2).cluster_failures(failed)
     assert isinstance(clusters, list)
+
+
+def test_clustering_counts_errored_metric_as_failed():
+    errored = MetricScore(
+        metric_name="tool_selection_accuracy", score=None,
+        metadata={"error": "judge timed out", "error_type": "RuntimeError"},
+    )
+    not_applicable = MetricScore(metric_name="parameter_quality", score=None)
+    result = _result()
+    result.dimension_results[0].metric_scores = [errored, not_applicable]
+    vectors, names = FailureClusterer()._create_feature_vectors([result])
+    features = dict(zip(names, vectors[0]))
+    assert features["metric_tool_selection_accuracy"] == 1.0
+    assert features["metric_parameter_quality"] == 0.0

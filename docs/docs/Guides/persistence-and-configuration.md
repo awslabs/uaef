@@ -60,6 +60,10 @@ your account and region. Every S3 call also pins `ExpectedBucketOwner` to the ca
 pointing `UAEF_S3_BUCKET` at a bucket owned by another account fails instead of reading or
 writing results there.
 
+Upgrading from a release where the default was `uaef-results`: set `UAEF_S3_BUCKET=uaef-results` to
+keep writing there. Experiments saved earlier stay readable either way, because results are read
+from the `result_path` stored with each experiment.
+
 ### Via a YAML config file
 
 ```yaml
