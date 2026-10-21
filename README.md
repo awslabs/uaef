@@ -10,6 +10,7 @@ UAEF works with LangGraph, LangChain, AWS Bedrock, Langfuse, Strands, AgentCore,
 | Deploy the service to AWS | [Deployment](#deployment) → **[uaef-service/README.md](uaef-service/README.md)** |
 | Run the demo app locally | [demo/README.md](demo/README.md) |
 | See every metric | [docs/docs/Guides/metrics-catalog.md](docs/docs/Guides/metrics-catalog.md) |
+| Generate a test dataset + harness from an agent's source | [docs/docs/Guides/generating-an-eval-suite.md](docs/docs/Guides/generating-an-eval-suite.md) |
 | Browse all documentation | **[docs/docs/index.md](docs/docs/index.md)** — or build the site: `cd docs && make docs` |
 
 ## Architecture
@@ -124,13 +125,14 @@ The capability extras (`integrations`, `langgraph`, `analysis`, `judge`, `client
 ```python
 from uaef.api import evaluate
 from uaef.models import AgentTrace, Message, MessageRole, GroundTruth
-from datetime import datetime
+from datetime import datetime, timezone
+from uuid import uuid4
 
 trace = AgentTrace(
-    trace_id="trace_001",
+    trace_id=uuid4(),
     messages=[
-        Message(role=MessageRole.USER, content="What is the capital of France?", timestamp=datetime.utcnow()),
-        Message(role=MessageRole.ASSISTANT, content="The capital of France is Paris.", timestamp=datetime.utcnow()),
+        Message(role=MessageRole.USER, content="What is the capital of France?", timestamp=datetime.now(timezone.utc)),
+        Message(role=MessageRole.ASSISTANT, content="The capital of France is Paris.", timestamp=datetime.now(timezone.utc)),
     ],
     tool_calls=[],
     session_id="session_123",
