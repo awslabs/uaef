@@ -449,6 +449,8 @@ class LangGraphAdapter(BaseAdapter):
         # Build per-agent data by scanning events
         agent_messages: Dict[str, List[Message]] = {name: [] for name in agent_node_names}
         agent_tool_calls: Dict[str, List[ToolCall]] = {name: [] for name in agent_node_names}
+        agent_input_tokens: Dict[str, int] = {name: 0 for name in agent_node_names}
+        agent_output_tokens: Dict[str, int] = {name: 0 for name in agent_node_names}
         coordination_events: List[CoordinationEvent] = []
         activation_order: List[str] = []
         # HumanMessages are prepended to the first agent that activates
@@ -467,6 +469,14 @@ class LangGraphAdapter(BaseAdapter):
                     continue
                 if not isinstance(value_messages, list):
                     value_messages = [value_messages]
+                # Reconstruct live messages from serialized dicts
+                # (HTTP-served agents) so the isinstance/getattr reads work.
+                value_messages = [
+                    m for m in (self._coerce_message(raw) for raw in value_messages)
+                    if m is not None
+                ]
+                if not value_messages:
+                    continue
 
                 # Collect HumanMessages before any agent fires
                 for msg in value_messages:
@@ -487,6 +497,9 @@ class LangGraphAdapter(BaseAdapter):
 
                     content = getattr(msg, "content", "") or ""
                     tc_data = getattr(msg, "tool_calls", []) or []
+                    msg_input, msg_output = self._usage_tokens(msg)
+                    agent_input_tokens[key] += msg_input
+                    agent_output_tokens[key] += msg_output
 
                     message_tool_calls = []
                     for tc in tc_data:
@@ -526,6 +539,8 @@ class LangGraphAdapter(BaseAdapter):
                 trace_id=uuid4(),
                 messages=agent_messages[name],
                 tool_calls=agent_tool_calls[name],
+                input_tokens=agent_input_tokens[name] or None,
+                output_tokens=agent_output_tokens[name] or None,
                 framework="langgraph",
                 timestamp=datetime.now(timezone.utc)
             )
@@ -542,6 +557,20 @@ class LangGraphAdapter(BaseAdapter):
             timestamp=datetime.now(timezone.utc)
         )
     
+    @classmethod
+    def _usage_tokens(cls, msg: Any) -> tuple:
+        """Return ``(input_tokens, output_tokens)`` from a message's
+        ``usage_metadata``, coercing serialized dicts first; ``(0, 0)`` when
+        absent."""
+        msg = cls._coerce_message(msg) if msg is not None else None
+        usage_metadata = getattr(msg, "usage_metadata", None) or {}
+        if not isinstance(usage_metadata, dict):
+            return 0, 0
+        return (
+            usage_metadata.get("input_tokens", 0),
+            usage_metadata.get("output_tokens", 0),
+        )
+
     @staticmethod
     def _coerce_message(msg: Any) -> Any:
         """Reconstruct a live LangChain message from a serialized dict.
@@ -585,7 +614,14 @@ class LangGraphAdapter(BaseAdapter):
         try:
             if type_hint in ("aimessage", "aimessagechunk", "ai", "assistant"):
                 tool_calls = msg.get("tool_calls") or []
+                usage_metadata = msg.get("usage_metadata")
                 try:
+                    if isinstance(usage_metadata, dict):
+                        return AIMessage(
+                            content=content,
+                            tool_calls=tool_calls,
+                            usage_metadata=usage_metadata,
+                        )
                     return AIMessage(content=content, tool_calls=tool_calls)
                 except Exception:  # noqa: BLE001 — malformed tool_calls; keep the text
                     return AIMessage(content=content)
@@ -797,12 +833,9 @@ class LangGraphAdapter(BaseAdapter):
                         else:
                             msg = value_messages
                         
-                        if msg:
-                            # Extract usage metadata
-                            usage_metadata = getattr(msg, "usage_metadata", {}) or {}
-                            if isinstance(usage_metadata, dict):
-                                input_tokens += usage_metadata.get("input_tokens", 0)
-                                output_tokens += usage_metadata.get("output_tokens", 0)
+                        msg_input, msg_output = self._usage_tokens(msg)
+                        input_tokens += msg_input
+                        output_tokens += msg_output
             
             # Add token counts to metadata
             if input_tokens > 0:
