@@ -18,6 +18,7 @@ from uaef.adapters.generic import GenericJSONAdapter
 from uaef.adapters.langfuse import LangfuseAdapter
 from uaef.adapters.agentcore import AgentCoreAdapter
 from uaef.adapters.strands import StrandsAdapter
+from uaef.adapters.tracekit import TracekitAdapter
 from uaef.adapters.invocation import (
     invoke_http_agent,
     invoke_bedrock_agent,
@@ -40,6 +41,7 @@ __all__ = [
     "LangfuseAdapter",
     "AgentCoreAdapter",
     "StrandsAdapter",
+    "TracekitAdapter",
     "invoke_http_agent",
     "invoke_bedrock_agent",
     "invoke_langfuse_trace",

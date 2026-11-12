@@ -92,6 +92,8 @@ server = []
 # DeepEval's AmazonBedrockModel (run DeepEval judge metrics on Bedrock instead
 # of OpenAI). Optional because aiobotocore pins botocore to a narrow window.
 deepeval-bedrock = ["aiobotocore>=2.13.0"]
+# TracekitAdapter: verify and read Tracekit's signed run bundles (.tkb).
+tracekit = ["tracekit-ai>=1.6.0"]
 notebooks = [
     "ipykernel>=6.31.0",
     "aiobotocore>=2.13.0",  # notebooks run DeepEval metrics on Bedrock
@@ -103,6 +105,7 @@ dev = [
     "hypothesis>=6.0.0",  # property-based tests (tests/test_client_sdk_parity.py)
     "moto>=5.0.0",  # mocked DynamoDB/S3 (tests/test_storage_*.py)
     "nbclient>=0.10.0",  # notebook smoke tests (tests/test_notebooks.py)
+    "tracekit-ai>=1.6.0",  # tests/test_tracekit_adapter.py (the 'tracekit' extra)
     "black>=23.0.0",
     "mypy>=1.0.0",
     "ruff>=0.1.0",

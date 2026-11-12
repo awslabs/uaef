@@ -19,6 +19,8 @@ custom schema mapping: [Adapters guide](../Guides/adapters.md).
 
 ::: uaef.adapters.agentcore
 
+::: uaef.adapters.tracekit
+
 ::: uaef.adapters.generic
 
 ::: uaef.adapters.invocation

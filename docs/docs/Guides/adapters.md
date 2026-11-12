@@ -13,6 +13,7 @@ UAEF provides built-in adapters for:
 - **Bedrock Agents**: AWS managed agents
 - **Langfuse**: Observability and tracing
 - **AgentCore**: Custom agent runtime
+- **Tracekit**: Signed, verifiable records of an agent's tool calls
 - **Generic JSON**: Any custom framework
 
 ## Architecture
@@ -443,6 +444,79 @@ trace = adapter.transform_to_canonical(
 print(f"Total spans: {len(trace.metadata.get('spans', []))}")
 print(f"LLM generations: {len(trace.metadata.get('generations', []))}")
 ```
+
+## Tracekit Integration
+
+### Overview
+
+[Tracekit](https://github.com/Cygnux-Labs/Tracekit) records each tool call an agent makes as a signed, hash-chained record, written by a signer the agent does not control, and exports a run as a bundle (`.tkb`) that verifies offline. The `TracekitAdapter` verifies the bundle with Tracekit's own verifier before it maps anything, so you evaluate a record nobody edited after it was signed, not a log the agent could have changed.
+
+Install the optional extra:
+
+```bash
+pip install "uaef[tracekit]"
+```
+
+### Basic Usage
+
+```python
+from uaef.adapters import get_adapter
+
+adapter = get_adapter("tracekit")
+trace = adapter.transform_to_canonical({
+    "bundle_path": "run.tkb",     # tracekit export --v2 --run RUN -o run.tkb
+    "trust_path": "trust.json",   # tracekit signer trust -o trust.json
+})
+
+print(trace.metadata["tracekit"]["verification"]["reason"])
+# VERIFIED: 6 tool calls in 18 signed records, none changed, removed or added after signing.
+```
+
+A bundle that does not verify raises `AdapterTransformationError` with the verifier's reason, for example `TAMPERED at event 14: its content was changed after it was signed`. To map it anyway, with the failure recorded in the metadata, pass `get_adapter("tracekit", {"allow_unverified": True})`.
+
+### What Maps
+
+| Tracekit | UAEF |
+|---|---|
+| Each signed `policy.decision`, in run order | One `ToolCall`: `name` (the tool) and `timestamp` (the record's time) |
+| The verifier's verdict | `metadata["tracekit"]["verification"]`: `verified`, `integrity`, `assurance`, `reason`, `summary` (the short result `tracekit verify` prints), `verifier` |
+| Each call's decision (`allow`, `flag`, `ask`, `deny`) and rule ids; a person's or an agent approver's answer to a held call; the result's `ok` and its output commitment; the signed record it came from | `metadata["tracekit"]["calls"]`: one label per tool call, in `trace.tool_calls` order |
+| `run.registered` | `session_id`; `metadata["tracekit"]["agent"]` |
+
+Not mapped: a bundle holds commitments (salted hashes) to content, never the content, so `messages` stay empty, `ToolCall.arguments` empty and `ToolCall.result` and `error` unset (a failed call's label has `ok: False`). Token counts, cost and latency are not in the records. `ToolCall` has no metadata field, so the per-call labels are in the trace's metadata.
+
+### Using the Labels as Ground Truth
+
+The labels are the policy's decisions and people's answers, recorded when the agent ran, so they can serve as ground truth without a judge. For example, score the agent's tool calls against the ones it was permitted to make:
+
+```python
+from uaef.api import evaluate
+from uaef.models import GroundTruth
+
+calls = trace.metadata["tracekit"]["calls"]
+permitted = [
+    tool_call
+    for tool_call, label in zip(trace.tool_calls, calls)
+    if label["decision"] in ("allow", "flag")
+    or label.get("approval", {}).get("decision") == "approve"
+]
+result = evaluate(
+    trace=trace,
+    ground_truth=GroundTruth(expected_tool_calls=permitted),
+    metrics=["tool_selection_accuracy"],
+)
+# tool_selection_accuracy: 0.67 (Jaccard 0.67: 4 matched, 2 extra):
+# one call was denied by rule SHOP-D001 and one refund was rejected by a person.
+```
+
+`EvaluationResult` carries the `trace_id` but not the trace's metadata, so keep the verdict next to the score when you report it:
+
+```python
+verification = trace.metadata["tracekit"]["verification"]
+print(f"{result.overall_score:.2f} on run {trace.metadata['tracekit']['run_id']}: {verification['reason']}")
+```
+
+The notebook `notebooks/12_tracekit.ipynb` runs these steps on a sample bundle, with no AWS account.
 
 ## Creating Custom Adapters
 
