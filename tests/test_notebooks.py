@@ -29,6 +29,7 @@ NOTEBOOKS = [
     ("04_json.ipynb", []),
     ("07_langfuse.ipynb", []),
     ("11_pii_detection.ipynb", []),
+    ("12_tracekit.ipynb", []),
     ("09_single_agent_single_turn_evaluation_demo.ipynb", []),
     ("01_langgraph_ragas_deepeval.ipynb", []),
     ("02_langchain.ipynb", []),

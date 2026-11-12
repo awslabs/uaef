@@ -68,6 +68,12 @@ class AdapterRegistry:
             self.register("generic", GenericJSONAdapter)
         except ImportError:
             pass
+
+        try:
+            from uaef.adapters.tracekit import TracekitAdapter
+            self.register("tracekit", TracekitAdapter)
+        except ImportError:
+            pass
     
     def register(
         self,
