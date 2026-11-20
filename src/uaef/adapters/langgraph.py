@@ -434,6 +434,18 @@ class LangGraphAdapter(BaseAdapter):
             timestamp=datetime.now(timezone.utc)
         )
 
+    def _apply_tool_results(self, messages, pending: Dict[str, ToolCall]) -> None:
+        for raw in messages if isinstance(messages, list) else [messages]:
+            msg = self._coerce_message(raw)
+            if not isinstance(msg, ToolMessage):
+                continue
+            call = pending.pop(msg.tool_call_id, None)
+            if call is not None:
+                if msg.status == "error":
+                    call.error = str(msg.content)
+                else:
+                    call.result = msg.content
+
     def _transform_multi_agent(self, raw_data: Dict[str, Any]) -> MultiAgentTrace:
         """
         Transform to MultiAgentTrace by splitting stream events per agent node.
@@ -449,6 +461,7 @@ class LangGraphAdapter(BaseAdapter):
         # Build per-agent data by scanning events
         agent_messages: Dict[str, List[Message]] = {name: [] for name in agent_node_names}
         agent_tool_calls: Dict[str, List[ToolCall]] = {name: [] for name in agent_node_names}
+        pending: Dict[str, ToolCall] = {}
         coordination_events: List[CoordinationEvent] = []
         activation_order: List[str] = []
         # HumanMessages are prepended to the first agent that activates
@@ -468,6 +481,10 @@ class LangGraphAdapter(BaseAdapter):
                 if not isinstance(value_messages, list):
                     value_messages = [value_messages]
 
+                if key == tool_node_name:
+                    self._apply_tool_results(value_messages, pending)
+                    continue
+
                 # Collect HumanMessages before any agent fires
                 for msg in value_messages:
                     if isinstance(msg, HumanMessage) and not first_agent_populated:
@@ -479,7 +496,7 @@ class LangGraphAdapter(BaseAdapter):
 
                 if key in agent_node_names:
                     activation_order.append(key)
-                    msg = value_messages[-1]
+                    msg = self._coerce_message(value_messages[-1])
 
                     if not first_agent_populated and human_messages:
                         agent_messages[key].extend(human_messages)
@@ -498,6 +515,8 @@ class LangGraphAdapter(BaseAdapter):
                             )
                             message_tool_calls.append(tool_call)
                             agent_tool_calls[key].append(tool_call)
+                            if tc.get("id"):
+                                pending[tc["id"]] = tool_call
 
                     agent_messages[key].append(Message(
                         role=MessageRole.ASSISTANT,
@@ -593,7 +612,8 @@ class LangGraphAdapter(BaseAdapter):
                 return HumanMessage(content=content)
             if type_hint in ("toolmessage", "tool"):
                 return ToolMessage(
-                    content=content, tool_call_id=msg.get("tool_call_id", "") or ""
+                    content=content, tool_call_id=msg.get("tool_call_id", "") or "",
+                    status=msg.get("status", "success"),
                 )
             if type_hint in ("systemmessage", "system"):
                 return SystemMessage(content=content)
@@ -696,10 +716,8 @@ class LangGraphAdapter(BaseAdapter):
             agent_node_name = raw_data.get("agent_node_name", "agent")
             tool_node_name = raw_data.get("tool_node_name", "tools")
             
-            # Track tool calls and their results
-            tool_call_map = {}  # Maps tool call index to ToolCall object
-            tool_call_index = 0
-            
+            pending: Dict[str, ToolCall] = {}
+
             for event in stream_events:
                 if not isinstance(event, dict):
                     continue
@@ -730,20 +748,19 @@ class LangGraphAdapter(BaseAdapter):
                                         arguments=tc.get("args", {}),
                                         timestamp=datetime.now(timezone.utc)
                                     )
-                                    tool_call_map[tool_call_index] = tool_call
+                                    if tc.get("id"):
+                                        pending[tc["id"]] = tool_call
                                     tool_calls.append(tool_call)
-                                    tool_call_index += 1
+
                     
                     # Extract tool results from tool node
-                    elif key == tool_node_name and value:
-                        # Tool node output contains results
-                        # Try to match with previous tool calls
-                        # Note: This is a simplified approach; actual matching may need more logic
-                        if isinstance(value, dict):
-                            # Store as result for the most recent tool call
-                            if tool_calls:
-                                tool_calls[-1].result = value
-            
+                    elif key == tool_node_name and isinstance(value, dict):
+                        if "messages" in value:
+                            self._apply_tool_results(value["messages"], pending)
+                        elif tool_calls:
+                            # Custom tool nodes may return an opaque state update.
+                            tool_calls[-1].result = value
+
             return tool_calls
             
         except Exception as e:
