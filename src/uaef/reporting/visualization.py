@@ -178,8 +178,9 @@ class VisualizationEngine:
         
         Returns:
             For interactive=True: HTML string
-            For interactive=False: PNG image bytes
-        
+            For interactive=False: image bytes (PNG unless
+            rcParams["savefig.format"] says otherwise)
+
         Raises:
             ValueError: If chart type is not supported
             ImportError: If required library is not available
@@ -337,7 +338,7 @@ class VisualizationEngine:
         from io import BytesIO
         buf = BytesIO()
         plt.tight_layout()
-        plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+        plt.savefig(buf, dpi=150, bbox_inches='tight')
         plt.close(fig)
         buf.seek(0)
         return buf.read()
@@ -460,7 +461,7 @@ class VisualizationEngine:
         from io import BytesIO
         buf = BytesIO()
         plt.tight_layout()
-        plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+        plt.savefig(buf, dpi=150, bbox_inches='tight')
         plt.close(fig)
         buf.seek(0)
         return buf.read()
@@ -553,7 +554,7 @@ class VisualizationEngine:
         from io import BytesIO
         buf = BytesIO()
         plt.tight_layout()
-        plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+        plt.savefig(buf, dpi=150, bbox_inches='tight')
         plt.close(fig)
         buf.seek(0)
         return buf.read()
@@ -662,7 +663,7 @@ class VisualizationEngine:
         from io import BytesIO
         buf = BytesIO()
         plt.tight_layout()
-        plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+        plt.savefig(buf, dpi=150, bbox_inches='tight')
         plt.close(fig)
         buf.seek(0)
         return buf.read()
@@ -748,7 +749,7 @@ class VisualizationEngine:
         from io import BytesIO
         buf = BytesIO()
         plt.tight_layout()
-        plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+        plt.savefig(buf, dpi=150, bbox_inches='tight')
         plt.close(fig)
         buf.seek(0)
         return buf.read()
@@ -863,7 +864,7 @@ class VisualizationEngine:
         from io import BytesIO
         buf = BytesIO()
         plt.tight_layout()
-        plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+        plt.savefig(buf, dpi=150, bbox_inches='tight')
         plt.close(fig)
         buf.seek(0)
         return buf.read()
@@ -966,7 +967,7 @@ class VisualizationEngine:
         from io import BytesIO
         buf = BytesIO()
         plt.tight_layout()
-        plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+        plt.savefig(buf, dpi=150, bbox_inches='tight')
         plt.close(fig)
         buf.seek(0)
         return buf.read()
@@ -1052,7 +1053,7 @@ class VisualizationEngine:
         from io import BytesIO
         buf = BytesIO()
         plt.tight_layout()
-        plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+        plt.savefig(buf, dpi=150, bbox_inches='tight')
         plt.close(fig)
         buf.seek(0)
         return buf.read()
@@ -1113,15 +1114,11 @@ class VisualizationEngine:
             if not MATPLOTLIB_AVAILABLE:
                 raise ImportError("matplotlib is required for PNG/SVG output")
             
-            # Generate with matplotlib
-            image_bytes = self.generate_chart(chart, interactive=False)
-            
-            if format == "svg":
-                # Re-generate as SVG
-                # This is a simplified approach - in production, you'd want to
-                # modify the matplotlib generation to support SVG directly
-                raise NotImplementedError("SVG format not yet implemented")
-            
+            # Generators save without an explicit format, so matplotlib
+            # picks it up from rcParams["savefig.format"] (default "png").
+            with matplotlib.rc_context({"savefig.format": format}):
+                image_bytes = self.generate_chart(chart, interactive=False)
+
             Path(output_path).write_bytes(image_bytes)
             logger.info(f"Saved {format.upper()} chart to {output_path}")
         
