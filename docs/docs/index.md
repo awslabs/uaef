@@ -28,6 +28,7 @@ print(f"Passed: {result.passed}")
 | Understand traces, dimensions, and modes | [Core Concepts](Getting-Started/core-concepts.md) |
 | See every metric | [Metrics Catalog](Guides/metrics-catalog.md) |
 | Connect my agent framework | [Adapters](Guides/adapters.md) |
+| Build a test dataset and harness from an agent's source | [Generating an Eval Suite](Guides/generating-an-eval-suite.md) |
 | Batch, CI/CD gating, production monitoring | [Use Cases](Guides/use-cases.md) |
 | Track experiments and catch regressions | [Experiments](Guides/experiments.md) |
 | Write my own metric | [Custom Metrics](Guides/custom-metrics.md) |
