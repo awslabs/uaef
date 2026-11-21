@@ -1,0 +1,2716 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Universal Agent Evaluation Framework — framework-agnostic evaluation for AI agents">
+      
+      
+      
+        <link rel="canonical" href="https://awslabs.github.io/uaef/Advanced/multi-turn-evaluation-workflow/">
+      
+      
+        <link rel="prev" href="../../Guides/hitl/">
+      
+      
+        <link rel="next" href="../multi-turn-metrics/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Multi-Turn Evaluation Workflow - UAEF</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#multi-turn-evaluation-workflow" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="UAEF" class="md-header__button md-logo" aria-label="UAEF" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            UAEF
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Multi-Turn Evaluation Workflow
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/awslabs/uaef" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    awslabs/uaef
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  
+  Home
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../Getting-Started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../Guides/metrics-catalog/" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Advanced
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../API-Reference/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../Contributing/contributing/" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="UAEF" class="md-nav__button md-logo" aria-label="UAEF" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    UAEF
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/awslabs/uaef" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    awslabs/uaef
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Home
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UAEF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Getting-Started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Getting-Started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started with UAEF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Getting-Started/core-concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Guides/metrics-catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Guides/adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapter Integration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Guides/ground-truth-datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ground Truth Dataset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Guides/use-cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use Cases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Guides/experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment Workflow Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Guides/persistence-and-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Persistence and Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Guides/custom-metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Metrics Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Guides/hitl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-Loop (HITL) Workflow Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Advanced
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Turn Evaluation Workflow
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Turn Evaluation Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Components
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-turn-payload-notebook-side" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Turn Payload (notebook side)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-adapter-langgraphadaptertransform_to_canonical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Adapter (LangGraphAdapter.transform_to_canonical)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Public API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Public API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#evaluatetrace-ground_truthnone-metricsnone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        evaluate(trace, ground_truth=None, metrics=None, ...)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch_evaluatetraces-ground_truthsnone-metricsnone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        batch_evaluate(traces, ground_truths=None, metrics=None, ...)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-evaluators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Evaluators
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Evaluators">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#evaluatetrace-single-turn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        evaluate(trace, ...) (single-turn)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#evaluate_multi_turnper_turn_traces-full_trace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        evaluate_multi_turn(per_turn_traces, full_trace, ...)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#default-dimension-weights" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default dimension weights
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-multi-turn-ground-truth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building multi-turn ground truth
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notebook-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notebook Usage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Notebook Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#single-turn-batch-one-turn-per-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single-turn batch (one turn per session)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-turn-batch-multiple-turns-per-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-turn batch (multiple turns per session)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#result-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Result Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#per-turn-reasoning-on-aggregated-metricscores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-turn reasoning on aggregated MetricScores
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Locations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multi-turn-metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Turn Conversation Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../use-case-specific-metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use-Case-Specific Metrics (opt-in)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/llm_judge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM Judge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/hitl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/integrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integrations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../API-Reference/simulator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Contributing/contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../Contributing/development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Components
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-turn-payload-notebook-side" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Turn Payload (notebook side)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-adapter-langgraphadaptertransform_to_canonical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Adapter (LangGraphAdapter.transform_to_canonical)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Public API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Public API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#evaluatetrace-ground_truthnone-metricsnone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        evaluate(trace, ground_truth=None, metrics=None, ...)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#batch_evaluatetraces-ground_truthsnone-metricsnone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        batch_evaluate(traces, ground_truths=None, metrics=None, ...)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-evaluators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Evaluators
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Evaluators">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#evaluatetrace-single-turn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        evaluate(trace, ...) (single-turn)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#evaluate_multi_turnper_turn_traces-full_trace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        evaluate_multi_turn(per_turn_traces, full_trace, ...)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#default-dimension-weights" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default dimension weights
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-multi-turn-ground-truth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building multi-turn ground truth
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notebook-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notebook Usage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Notebook Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#single-turn-batch-one-turn-per-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single-turn batch (one turn per session)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-turn-batch-multiple-turns-per-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-turn batch (multiple turns per session)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#result-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Result Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#per-turn-reasoning-on-aggregated-metricscores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-turn reasoning on aggregated MetricScores
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Locations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="multi-turn-evaluation-workflow">Multi-Turn Evaluation Workflow</h1>
+<p>This is the <strong>complete multi-turn evaluation workflow</strong>, end to end: building per-turn
+payloads while the agent runs, grouping them into sessions with the adapter, dispatching to
+an evaluator, and reading the per-turn breakdown back out of the result.</p>
+<div class="admonition note">
+<p class="admonition-title">You only need this for multi-turn conversations</p>
+<p>For a single-turn evaluation, none of the machinery below applies. Build one <code>AgentTrace</code>
+and pass it straight to <code>evaluate()</code> — no turn payloads, no <code>session_id</code>, no <code>turn_id</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">result</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">trace</span><span class="o">=</span><span class="n">trace</span><span class="p">,</span> <span class="n">ground_truth</span><span class="o">=</span><span class="n">ground_truth</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
+</code></pre></div>
+<p><code>session_id</code> is an optional field on <code>AgentTrace</code> (defaults to <code>None</code>) and <code>turn_id</code> is
+not an <code>AgentTrace</code> field at all — it exists only in the turn-payload format described
+below. See <a href="../../Getting-Started/quickstart/">Quickstart</a> for the single-turn path.</p>
+</div>
+<p>The multi-turn path is uniform across single-agent and multi-agent conversations — the
+adapter normalizes input shapes, and <code>evaluate()</code> / <code>batch_evaluate()</code> dispatch to the right
+evaluator automatically.</p>
+<h2 id="architecture">Architecture</h2>
+<pre class="mermaid"><code>flowchart LR
+    A[Run agent&lt;br/&gt;collect events per turn] --&gt; B[Build turn payloads&lt;br/&gt;list of dicts]
+    B --&gt; C[Adapter:&lt;br/&gt;transform_to_canonical]
+    C --&gt; D[List of session dicts:&lt;br/&gt;per_turn_traces + full_trace]
+    D --&gt; E[evaluate or&lt;br/&gt;batch_evaluate]
+    E --&gt; F[EvaluationResult&lt;br/&gt;with per-turn breakdown]
+
+    style C fill:#e8f4fd,stroke:#2196F3
+    style E fill:#e8f5e9,stroke:#4CAF50</code></pre>
+<h2 id="components">Components</h2>
+<h3 id="1-turn-payload-notebook-side">1. Turn Payload (notebook side)</h3>
+<p>A <strong>per-turn payload</strong> is a flat dict capturing everything the adapter needs to know about one turn of one session. The notebook builds one payload per turn while running the agent, then passes the list of payloads to the adapter.</p>
+<p>This format exists to carry multi-turn structure. <code>session_id</code> and <code>turn_id</code> are what let the
+adapter group turns into conversations and order them — which is why they are required here
+and irrelevant everywhere else.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+    <span class="s2">&quot;session_id&quot;</span><span class="p">:</span> <span class="s2">&quot;session_xyz&quot;</span><span class="p">,</span>      <span class="c1"># required, groups turns into conversations</span>
+    <span class="s2">&quot;turn_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>                      <span class="c1"># required, orders turns within a session</span>
+    <span class="s2">&quot;stream_events&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">],</span>            <span class="c1"># required, raw LangGraph events for this turn</span>
+    <span class="s2">&quot;latency&quot;</span><span class="p">:</span> <span class="mf">1.23</span><span class="p">,</span>                   <span class="c1"># optional, per-turn latency in seconds</span>
+    <span class="s2">&quot;input_tokens&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>               <span class="c1"># optional, per-turn input tokens</span>
+    <span class="s2">&quot;output_tokens&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>              <span class="c1"># optional, per-turn output tokens</span>
+    <span class="s2">&quot;cost_usd&quot;</span><span class="p">:</span> <span class="mf">0.0015</span><span class="p">,</span>                <span class="c1"># optional, per-turn cost</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Field reference:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>session_id</code></td>
+<td>yes, in a turn payload</td>
+<td>Identifier shared by all turns in a conversation. The adapter groups payloads with the same <code>session_id</code> into one session dict. Not needed when passing an <code>AgentTrace</code> directly — the <code>AgentTrace.session_id</code> field is optional and defaults to <code>None</code>.</td>
+</tr>
+<tr>
+<td><code>turn_id</code></td>
+<td>yes, in a turn payload</td>
+<td>Integer ordering turns within a session. The adapter sorts turns by this value before building the trace. Exists only in this format; it is not a field on <code>AgentTrace</code>.</td>
+</tr>
+<tr>
+<td><code>stream_events</code></td>
+<td>yes</td>
+<td>Raw LangGraph stream events for this turn. Should include a <code>__human__</code> synthetic event at index 0 so the adapter assigns USER role correctly.</td>
+</tr>
+<tr>
+<td><code>latency</code></td>
+<td>no</td>
+<td>Wall-clock time in seconds for this turn. Used by <code>latency_score</code> and <code>throughput</code> per-turn.</td>
+</tr>
+<tr>
+<td><code>input_tokens</code></td>
+<td>no</td>
+<td>Tokens consumed by the LLM for this turn. Used by <code>token_efficiency</code>.</td>
+</tr>
+<tr>
+<td><code>output_tokens</code></td>
+<td>no</td>
+<td>Tokens produced by the LLM for this turn. Used by <code>token_efficiency</code>.</td>
+</tr>
+<tr>
+<td><code>cost_usd</code></td>
+<td>no</td>
+<td>Estimated dollar cost for this turn. Used by <code>cost_efficiency</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cardinality rules:</strong></p>
+<ul>
+<li>One payload = one turn. A session with N turns produces N payloads, all with the same <code>session_id</code> and <code>turn_id</code> ranging from 1..N.</li>
+<li>A single-turn session is expressible as a list with one payload (<code>turn_id=1</code>). That is only worth doing when you are batching single- and multi-turn sessions together, as in the mixed example below — for a lone single-turn evaluation, pass the <code>AgentTrace</code> directly instead.</li>
+<li>Multiple sessions in one batch: just include payloads for all sessions in the same list. The adapter groups them automatically.</li>
+</ul>
+<p><strong>Example: mixed batch with single-turn and multi-turn sessions</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">turn_payloads</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># session_a: single-turn</span>
+    <span class="p">{</span><span class="s2">&quot;session_id&quot;</span><span class="p">:</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;turn_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;stream_events&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]},</span>
+    <span class="c1"># session_b: 3-turn conversation</span>
+    <span class="p">{</span><span class="s2">&quot;session_id&quot;</span><span class="p">:</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;turn_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;stream_events&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]},</span>
+    <span class="p">{</span><span class="s2">&quot;session_id&quot;</span><span class="p">:</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;turn_id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;stream_events&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]},</span>
+    <span class="p">{</span><span class="s2">&quot;session_id&quot;</span><span class="p">:</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;turn_id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;stream_events&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]},</span>
+    <span class="c1"># session_c: single-turn</span>
+    <span class="p">{</span><span class="s2">&quot;session_id&quot;</span><span class="p">:</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;turn_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;stream_events&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]},</span>
+<span class="p">]</span>
+
+<span class="n">sessions</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">transform_to_canonical</span><span class="p">(</span><span class="n">turn_payloads</span><span class="p">)</span>
+<span class="c1"># Returns 3 session dicts (one per unique session_id)</span>
+</code></pre></div>
+<h3 id="2-adapter-langgraphadaptertransform_to_canonical">2. Adapter (<code>LangGraphAdapter.transform_to_canonical</code>)</h3>
+<p>Single function, dual input shape:</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dict</code> (single trace)</td>
+<td><code>AgentTrace</code> or <code>MultiAgentTrace</code></td>
+</tr>
+<tr>
+<td><code>list[dict]</code> (multi-turn payloads)</td>
+<td><code>list[dict]</code> of session dicts</td>
+</tr>
+</tbody>
+</table>
+<p>For list input, the adapter:
+1. Groups turn payloads by <code>session_id</code> (preserving first-seen order)
+2. Sorts turns within each session by <code>turn_id</code>
+3. Builds a per-turn trace for each turn (<code>AgentTrace</code> for single-agent topology, <code>MultiAgentTrace</code> when more than one agent node fires) with pre-recorded latency/tokens/cost
+4. Builds a <code>full_trace</code> per session of the same type, concatenating events across turns</p>
+<p>Output shape:
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;session_id&quot;</span><span class="p">:</span> <span class="s2">&quot;session_xyz&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;per_turn_traces&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">AgentTrace</span><span class="p">,</span> <span class="n">AgentTrace</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>  <span class="c1"># or MultiAgentTrace</span>
+        <span class="s2">&quot;full_trace&quot;</span><span class="p">:</span> <span class="n">AgentTrace</span><span class="p">,</span>                           <span class="c1"># or MultiAgentTrace</span>
+    <span class="p">},</span>
+    <span class="o">...</span>
+<span class="p">]</span>
+</code></pre></div></p>
+<p>A single-turn session is represented as a session dict with <code>per_turn_traces</code> of length 1. Mixing single-agent and multi-agent turns within the same session raises <code>AdapterTransformationError</code> — the topology has to be consistent across the conversation.</p>
+<h3 id="3-public-api">3. Public API</h3>
+<h4 id="evaluatetrace-ground_truthnone-metricsnone"><code>evaluate(trace, ground_truth=None, metrics=None, ...)</code></h4>
+<p>Accepts:
+- <code>AgentTrace</code> → <code>SingleAgentEvaluator.evaluate()</code>
+- <code>MultiAgentTrace</code> → <code>MultiAgentEvaluator.evaluate()</code>
+- Session dict (<code>{per_turn_traces, full_trace}</code>) → routes to whichever evaluator matches <code>full_trace</code>'s type</p>
+<p>Raises <code>ValueError</code> for list input — use <code>batch_evaluate()</code> for multi-session.</p>
+<h4 id="batch_evaluatetraces-ground_truthsnone-metricsnone"><code>batch_evaluate(traces, ground_truths=None, metrics=None, ...)</code></h4>
+<p>Accepts a list where each element is either:
+- An <code>AgentTrace</code> / <code>MultiAgentTrace</code> → uses parallel <code>OfflineEvaluator</code>
+- A session dict → routes to the matching evaluator's <code>evaluate_multi_turn()</code> per item</p>
+<p>If any session dicts are present, each item is dispatched sequentially to the right evaluator (<code>SingleAgentEvaluator</code> for <code>AgentTrace</code> sessions, <code>MultiAgentEvaluator</code> for <code>MultiAgentTrace</code> sessions). Otherwise traces use the parallel offline path.</p>
+<h3 id="4-evaluators">4. Evaluators</h3>
+<p>Multi-turn evaluation is split across the two evaluators by trace type:</p>
+<table>
+<thead>
+<tr>
+<th>Trace type</th>
+<th>Evaluator</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AgentTrace</code></td>
+<td><code>SingleAgentEvaluator</code></td>
+</tr>
+<tr>
+<td><code>MultiAgentTrace</code></td>
+<td><code>MultiAgentEvaluator</code></td>
+</tr>
+</tbody>
+</table>
+<p>Both subclasses inherit a single shared loop, <code>BaseEvaluator._run_multi_turn</code>, so the per-turn → average → full-trace flow is identical. The subclass-specific bits are:</p>
+<ul>
+<li><strong>Type validation.</strong> <code>SingleAgentEvaluator.evaluate_multi_turn</code> only accepts <code>AgentTrace</code>. <code>MultiAgentEvaluator.evaluate_multi_turn</code> only accepts <code>MultiAgentTrace</code>. Mismatches raise <code>ValueError</code>.</li>
+<li><strong>Default dimension weights and thresholds.</strong> Each subclass keeps its own defaults (multi-agent gives more weight to the <code>multi_agent</code> dimension).</li>
+<li><strong>Metric registry.</strong> The shared loop calls <code>self._get_metrics_to_calculate</code>, which each subclass implements. In practice both pull from the same global registry, but that hook is what lets a subclass narrow the metric set if needed.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title"><code>MultiTurnEvaluator</code> is not the multi-turn path</p>
+<p><code>uaef.evaluation</code> also exports a <code>MultiTurnEvaluator</code>, which offers a conversation-first
+interface (<code>evaluate_conversation(messages=...)</code>, plus an <code>evaluate(trace=...)</code> wrapper).
+Nothing routes to it: <code>evaluate()</code> / <code>batch_evaluate()</code> only ever construct
+<code>SingleAgentEvaluator</code>, <code>MultiAgentEvaluator</code>, or <code>OfflineEvaluator</code>, and no caller in
+the library, the service, or the notebooks instantiates it. Multi-turn evaluation goes
+through the two evaluators in the table above. Treat <code>MultiTurnEvaluator</code> as an
+alternative entry point you must wire up yourself.</p>
+</div>
+<h4 id="evaluatetrace-single-turn"><code>evaluate(trace, ...)</code> (single-turn)</h4>
+<p>Runs all requested metrics on the input <code>AgentTrace</code> or <code>MultiAgentTrace</code>:</p>
+<ol>
+<li><strong>Metric selection</strong> — the evaluator picks metrics from the registry based on
+   <code>metric_set</code>, or uses everything available for its configured dimensions.</li>
+<li><strong>Dependency resolution</strong> — metrics with dependencies run in two phases. Independent
+   metrics go first; dependent ones follow once their inputs exist in metadata. For example
+   <code>token_efficiency</code> and <code>cost_efficiency</code> need <code>quality_score</code>, and <code>turn_efficiency</code>
+   needs <code>completeness_score</code>.</li>
+<li><strong>Parallel execution</strong> — deterministic metrics run in a <code>ThreadPoolExecutor</code>, LLM-judge
+   metrics via <code>asyncio.gather</code>.</li>
+<li><strong>Metadata propagation</strong> — after phase 1, quality scores are averaged and written to
+   <code>trace.metadata["quality_score"]</code> for phase 2 metrics to consume.</li>
+<li><strong>Dimension aggregation</strong> — scores are grouped by dimension and averaged, with <code>None</code>
+   scores excluded rather than counted as zero, then weighted.</li>
+<li><strong>Threshold check</strong> — each dimension score is compared against its threshold to produce
+   the overall pass/fail.</li>
+</ol>
+<h4 id="evaluate_multi_turnper_turn_traces-full_trace"><code>evaluate_multi_turn(per_turn_traces, full_trace, ...)</code></h4>
+<ol>
+<li>
+<p><strong>Type validation.</strong> Subclass-specific — see table above.</p>
+</li>
+<li>
+<p><strong>Per-turn phase</strong> — for each <code>per_turn_trace</code>, run per-turn-eligible metrics:</p>
+</li>
+<li>Tool: <code>tool_selection_accuracy</code>, <code>tool_sequence_correctness</code>, <code>parameter_quality</code>, <code>mcp_compliance</code></li>
+<li>Quality: <code>answer_relevance</code>, <code>completeness</code>, <code>hallucination_score</code>, <code>accuracy</code></li>
+<li>Safety: <code>safety_score</code>, <code>bias_score</code>, <code>prompt_injection_detection</code>, <code>toxicity_score</code></li>
+<li>Reasoning: <code>chain_of_thought_coherence</code>, <code>logical_consistency</code>, <code>reasoning_step_correctness</code>, <code>fallacy_detection</code></li>
+<li>Performance (per-turn): <code>latency_score</code>, <code>token_efficiency</code>, <code>cost_efficiency</code>, <code>throughput</code></li>
+<li>Multi-agent (only when traces are <code>MultiAgentTrace</code>): <code>agent_utilization</code>, <code>delegation_quality</code>, <code>workflow_completion</code>, <code>coordination_efficiency</code> — each metric guards on <code>isinstance(trace, MultiAgentTrace)</code> and skips with <code>score=None</code> on plain <code>AgentTrace</code>.</li>
+</ol>
+<p>Each turn gets its own <code>GroundTruth</code> from <code>ground_truth.expected_arguments["per_turn_expected"][i]</code> and <code>["per_turn_tools"][i]</code>.</p>
+<ol>
+<li>
+<p><strong>Aggregation</strong> — average per-turn scores across all turns. Null scores are excluded from the average. Each averaged <code>MetricScore</code> keeps every turn's individual score and judge reasoning in <code>metric_score.metadata["per_turn"]</code> and renders them into the human-readable <code>metric_score.reasoning</code> string, so you can drill into why a turn pulled the average down without re-running anything.</p>
+</li>
+<li>
+<p><strong>Full-trace phase</strong> — run full-trace-only metrics on <code>full_trace</code>:</p>
+</li>
+<li>Multi-turn (full-trace): <code>context_retention</code>, <code>coherence</code>, <code>conversation_completeness</code>, <code>turn_efficiency</code>, <code>role_adherence</code>, <code>holistic_llm_judge</code>, <code>user_satisfaction</code>, <code>sentiment</code>, <code>agent_tone</code>, <code>naturalness</code>, <code>instruction_compliance</code>, <code>optimum_turns</code> — these read <code>trace.messages</code>, which exists on both <code>AgentTrace</code> and <code>MultiAgentTrace</code> (the multi-agent version is a computed property aggregating sub-agent messages in order). The AMACE-derived additions (<code>role_adherence</code> onward) evaluate the conversation as a whole — judging persona consistency, conversational arc, and instruction compliance across all turns. See <a href="../multi-turn-metrics/">Multi-Turn Metrics</a> for definitions and ground-truth requirements.</li>
+<li>
+<p>Use-case-specific (opt-in, full-trace): <code>containment</code>, <code>resolution</code> — contact-center metrics. Not registered by default; call <code>register_use_case_specific_metrics()</code> once if you want them. When registered they route through the same full-trace phase as the rest. See <a href="../use-case-specific-metrics/">Use-Case-Specific Metrics</a>.</p>
+</li>
+<li>
+<p><strong>Combine</strong> — merge per-turn averages + full-trace scores into a single <code>EvaluationResult</code> with <code>metadata["per_turn"]</code>, <code>metadata["per_turn_averages"]</code>, and <code>metadata["is_multi_agent"]</code> populated.</p>
+</li>
+</ol>
+<h4 id="default-dimension-weights">Default dimension weights</h4>
+<p>Each evaluator declares its own defaults, overridable per call via <code>dimension_weights=</code> and
+<code>thresholds=</code>.</p>
+<p>Pass weights and thresholds keyed by dimension name exactly as it appears in
+<code>DimensionResult.dimension_name</code> — Title Case with spaces, as in the table below.</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>SingleAgent</th>
+<th>MultiAgent</th>
+<th>MultiTurn</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tool Calling</td>
+<td>0.25</td>
+<td>0.20</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Response Quality</td>
+<td>0.25</td>
+<td>0.20</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Responsible AI</td>
+<td>0.20</td>
+<td>0.15</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td>0.10</td>
+<td>0.10</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Multi-Turn</td>
+<td>0.10</td>
+<td>0.10</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>Multi-Agent</td>
+<td>—</td>
+<td>0.20</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Reasoning</td>
+<td>0.10</td>
+<td>0.05</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><code>MultiAgentEvaluator</code> shifts weight onto the <code>multi_agent</code> dimension;
+<code>MultiTurnEvaluator</code> scores the <code>multi_turn</code> dimension exclusively.</p>
+<h2 id="building-multi-turn-ground-truth">Building multi-turn ground truth</h2>
+<p><code>uaef.data.ground_truth.build_multi_turn_ground_truth(turns, events=...)</code> assembles the
+per-turn arrays the evaluator expects:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">uaef.data.ground_truth</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_multi_turn_ground_truth</span>
+
+<span class="n">mt_ground_truth</span> <span class="o">=</span> <span class="n">build_multi_turn_ground_truth</span><span class="p">(</span><span class="n">turns</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">all_events</span><span class="p">)</span>
+</code></pre></div>
+<p>It populates:</p>
+<ul>
+<li><code>expected_arguments["per_turn_expected"]</code> — expected output, one entry per turn</li>
+<li><code>expected_arguments["per_turn_tools"]</code> — expected tool calls, one entry per turn</li>
+</ul>
+<p>The per-turn phase reads index <code>i</code> for turn <code>i</code>, falling back to the overall
+<code>ground_truth.expected_output</code> when a turn has no entry.</p>
+<p><code>turns</code> is a list of per-turn dicts grouped by <code>session_id</code>, each carrying at minimum the
+user <code>query</code> plus that turn's expected output and tool calls. The worked example builds them
+from a spreadsheet — see <a href="https://github.com/awslabs/uaef/blob/main/notebooks/data/ground-truth-booking.xlsx"><code>notebooks/data/ground-truth-booking.xlsx</code></a> and
+<a href="../../Guides/ground-truth-datasets/">Ground Truth Datasets</a>.</p>
+<h2 id="notebook-usage">Notebook Usage</h2>
+<h3 id="single-turn-batch-one-turn-per-session">Single-turn batch (one turn per session)</h3>
+<div class="highlight"><pre><span></span><code><span class="n">turn_payloads</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">ground_truths</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gt_json</span><span class="p">):</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">parse_ground_truth_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">query_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">events</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">stream</span><span class="p">({</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">HumanMessage</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">query</span><span class="p">)]},</span> <span class="n">run_config</span><span class="p">,</span> <span class="n">stream_mode</span><span class="o">=</span><span class="s2">&quot;updates&quot;</span><span class="p">))</span>
+
+    <span class="n">turn_payloads</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+        <span class="s2">&quot;session_id&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;batch_booking_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;turn_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;stream_events&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;__human__&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">HumanMessage</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">query</span><span class="p">)]}}]</span> <span class="o">+</span> <span class="n">events</span><span class="p">,</span>
+        <span class="s2">&quot;latency&quot;</span><span class="p">:</span> <span class="n">latency</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">gt</span> <span class="o">=</span> <span class="n">build_ground_truth</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">events</span><span class="p">)</span>
+    <span class="n">ground_truths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gt</span><span class="p">)</span>
+
+<span class="c1"># Adapter returns list of session dicts (one per session, each with 1 turn)</span>
+<span class="n">traces</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">transform_to_canonical</span><span class="p">(</span><span class="n">turn_payloads</span><span class="p">)</span>
+
+<span class="n">batch_results</span> <span class="o">=</span> <span class="n">batch_evaluate</span><span class="p">(</span><span class="n">traces</span><span class="o">=</span><span class="n">traces</span><span class="p">,</span> <span class="n">ground_truths</span><span class="o">=</span><span class="n">ground_truths</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="multi-turn-batch-multiple-turns-per-session">Multi-turn batch (multiple turns per session)</h3>
+<div class="highlight"><pre><span></span><code><span class="n">all_turn_payloads</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">mt_batch_gts</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">sid</span><span class="p">,</span> <span class="n">turns</span> <span class="ow">in</span> <span class="n">sessions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">all_events</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">turn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">turns</span><span class="p">):</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">turn</span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">])</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">stream</span><span class="p">({</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">HumanMessage</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">query</span><span class="p">)]},</span> <span class="n">session_config</span><span class="p">,</span> <span class="n">stream_mode</span><span class="o">=</span><span class="s2">&quot;updates&quot;</span><span class="p">))</span>
+        <span class="n">all_events</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">events</span><span class="p">)</span>
+
+        <span class="n">all_turn_payloads</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;session_id&quot;</span><span class="p">:</span> <span class="n">sid</span><span class="p">,</span>
+            <span class="s2">&quot;turn_id&quot;</span><span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;stream_events&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;__human__&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">HumanMessage</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">query</span><span class="p">)]}}]</span> <span class="o">+</span> <span class="n">events</span><span class="p">,</span>
+            <span class="s2">&quot;latency&quot;</span><span class="p">:</span> <span class="n">turn_latency</span><span class="p">,</span>
+        <span class="p">})</span>
+
+    <span class="n">mt_batch_gts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">build_multi_turn_ground_truth</span><span class="p">(</span><span class="n">turns</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">all_events</span><span class="p">))</span>
+
+<span class="c1"># Single adapter call groups all turns by session_id</span>
+<span class="n">mt_batch_traces</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">transform_to_canonical</span><span class="p">(</span><span class="n">all_turn_payloads</span><span class="p">)</span>
+
+<span class="n">mt_batch_results</span> <span class="o">=</span> <span class="n">batch_evaluate</span><span class="p">(</span><span class="n">traces</span><span class="o">=</span><span class="n">mt_batch_traces</span><span class="p">,</span> <span class="n">ground_truths</span><span class="o">=</span><span class="n">mt_batch_gts</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="result-structure">Result Structure</h2>
+<p><code>EvaluationResult</code> from <code>evaluate_multi_turn</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">result</span><span class="o">.</span><span class="n">overall_score</span>                  <span class="c1"># weighted aggregate</span>
+<span class="n">result</span><span class="o">.</span><span class="n">passed</span>                         <span class="c1"># bool</span>
+<span class="n">result</span><span class="o">.</span><span class="n">dimension_results</span>              <span class="c1"># per-dimension scores</span>
+<span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;per_turn&quot;</span><span class="p">]</span>           <span class="c1"># list of {turn, metric_scores, reasoning}</span>
+<span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;per_turn_averages&quot;</span><span class="p">]</span>  <span class="c1"># dict of metric_name -&gt; mean score</span>
+<span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;is_multi_agent&quot;</span><span class="p">]</span>     <span class="c1"># True for MultiAgentTrace sessions</span>
+</code></pre></div>
+<h3 id="per-turn-reasoning-on-aggregated-metricscores">Per-turn reasoning on aggregated <code>MetricScore</code>s</h3>
+<p>Each per-turn-eligible metric is calculated once per turn and then averaged. The averaged value lands on a single <code>MetricScore</code> inside the matching dimension. To make per-turn reasoning easy to inspect, that aggregated <code>MetricScore</code> carries each turn's reasoning in two places:</p>
+<div class="highlight"><pre><span></span><code><span class="n">score</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+    <span class="n">s</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">dimension_results</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">dim</span><span class="o">.</span><span class="n">metric_scores</span>
+    <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">metric_name</span> <span class="o">==</span> <span class="s2">&quot;tool_selection_accuracy&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Structured access — list of {turn, score, reasoning} dicts</span>
+<span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">score</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;per_turn&quot;</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;turn&quot;</span><span class="p">],</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">],</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;reasoning&quot;</span><span class="p">])</span>
+
+<span class="c1"># Pre-formatted multiline string suitable for direct printing</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">score</span><span class="o">.</span><span class="n">reasoning</span><span class="p">)</span>
+<span class="c1"># Average across 3 turns:</span>
+<span class="c1">#   Turn 1 (0.80): selected the right tool for the user&#39;s question</span>
+<span class="c1">#   Turn 2 (0.50): missed the get_statistics tool the prompt asked for</span>
+<span class="c1">#   Turn 3 (1.00): no tool needed, no tool called</span>
+</code></pre></div>
+<p>The structured form (<code>metric_score.metadata["per_turn"]</code>) and the conversation-level structured form (<code>result.metadata["per_turn"]</code>, keyed by turn index with full <code>metric_scores</code> and <code>reasoning</code> dicts) carry the same per-turn judge text — pick whichever fits your code path. Full-trace-only metrics (<code>context_retention</code>, <code>coherence</code>, <code>conversation_completeness</code>, <code>turn_efficiency</code>) keep their original single-shot reasoning string because they only run once on the full conversation.</p>
+<h2 id="code-locations">Code Locations</h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Adapter entry point</td>
+<td><code>src/uaef/adapters/langgraph.py:transform_to_canonical</code></td>
+</tr>
+<tr>
+<td>Multi-turn grouping</td>
+<td><code>src/uaef/adapters/langgraph.py:_transform_sessions</code></td>
+</tr>
+<tr>
+<td>Per-session build</td>
+<td><code>src/uaef/adapters/langgraph.py:_build_session</code></td>
+</tr>
+<tr>
+<td>Public <code>evaluate()</code></td>
+<td><code>src/uaef/api/__init__.py:evaluate</code></td>
+</tr>
+<tr>
+<td>Public <code>batch_evaluate()</code></td>
+<td><code>src/uaef/api/__init__.py:batch_evaluate</code></td>
+</tr>
+<tr>
+<td>Single-turn single-agent eval</td>
+<td><code>src/uaef/evaluation/single_agent.py:SingleAgentEvaluator.evaluate</code></td>
+</tr>
+<tr>
+<td>Single-turn multi-agent eval</td>
+<td><code>src/uaef/evaluation/multi_agent.py:MultiAgentEvaluator.evaluate</code></td>
+</tr>
+<tr>
+<td>Multi-turn single-agent eval</td>
+<td><code>src/uaef/evaluation/single_agent.py:SingleAgentEvaluator.evaluate_multi_turn</code></td>
+</tr>
+<tr>
+<td>Multi-turn multi-agent eval</td>
+<td><code>src/uaef/evaluation/multi_agent.py:MultiAgentEvaluator.evaluate_multi_turn</code></td>
+</tr>
+<tr>
+<td>Shared multi-turn loop</td>
+<td><code>src/uaef/evaluation/base_evaluator.py:BaseEvaluator._run_multi_turn</code></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "content.code.select", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="https://unpkg.com/mermaid@11/dist/mermaid.min.js"></script>
+      
+    
+  </body>
+</html>
