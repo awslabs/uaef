@@ -188,6 +188,91 @@ class TestSerializedMessages:
         assert trace.output_tokens == 12
 
 
+class TestDegradedUsageMetadata:
+    """Usage metadata that langchain-core rejects must not take anything else
+    down with it. ``UsageMetadata`` requires input_tokens, output_tokens and
+    total_tokens, so a dict can pass ``isinstance(..., dict)`` and still fail
+    validation."""
+
+    @staticmethod
+    def _events(usage):
+        return [
+            {"agent": {"messages": [
+                {"type": "HumanMessage", "content": "Weather in Paris?"},
+                {"type": "AIMessage", "content": "",
+                 "tool_calls": [
+                     {"name": "get_weather", "args": {"city": "Paris"}, "id": "c1"},
+                 ],
+                 "usage_metadata": usage},
+            ]}},
+            {"tools": {"messages": [
+                {"type": "ToolMessage", "content": "Sunny", "tool_call_id": "c1"},
+            ]}},
+        ]
+
+    @pytest.mark.parametrize(
+        "usage",
+        [
+            {"input_tokens": 10, "output_tokens": 5},                       # no total
+            {"prompt_tokens": 10, "completion_tokens": 5},                  # OpenAI names
+            {"input_tokens": None, "output_tokens": None, "total_tokens": None},
+            {},
+            "not-a-dict",
+        ],
+        ids=["no_total", "openai_names", "null_counts", "empty", "not_a_dict"],
+    )
+    def test_unusable_usage_keeps_tool_calls(self, adapter, usage):
+        """The tool call survives; only the usage is lost."""
+        trace = adapter.transform_to_canonical({"stream_events": self._events(usage)})
+        assert [(c.name, c.arguments) for c in trace.tool_calls] == [
+            ("get_weather", {"city": "Paris"}),
+        ]
+        assert trace.input_tokens is None
+        assert trace.output_tokens is None
+
+    def test_conforming_usage_still_reports_tokens(self, adapter):
+        """The happy path is unchanged by the field-by-field construction."""
+        usage = {"input_tokens": 10, "output_tokens": 5, "total_tokens": 15}
+        trace = adapter.transform_to_canonical({"stream_events": self._events(usage)})
+        assert len(trace.tool_calls) == 1
+        assert (trace.input_tokens, trace.output_tokens) == (10, 5)
+
+    def test_unusable_tool_calls_keep_usage(self, adapter):
+        """The reverse coupling: a bad tool call must not discard usage."""
+        events = [{"agent": {"messages": [
+            {"type": "AIMessage", "content": "hi",
+             "tool_calls": [{"not": "a tool call"}],
+             "usage_metadata": _usage(10, 5)},
+        ]}}]
+        trace = adapter.transform_to_canonical({"stream_events": events})
+        assert (trace.input_tokens, trace.output_tokens) == (10, 5)
+
+    def test_negative_count_does_not_fail_the_trace(self, adapter):
+        """A count that AgentTrace would reject (ge=0) is ignored, and the
+        single-agent and multi-agent paths agree rather than one raising.
+
+        A negative integer is the only unusable count that reaches this code:
+        langchain-core coerces numeric strings and bools to ints and rejects
+        floats and None outright, so nothing else survives validation.
+        """
+        usage = {"input_tokens": -5, "output_tokens": 3, "total_tokens": 3}
+        single = adapter.transform_to_canonical(
+            {"stream_events": [{"agent": {"messages": [
+                HumanMessage("q"), AIMessage("a", usage_metadata=usage),
+            ]}}]}
+        )
+        multi = adapter.transform_to_canonical(
+            {"stream_events": [
+                {"researcher": {"messages": [
+                    HumanMessage("q"), AIMessage("r", usage_metadata=usage),
+                ]}},
+                {"writer": {"messages": [AIMessage("w", usage_metadata=usage)]}},
+            ]}
+        )
+        assert single.input_tokens is None
+        assert multi.agent_traces["researcher"].input_tokens is None
+
+
 # ---------------------------------------------------------------------------
 # Multi agent
 # ---------------------------------------------------------------------------

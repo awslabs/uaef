@@ -567,9 +567,23 @@ class LangGraphAdapter(BaseAdapter):
         if not isinstance(usage_metadata, dict):
             return 0, 0
         return (
-            usage_metadata.get("input_tokens", 0),
-            usage_metadata.get("output_tokens", 0),
+            cls._token_count(usage_metadata.get("input_tokens")),
+            cls._token_count(usage_metadata.get("output_tokens")),
         )
+
+    @staticmethod
+    def _token_count(value: Any) -> int:
+        """Return ``value`` as a usable token count, or ``0``.
+
+        Counts originate from a remote agent, and ``AgentTrace`` constrains its
+        token fields to ``>= 0``. Ignoring an unusable value here keeps one
+        agent's bad number from failing a whole trace, and keeps the
+        single-agent and multi-agent paths consistent: both now treat it as
+        "no usage reported" rather than one raising and the other passing.
+        """
+        if not isinstance(value, int) or value < 0:
+            return 0
+        return value
 
     @staticmethod
     def _coerce_message(msg: Any) -> Any:
@@ -615,16 +629,27 @@ class LangGraphAdapter(BaseAdapter):
             if type_hint in ("aimessage", "aimessagechunk", "ai", "assistant"):
                 tool_calls = msg.get("tool_calls") or []
                 usage_metadata = msg.get("usage_metadata")
-                try:
-                    if isinstance(usage_metadata, dict):
-                        return AIMessage(
-                            content=content,
-                            tool_calls=tool_calls,
-                            usage_metadata=usage_metadata,
-                        )
-                    return AIMessage(content=content, tool_calls=tool_calls)
-                except Exception:  # noqa: BLE001 — malformed tool_calls; keep the text
-                    return AIMessage(content=content)
+                # Add one field at a time, keeping whatever langchain-core
+                # accepts. It validates usage_metadata against UsageMetadata
+                # (which requires input_tokens, output_tokens and
+                # total_tokens) and tool_calls against ToolCall, so passing
+                # both to one constructor lets a defect in either field
+                # discard the other. A remote agent that reports only
+                # input/output counts would otherwise lose its tool calls.
+                attempts: List[Dict[str, Any]] = []
+                if isinstance(usage_metadata, dict):
+                    attempts.append(
+                        {"tool_calls": tool_calls, "usage_metadata": usage_metadata}
+                    )
+                attempts.append({"tool_calls": tool_calls})
+                if isinstance(usage_metadata, dict):
+                    attempts.append({"usage_metadata": usage_metadata})
+                attempts.append({})
+                for kwargs in attempts:
+                    try:
+                        return AIMessage(content=content, **kwargs)
+                    except Exception:  # noqa: BLE001 — drop that field, keep the rest
+                        continue
             if type_hint in ("humanmessage", "human", "user"):
                 return HumanMessage(content=content)
             if type_hint in ("toolmessage", "tool"):
